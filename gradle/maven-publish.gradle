@@ -1,0 +1,27 @@
+apply plugin: 'maven-publish'
+
+version rootProject.ext.VERSION
+group rootProject.ext.GROUP
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            groupId = group
+            artifactId = jar.baseName
+            version = version
+            artifact sourceJar {
+                classifier "sources"
+            }
+        }
+    }
+    repositories {
+        maven {
+            //url "$buildDir/repo" // change to point to your repo, e.g. http://my.org/repo
+        }
+    }
+}

@@ -1,0 +1,5 @@
+*Util.kt and *Extensions.kt
+if *Util.kt file is big, then create *Extensions.kt to do some fun extension
+like JsonUtil.kt and JsonExtensions.kt
+if *Util.kt file is small, then write the fun extension in *Util.kt
+like MessageDigestUtil.kt

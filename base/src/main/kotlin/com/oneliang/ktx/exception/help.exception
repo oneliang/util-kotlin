@@ -1,0 +1,4 @@
+this exception package is global exception type,include checked exception and runtime exception
+some util is checked exception and some are not
+some exception you need to check and deal it,please use checked exception
+some exception you can't handle it,at this time you must use runtime exception or its subclass 

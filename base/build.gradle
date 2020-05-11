@@ -1,0 +1,5 @@
+apply from: "${rootDir}/gradle/feature.gradle"
+apply from: "${rootDir}/gradle/maven-publish.gradle"
+
+dependencies {
+}
