@@ -15,3 +15,7 @@ fun InputStream.readContentIgnoreLine(encoding: String = Constants.Encoding.UTF8
 fun File.deleteAll() = FileUtil.deleteAllFile(this)
 
 fun File.findMatchFile(matchOption: FileUtil.MatchOption, onMatch: (file: File) -> String = { it.absolutePath }) = FileUtil.findMatchFile(this, matchOption, onMatch)
+
+fun File.create() = FileUtil.createFile(this)
+
+fun File.createDirectory() = FileUtil.createDirectory(this)

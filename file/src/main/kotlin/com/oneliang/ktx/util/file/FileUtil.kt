@@ -57,15 +57,23 @@ object FileUtil {
 
     /**
      * create directory
-     * @param directoryPath
+     * @param directoryFullFilename
      */
-    fun createDirectory(directoryPath: String) {
-        if (directoryPath.isBlank()) return
-        val file = File(directoryPath)
-        if (!file.exists()) {
-            file.setReadable(true, false)
-            file.setWritable(true, true)
-            file.mkdirs()
+    fun createDirectory(directoryFullFilename: String) {
+        if (directoryFullFilename.isBlank()) return
+        val directoryFile = File(directoryFullFilename)
+        createDirectory(directoryFile)
+    }
+
+    /**
+     * create directory
+     * @param directory
+     */
+    fun createDirectory(directory: File) {
+        if (!directory.exists()) {
+            directory.setReadable(true, false)
+            directory.setWritable(true, true)
+            directory.mkdirs()
         }
     }
 
@@ -77,6 +85,15 @@ object FileUtil {
     fun createFile(fullFilename: String): Boolean {
         if (fullFilename.isBlank()) return false
         val file = File(fullFilename)
+        return createFile(file)
+    }
+
+    /**
+     * create file,full filename,signle empty file.
+     * @param file
+     * @return boolean
+     */
+    fun createFile(file: File): Boolean {
         createDirectory(file.parent)
         try {
             file.setReadable(true, false)
