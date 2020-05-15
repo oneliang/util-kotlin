@@ -19,3 +19,5 @@ fun File.findMatchFile(matchOption: FileUtil.MatchOption, onMatch: (file: File) 
 fun File.create() = FileUtil.createFile(this)
 
 fun File.createDirectory() = FileUtil.createDirectory(this)
+
+fun String.fileExists(): Boolean = FileUtil.exists(this)

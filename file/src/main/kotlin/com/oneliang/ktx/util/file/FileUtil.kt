@@ -16,13 +16,12 @@ object FileUtil {
     private val DEFAULT_FILE_COPY_PROCESSOR = DefaultFileCopyProcessor()
 
     /**
-     * is file exist,include directory or file
-     *
+     * file exists,include directory or file
      * @param path
      * directory or file
      * @return boolean
      */
-    fun isExist(path: String): Boolean {
+    fun exists(path: String): Boolean {
         return File(path).exists()
     }
 
@@ -402,7 +401,7 @@ object FileUtil {
             zipOutputStream = ZipOutputStream(FileOutputStream(zipOutputFullFilename))
             if (zipFullFilenameList != null) {
                 for (zipFullFilename in zipFullFilenameList) {
-                    if (isExist(zipFullFilename)) {
+                    if (exists(zipFullFilename)) {
                         val zipFile = ZipFile(zipFullFilename)
                         val enumeration = zipFile.entries()
                         while (enumeration.hasMoreElements()) {
@@ -896,7 +895,7 @@ object FileUtil {
      * @return Properties
      */
     fun getPropertiesAutoCreate(propertiesFullFilename: String): Properties {
-        if (!FileUtil.isExist(propertiesFullFilename)) {
+        if (!exists(propertiesFullFilename)) {
             createFile(propertiesFullFilename)
         }
         return getProperties(propertiesFullFilename)

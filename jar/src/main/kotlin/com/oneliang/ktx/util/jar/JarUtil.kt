@@ -2,6 +2,8 @@ package com.oneliang.ktx.util.jar
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.FileLoadException
+import com.oneliang.ktx.util.file.fileExists
+import java.io.File
 import java.io.FileInputStream
 import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
@@ -21,6 +23,9 @@ object JarUtil {
     </JarEntry> */
     @Throws(FileLoadException::class)
     fun extractFromJarFile(jarFileRealPath: String): List<JarEntry> {
+        if (!jarFileRealPath.fileExists()) {
+            return emptyList()
+        }
         val jarEntryList = mutableListOf<JarEntry>()
         JarInputStream(FileInputStream(jarFileRealPath)).use { jarInputStream ->
             var jarEntry: JarEntry? = jarInputStream.nextJarEntry
@@ -69,10 +74,10 @@ object JarUtil {
                 return classList
             }
         }
-        val classList = mutableListOf<KClass<*>>()
-        if (jarFileRealPath.isBlank()) {
-            return classList
+        if (jarFileRealPath.isBlank() || !jarFileRealPath.fileExists()) {
+            return emptyList()
         }
+        val classList = mutableListOf<KClass<*>>()
         jarClassLoader.addURL(URL(Constants.Protocol.FILE + jarFileRealPath))
         JarInputStream(FileInputStream(jarFileRealPath)).use { jarInputStream ->
             var jarEntry: JarEntry? = jarInputStream.nextJarEntry
