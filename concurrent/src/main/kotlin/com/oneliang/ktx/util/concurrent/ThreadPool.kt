@@ -1,6 +1,7 @@
 package com.oneliang.ktx.util.concurrent
 
 import com.oneliang.ktx.Constants
+import com.oneliang.ktx.util.common.perform
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -136,10 +137,16 @@ class ThreadPool : Runnable {
      * @param threadTask
      * the threadTask to add
      */
-    fun addThreadTask(threadTask: () -> Unit) {
+    fun addThreadTask(threadTask: () -> Unit, failure: (t: Throwable) -> Unit = {}, finally: () -> Unit = {}) {
         this.addThreadTask(object : ThreadTask {
             override fun runTask() {
-                threadTask()
+                try {
+                    threadTask()
+                } catch (t: Throwable) {
+                    failure(t)
+                } finally {
+                    finally()
+                }
             }
         })
     }
