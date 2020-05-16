@@ -137,6 +137,14 @@ class ThreadPool : Runnable {
      * @param threadTask
      * the threadTask to add
      */
+    fun addThreadTask(threadTask: () -> Unit) {
+        this.addThreadTask(threadTask, {}, {})
+    }
+
+    /**
+     * @param threadTask
+     * the threadTask to add
+     */
     fun addThreadTask(threadTask: () -> Unit, failure: (t: Throwable) -> Unit = {}, finally: () -> Unit = {}) {
         this.addThreadTask(object : ThreadTask {
             override fun runTask() {
