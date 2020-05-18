@@ -4,13 +4,13 @@ import com.oneliang.ktx.Constants
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun String?.toIntSafely(defaultValue: Int = 0): Int = perform({ this?.toInt() ?: defaultValue }, { defaultValue })
+fun String?.toIntSafely(defaultValue: Int = 0): Int = perform({ this?.toInt() ?: defaultValue }, failure = { defaultValue })
 
-fun String?.toLongSafely(defaultValue: Long = 0): Long = perform({ this?.toLong() ?: defaultValue }, { defaultValue })
+fun String?.toLongSafely(defaultValue: Long = 0): Long = perform({ this?.toLong() ?: defaultValue }, failure = { defaultValue })
 
-fun String?.toFloatSafely(defaultValue: Float = 0f): Float = perform({ this?.toFloat() ?: defaultValue }, { defaultValue })
+fun String?.toFloatSafely(defaultValue: Float = 0f): Float = perform({ this?.toFloat() ?: defaultValue }, failure = { defaultValue })
 
-fun String?.toDoubleSafely(defaultValue: Double = 0.0): Double = perform({ this?.toDouble() ?: defaultValue }, { defaultValue })
+fun String?.toDoubleSafely(defaultValue: Double = 0.0): Double = perform({ this?.toDouble() ?: defaultValue }, failure = { defaultValue })
 
 fun String?.toBooleanSafely(defaultValue: Boolean = false): Boolean {
     this ?: return defaultValue

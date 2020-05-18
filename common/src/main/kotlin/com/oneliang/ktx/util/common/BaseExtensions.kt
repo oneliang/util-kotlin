@@ -6,6 +6,11 @@ package com.oneliang.ktx.util.common
 inline fun perform(block: () -> Unit) = perform(block, {})
 
 /**
+ * for try finally without return value
+ */
+inline fun perform(block: () -> Unit, finally: () -> Unit) = perform(block, {}, finally)
+
+/**
  * for try catch with return value, you can return unit, and it support without return value
  */
 inline fun <R> perform(block: () -> R, failure: (t: Throwable) -> R): R {
