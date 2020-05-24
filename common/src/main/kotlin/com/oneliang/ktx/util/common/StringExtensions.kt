@@ -131,3 +131,22 @@ fun String.toUtilDate(format: String = Constants.Time.YEAR_MONTH_DAY_HOUR_MINUTE
     val simpleDateFormat = SimpleDateFormat(format, locale)
     return simpleDateFormat.parse(this)
 }
+
+fun String.splitForCsv(): List<String> {
+    val list = mutableListOf<String>()
+    val regex = "(,)?((\"[^\"]*(\"{2})*[^\"]*\")*[^,]*)".toRegex()
+    var matchResult = regex.find(this)
+    val groupRegex = "\"((.)*)\"".toRegex()
+    while (matchResult != null) {
+        val groups = matchResult.groups
+        val groupValue = groups[2]?.value.nullToBlank()
+        val groupMatchResult = groupRegex.find(groupValue)
+        if (groupMatchResult != null) {
+            list += groupMatchResult.groups[1]?.value.nullToBlank()
+        } else {
+            list += groupValue
+        }
+        matchResult = matchResult.next()
+    }
+    return list
+}
