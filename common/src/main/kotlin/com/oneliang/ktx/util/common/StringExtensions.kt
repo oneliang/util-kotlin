@@ -133,20 +133,23 @@ fun String.toUtilDate(format: String = Constants.Time.YEAR_MONTH_DAY_HOUR_MINUTE
 }
 
 fun String.splitForCsv(): List<String> {
-    val list = mutableListOf<String>()
-    val regex = "(,)?((\"[^\"]*(\"{2})*[^\"]*\")*[^,]*)".toRegex()
-    var matchResult = regex.find(this)
-    val groupRegex = "\"((.)*)\"".toRegex()
-    while (matchResult != null) {
-        val groups = matchResult.groups
-        val groupValue = groups[2]?.value.nullToBlank()
-        val groupMatchResult = groupRegex.find(groupValue)
-        if (groupMatchResult != null) {
-            list += groupMatchResult.groups[1]?.value.nullToBlank()
-        } else {
-            list += groupValue
-        }
-        matchResult = matchResult.next()
+    val fixLine = this + Constants.Symbol.COMMA
+    val regex = "\"(.+?)\","
+    var newLine = fixLine
+    val replaceMap = mutableMapOf<String, String>()
+    fixLine.parseRegexGroup(regex).forEachIndexed { index, string ->
+        println(string)
+        val key = "[@${index}]"
+        replaceMap[key] = string
+        newLine = newLine.replaceFirst(regex.toRegex(), key + Constants.Symbol.COMMA)
     }
-    return list
+    val list = newLine.split(Constants.Symbol.COMMA)
+    val newList = mutableListOf<String>()
+    list.forEachIndexed { index, string ->
+        if (index == list.size - 1) {
+            return@forEachIndexed
+        }
+        newList += replaceMap.getOrDefault(string, string)
+    }
+    return newList
 }
