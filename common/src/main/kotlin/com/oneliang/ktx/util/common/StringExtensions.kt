@@ -138,7 +138,6 @@ fun String.splitForCsv(): List<String> {
     var newLine = fixLine
     val replaceMap = mutableMapOf<String, String>()
     fixLine.parseRegexGroup(regex).forEachIndexed { index, string ->
-        println(string)
         val key = "[@${index}]"
         replaceMap[key] = string
         newLine = newLine.replaceFirst(regex.toRegex(), key + Constants.Symbol.COMMA)
