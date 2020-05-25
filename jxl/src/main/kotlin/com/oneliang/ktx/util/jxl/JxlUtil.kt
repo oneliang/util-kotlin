@@ -31,7 +31,7 @@ object JxlUtil {
                 for (i in 0 until columns) {
                     val cells = sheet.getColumn(i)
                     for (cell in cells) {
-                        jxlProcessor.copyingProcess(cell, instance)
+                        jxlProcessor.copyProcess(cell, instance)
                     }
                 }
             }
@@ -66,7 +66,7 @@ object JxlUtil {
             //find header maybe has no header
             var headerIndexMap = emptyMap<String, Int>()
             if (headerRowIndex < 0) {
-                val headerCellArray = sheet.getRow(headerRowIndex)
+                val headerCellArray = sheet.getRow(headerRowIndex) ?: emptyArray()
                 headerIndexMap = headerCellArray.toMapWithIndex { index, t ->
                     t.contents.nullToBlank() to index
                 }
@@ -92,7 +92,7 @@ object JxlUtil {
                             val cell = sheet.getCell(columnIndex, i)
                             val classes = method.parameterTypes
                             if (classes.size == 1) {
-                                val value = jxlProcessor.importingProcess<Any>(classes[0].kotlin, cell)
+                                val value = jxlProcessor.importProcess<Any>(classes[0].kotlin, cell)
                                 method.invoke(instance, value)
                             }
                         }
@@ -147,7 +147,7 @@ object JxlUtil {
                     val fieldName = jxlMappingColumnBean.field
                     val columnIndex = jxlMappingColumnBean.index
                     var methodReturnValue = ObjectUtil.getterOrIsMethodInvoke(instance, fieldName)
-                    methodReturnValue = jxlProcessor.exportingProcess<Any>(fieldName, methodReturnValue)
+                    methodReturnValue = jxlProcessor.exportProcess<Any>(fieldName, methodReturnValue)
                     val cell = Label(columnIndex, currentRow, methodReturnValue.toString())
                     sheet.addCell(cell)
                 }
@@ -163,29 +163,29 @@ object JxlUtil {
     interface JxlProcessor {
 
         /**
-         * copying process
+         * copy process
          * @param <T>
          * @param cell
          * @param instance
         </T> */
-        fun <T : Any> copyingProcess(cell: Cell, instance: T)
+        fun <T : Any> copyProcess(cell: Cell, instance: T)
 
         /**
-         * importing process
+         * import process
          * @param <T>
          * @param parameterClass
          * @param cell
          * @return Object
         </T> */
-        fun <T : Any> importingProcess(parameterClass: KClass<*>, cell: Cell): Any
+        fun <T : Any> importProcess(parameterClass: KClass<*>, cell: Cell): Any
 
         /**
-         * exporting process
+         * export process
          * @param <T>
          * @param fieldName
          * @param value
          * @return String
         </T> */
-        fun <T : Any> exportingProcess(fieldName: String, value: Any?): String
+        fun <T : Any> exportProcess(fieldName: String, value: Any?): String
     }
 }

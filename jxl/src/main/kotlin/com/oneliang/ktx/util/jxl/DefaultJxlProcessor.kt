@@ -23,7 +23,7 @@ class DefaultJxlProcessor : JxlUtil.JxlProcessor {
      * @param cell
      * @param instance
     </T> */
-    override fun <T : Any> copyingProcess(cell: Cell, instance: T) {
+    override fun <T : Any> copyProcess(cell: Cell, instance: T) {
         val cellType = cell.type
         if (cellType != CellType.LABEL) {
             return
@@ -52,7 +52,7 @@ class DefaultJxlProcessor : JxlUtil.JxlProcessor {
      * @param cell
      * @return Object
     </T> */
-    override fun <T : Any> importingProcess(parameterClass: KClass<*>, cell: Cell): Any {
+    override fun <T : Any> importProcess(parameterClass: KClass<*>, cell: Cell): Any {
         val cellValue = cell.contents
         return KotlinClassUtil.changeType(parameterClass, arrayOf(cellValue)) ?: Any()
     }
@@ -60,12 +60,11 @@ class DefaultJxlProcessor : JxlUtil.JxlProcessor {
     /**
      * exporting process
      * @param <T>
-     * @param clazz
      * @param value
      * @param fieldName
      * @return String
     </T> */
-    override fun <T : Any> exportingProcess(fieldName: String, value: Any?): String {
+    override fun <T : Any> exportProcess(fieldName: String, value: Any?): String {
         return if (value == null) {
             Constants.String.BLANK
         } else {
