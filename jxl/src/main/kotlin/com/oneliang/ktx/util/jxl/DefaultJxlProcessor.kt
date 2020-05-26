@@ -46,25 +46,25 @@ class DefaultJxlProcessor : JxlUtil.JxlProcessor {
     }
 
     /**
-     * importing process
+     * import process
      * @param <T>
      * @param parameterClass
      * @param cell
      * @return Object
     </T> */
-    override fun <T : Any> importProcess(parameterClass: KClass<*>, cell: Cell): Any {
+    override fun <T : Any> readProcess(parameterClass: KClass<*>, cell: Cell): Any {
         val cellValue = cell.contents
         return KotlinClassUtil.changeType(parameterClass, arrayOf(cellValue)) ?: Any()
     }
 
     /**
-     * exporting process
+     * export process
      * @param <T>
      * @param value
      * @param fieldName
      * @return String
     </T> */
-    override fun <T : Any> exportProcess(fieldName: String, value: Any?): String {
+    override fun <T : Any> writeProcess(fieldName: String, value: Any?): String {
         return if (value == null) {
             Constants.String.BLANK
         } else {

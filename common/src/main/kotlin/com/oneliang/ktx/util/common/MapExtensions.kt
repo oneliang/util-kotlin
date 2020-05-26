@@ -126,3 +126,14 @@ fun <K, V> Map<K, V>.differs(map: Map<K, V>, valueComparator: (key: K, value: V,
 fun <K, V> Map<K, V>.sameAs(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { key, value, mapValue -> value == mapValue }): Boolean = this.size == map.size && this.differs(map, valueComparator).isEmpty()
 
 fun <K, V> Map<K, V>.includes(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { key, value, mapValue -> value == mapValue }): Boolean = map.differs(this, valueComparator).isEmpty()
+
+inline fun <K, reified V> Map<K, V>.toArray(mapping: Map<K, Int>, defaultValue: V): Array<V> = this.toArray(mapping, defaultValue) { _, value -> value }
+
+inline fun <K, V, reified R> Map<K, V>.toArray(mapping: Map<K, Int>, defaultValue: R, transform: (key: K, value: V) -> R): Array<R> {
+    val array = Array(this.size) { defaultValue }
+    this.forEach { (key, value) ->
+        val index = mapping[key] ?: return@forEach//continue
+        array[index] = transform(key, value)
+    }
+    return array
+}
