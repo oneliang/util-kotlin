@@ -84,8 +84,6 @@ fun <K, V, R> Map<K, V>.toList(filter: (key: K, value: V) -> Boolean = { _, _ ->
     return list
 }
 
-fun <K, V> Map<K, V>.matches(map: Map<K, V>): Boolean = this.includes(map)
-
 fun <K, V> Map<K, V>.matchesBy(keyValueArrayMap: Map<K, Array<V>>): List<K> {
     val keyList = mutableListOf<K>()
     for (keyValueArray in keyValueArrayMap) {
@@ -126,6 +124,8 @@ fun <K, V> Map<K, V>.differs(map: Map<K, V>, valueComparator: (key: K, value: V,
 fun <K, V> Map<K, V>.sameAs(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { key, value, mapValue -> value == mapValue }): Boolean = this.size == map.size && this.differs(map, valueComparator).isEmpty()
 
 fun <K, V> Map<K, V>.includes(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { key, value, mapValue -> value == mapValue }): Boolean = map.differs(this, valueComparator).isEmpty()
+
+fun <K, V> Map<K, V>.matches(map: Map<K, V>): Boolean = this.includes(map)
 
 inline fun <K, reified V> Map<K, V>.toArray(mapping: Map<K, Int>, defaultValue: V): Array<V> = this.toArray(mapping, defaultValue) { _, value -> value }
 
