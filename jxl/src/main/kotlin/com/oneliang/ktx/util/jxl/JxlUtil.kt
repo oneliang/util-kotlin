@@ -87,7 +87,7 @@ object JxlUtil {
     @Throws(Exception::class)
     fun readSimpleExcel(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0): List<Map<String, String>> {
         return readSimpleExcel(workbook, headerRowIndex, dataRowOffset) { sheet, rowIndex, existHeader, headerIndexMap ->
-            createRowDataMap(sheet, rowIndex, existHeader, headerIndexMap)
+            createRowData(sheet, rowIndex, existHeader, headerIndexMap) { it }
         }
     }
 
@@ -99,7 +99,23 @@ object JxlUtil {
      * @param dataRowOffset
      * @return List<T>
     </T></T> */
-    fun <T : Any> readSimpleExcel(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0, block: (sheet: Sheet, rowIndex: Int, existHeader: Boolean, headerIndexMap: Map<String, Int>) -> T): List<T> {
+    @Throws(Exception::class)
+    fun <T : Any> readSimpleExcel(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0, transform: (dataMap: Map<String, String>) -> T): List<T> {
+        return readSimpleExcel(workbook, headerRowIndex, dataRowOffset) { sheet, rowIndex, existHeader, headerIndexMap ->
+            createRowData(sheet, rowIndex, existHeader, headerIndexMap, transform)
+        }
+    }
+
+    /**
+     * read simple excel
+     * @param <T>
+     * @param workbook
+     * @param headerRowIndex
+     * @param dataRowOffset
+     * @param readDataRow
+     * @return List<T>
+    </T></T> */
+    fun <T : Any> readSimpleExcel(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0, readDataRow: (sheet: Sheet, rowIndex: Int, existHeader: Boolean, headerIndexMap: Map<String, Int>) -> T): List<T> {
         val list = mutableListOf<T>()
         val sheets = workbook.sheets
         val sheet = (if (sheets.isNotEmpty()) sheets[0] else null) ?: return list
@@ -118,16 +134,16 @@ object JxlUtil {
         }
         val existHeader = headerIndexMap.isNotEmpty()
         for (i in dataRowOffset until rows) {
-            val instance = block(sheet, i, existHeader, headerIndexMap)
+            val instance = readDataRow(sheet, i, existHeader, headerIndexMap)
             list += instance
         }
         return list
     }
 
     /**
-     * create row data map
+     * create row data
      */
-    private fun createRowDataMap(sheet: Sheet, rowIndex: Int, existHeader: Boolean, headerIndexMap: Map<String, Int>): Map<String, String> {
+    private fun <T : Any> createRowData(sheet: Sheet, rowIndex: Int, existHeader: Boolean, headerIndexMap: Map<String, Int>, transform: (dataMap: Map<String, String>) -> T): T {
         val map = mutableMapOf<String, String>()
         if (existHeader) {
             headerIndexMap.forEach { (header, columnIndex) ->
@@ -136,14 +152,12 @@ object JxlUtil {
             }
         } else {
             val columns = sheet.columns
-            for (i in 0 until columns) {
-                val cells = sheet.getColumn(i)
-                for (cell in cells) {
-                    map[i.toString()] = cell.contents.nullToBlank()
-                }
+            for (columnIndex in 0 until columns) {
+                val cell = sheet.getCell(columnIndex, rowIndex)
+                map[columnIndex.toString()] = cell.contents.nullToBlank()
             }
         }
-        return map
+        return transform(map)
     }
 
     private fun <T : Any> createRowInstance(sheet: Sheet, rowIndex: Int, kClass: KClass<T>, existHeader: Boolean, headerIndexMap: Map<String, Int>, jxlMappingBean: JxlMappingBean, jxlProcessor: JxlProcessor = DEFAULT_JXL_PROCESSOR): T {
@@ -176,17 +190,17 @@ object JxlUtil {
     }
 
     @Throws(Exception::class)
-    fun writeSimpleExcel(writableWorkbook: WritableWorkbook, headers: Array<String> = emptyArray(), block: (writableSheet: WritableSheet, currentRow: Int) -> Unit) {
+    fun writeSimpleExcel(writableWorkbook: WritableWorkbook, headerArray: Array<String> = emptyArray(), writeDataRows: (writableSheet: WritableSheet, currentRow: Int) -> Unit) {
         val writableSheet = writableWorkbook.createSheet("sheet", 0)
         var row = 0
-        if (headers.isNotEmpty()) {
-            for ((column, header) in headers.withIndex()) {
+        if (headerArray.isNotEmpty()) {
+            for ((column, header) in headerArray.withIndex()) {
                 val cell = Label(column, row, header)
                 writableSheet.addCell(cell)
             }
             row++
         }
-        block(writableSheet, row)
+        writeDataRows(writableSheet, row)
         writableWorkbook.write()
         writableWorkbook.close()
     }
@@ -195,13 +209,13 @@ object JxlUtil {
      * write simple excel
      * @param <T>
      * @param writableWorkbook
-     * @param headers
+     * @param headerArray
      * @param iterable
      * @param transform
     </T> */
     @Throws(Exception::class)
-    fun <T> writeSimpleExcel(writableWorkbook: WritableWorkbook, headers: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (value: T) -> String = { it.toString() }) {
-        writeSimpleExcel(writableWorkbook, headers) { writableSheet, currentRow ->
+    fun <T> writeSimpleExcel(writableWorkbook: WritableWorkbook, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (value: T) -> String = { it.toString() }) {
+        writeSimpleExcel(writableWorkbook, headerArray) { writableSheet, currentRow ->
             var row = currentRow
             for (array in iterable) {
                 array.forEachIndexed { index, value ->
@@ -216,14 +230,14 @@ object JxlUtil {
     /**
      * write simple excel
      * @param <T>
-     * @param headers
+     * @param headerArray
      * @param iterable
      * @param jxlMappingBean
      * @param fullFilename
     </T> */
     @Throws(Exception::class)
-    fun <T : Any> writeSimpleExcel(headers: Array<String> = emptyArray(), iterable: Iterable<T>, jxlMappingBean: JxlMappingBean?, fullFilename: String, jxlProcessor: JxlProcessor = DEFAULT_JXL_PROCESSOR) {
-        val newHeaders = if (headers.isEmpty()) {
+    fun <T : Any> writeSimpleExcel(headerArray: Array<String> = emptyArray(), iterable: Iterable<T>, jxlMappingBean: JxlMappingBean?, fullFilename: String, jxlProcessor: JxlProcessor = DEFAULT_JXL_PROCESSOR) {
+        val newHeaders = if (headerArray.isEmpty()) {
             val jxlMappingColumnBeanList = jxlMappingBean!!.jxlMappingColumnBeanList
             val headerList = arrayListOf<String>()
             for (jxlMappingColumnBean in jxlMappingColumnBeanList) {
@@ -231,7 +245,7 @@ object JxlUtil {
             }
             headerList
         } else {
-            headers.toList()
+            headerArray.toList()
         }
         if (jxlMappingBean == null) {
             return
@@ -257,15 +271,15 @@ object JxlUtil {
     /**
      * write simple excel
      * @param <T>
-     * @param headers
+     * @param headerArray
      * @param fullFilename
      * @param iterable
      * @param transform
     </T> */
     @Throws(Exception::class)
-    fun <T> writeSimpleExcel(headers: Array<String> = emptyArray(), fullFilename: String, iterable: Iterable<Array<T>>, transform: (value: T) -> String = { it.toString() }) {
+    fun <T> writeSimpleExcel(headerArray: Array<String> = emptyArray(), fullFilename: String, iterable: Iterable<Array<T>>, transform: (value: T) -> String = { it.toString() }) {
         val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
-        writeSimpleExcel(writableWorkbook, headers, iterable, transform)
+        writeSimpleExcel(writableWorkbook, headerArray, iterable, transform)
     }
 
     interface JxlProcessor {
