@@ -127,13 +127,25 @@ fun <K, V> Map<K, V>.includes(map: Map<K, V>, valueComparator: (key: K, value: V
 
 fun <K, V> Map<K, V>.matches(map: Map<K, V>): Boolean = this.includes(map)
 
-inline fun <K, reified V> Map<K, V>.toArray(mapping: Map<K, Int>, defaultValue: V): Array<V> = this.toArray(mapping, defaultValue) { _, value -> value }
+inline fun <K, reified V> Map<K, V>.toArray(indexMapping: Map<K, Int>, defaultValue: V): Array<V> = this.toArray(indexMapping, defaultValue) { _, value -> value }
 
-inline fun <K, V, reified R> Map<K, V>.toArray(mapping: Map<K, Int>, defaultValue: R, transform: (key: K, value: V) -> R): Array<R> {
+inline fun <K, V, reified R> Map<K, V>.toArray(indexMapping: Map<K, Int>, defaultValue: R, transform: (key: K, value: V) -> R): Array<R> {
     val array = Array(this.size) { defaultValue }
     this.forEach { (key, value) ->
-        val index = mapping[key] ?: return@forEach//continue
+        val index = indexMapping[key] ?: return@forEach//continue
         array[index] = transform(key, value)
     }
     return array
 }
+
+fun <K, V, NK, NV> Map<K, V>.toMap(transform: (key: K, value: V) -> Pair<NK, NV>): Map<NK, NV> {
+    val mutableMap = mutableMapOf<NK, NV>()
+    this.forEach { (key, value) ->
+        mutableMap += transform(key, value)
+    }
+    return mutableMap
+}
+
+fun <K, V, NK> Map<K, V>.toMapWithNewKey(transformKey: (key: K) -> NK): Map<NK, V> = this.toMap { key, value -> transformKey(key) to value }
+
+fun <K, V, NV> Map<K, V>.toMapWithNewValue(transformValue: (value: V) -> NV): Map<K, NV> = this.toMap { key, value -> key to transformValue(value) }

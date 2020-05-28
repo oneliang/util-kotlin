@@ -63,6 +63,7 @@ object Constants {
                 }
             }
         }
+        val NEW_LINE = System.getProperty("line.separator") ?: CRLF_STRING
     }
 
     object Symbol {
@@ -361,6 +362,7 @@ object Constants {
         const val CSV = "csv"
         const val TXT = "txt"
         const val APK = "apk"
+        const val XLS = "xls"
     }
 
     object Protocol {
