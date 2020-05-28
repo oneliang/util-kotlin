@@ -102,7 +102,7 @@ fun String.toUnicode(): String {
     return stringBuilder.toString()
 }
 
-fun String.fromUnicode(regex: String = UnicodeRegex.REGEX_ALL): String {
+fun String.unicodeToString(regex: String = UnicodeRegex.REGEX_ALL): String {
     val groupList = this.parseRegexGroup(regex)
     var result: String = this
     for (group in groupList) {
