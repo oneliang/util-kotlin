@@ -42,7 +42,7 @@ class JvmMonitor : LoopThread {
         if (currentPercent >= this.percent) {
             Runtime.getRuntime().gc()
         }
-        logger.debug("jvm used percent:" + currentPercent + "%" + ",heap size:" + heapSizeM + "M,max:" + heapMaxSizeM + "M")
+        logger.debug("jvm used percent:" + currentPercent + "%" + ", heap size:" + heapSizeM + "M, max:" + heapMaxSizeM + "M")
         Thread.sleep(this.checkTime)
     }
 
