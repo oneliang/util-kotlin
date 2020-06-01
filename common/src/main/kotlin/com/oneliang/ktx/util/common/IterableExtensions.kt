@@ -55,6 +55,17 @@ inline fun <T, K, MK> Iterable<T>.toKeySetAndGroupBy(keySelector: (t: T) -> K, m
     return keySet to map
 }
 
+inline fun <T, K, R> Iterable<T>.groupByWithIndex(keySelector: (T) -> K, valueTransform: (index: Int, T) -> R) = groupByToWithIndex(mutableMapOf(), keySelector, valueTransform)
+
+inline fun <T, K, R, M : MutableMap<in K, MutableList<R>>> Iterable<T>.groupByToWithIndex(destination: M, keySelector: (T) -> K, valueTransform: (index: Int, T) -> R): M {
+    this.forEachIndexed { index: Int, element: T ->
+        val key = keySelector(element)
+        val list = destination.getOrPut(key) { mutableListOf() }
+        list.add(valueTransform(index, element))
+    }
+    return destination
+}
+
 inline fun <T, K, V> Iterable<T>.matchInMap(matchKeySelector: (t: T) -> K, sourceMap: Map<K, V>, ifMatch: (t: T, sourceMapItem: V) -> Unit, ifNotMatch: (t: T) -> Unit = {}) {
     this.forEach {
         val key = matchKeySelector(it)
