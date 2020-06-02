@@ -26,3 +26,11 @@ fun <T> Array<T>.sameAs(array: Array<T>): Boolean = this.size == array.size && t
 fun <T> Array<T>.includes(array: Array<T>): Boolean = array.differs(this).isEmpty()
 
 fun <T> Array<T>.matches(array: Array<T>): Boolean = this.includes(array)
+
+inline fun <T, reified R> Array<T>.toNewArrayWithIndex(transform: (index: Int, t: T) -> R): Array<R> {
+    return Array(this.size) { index -> transform(index, this[index]) }
+}
+
+inline fun <T, reified R> Array<T>.toNewArray(transform: (T) -> R): Array<R> {
+    return this.toNewArrayWithIndex { _, t -> transform(t) }
+}
