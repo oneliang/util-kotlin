@@ -3,6 +3,14 @@ package com.oneliang.ktx.util.common
 import java.util.*
 
 object MathUtil {
+    fun calculateCompose(totalSize: Int, composeSize: Int): List<Array<Int>> {
+        val list = mutableListOf<Array<Int>>()
+        calculateCompose(totalSize, composeSize) {
+            list += it
+        }
+        return list
+    }
+
     fun calculateCompose(totalSize: Int, composeSize: Int, block: (Array<Int>) -> Unit) {
         calculateCompose(Stack(), totalSize, composeSize, 0, 0, block)
     }
