@@ -129,8 +129,10 @@ fun <K, V> Map<K, V>.matches(map: Map<K, V>): Boolean = this.includes(map)
 
 inline fun <K, reified V> Map<K, V>.toArray(indexMapping: Map<K, Int>, defaultValue: V): Array<V> = this.toArray(indexMapping, defaultValue) { _, value -> value }
 
-inline fun <K, V, reified R> Map<K, V>.toArray(indexMapping: Map<K, Int>, defaultValue: R, transform: (key: K, value: V) -> R): Array<R> {
-    val array = Array(this.size) { defaultValue }
+inline fun <K, V, reified R> Map<K, V>.toArray(indexMapping: Map<K, Int>, defaultValue: R, transform: (key: K, value: V) -> R): Array<R> = this.toArray(indexMapping.size, indexMapping, defaultValue, transform)
+
+inline fun <K, V, reified R> Map<K, V>.toArray(arrayMaxSize: Int, indexMapping: Map<K, Int>, defaultValue: R, transform: (key: K, value: V) -> R): Array<R> {
+    val array = Array(arrayMaxSize) { defaultValue }
     this.forEach { (key, value) ->
         val index = indexMapping[key] ?: return@forEach//continue
         array[index] = transform(key, value)
