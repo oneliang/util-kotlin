@@ -21,9 +21,9 @@ object MathUtil {
             return
         }
 
-        for (index in startIndex + 1..totalSize) {
+        for (index in startIndex until totalSize) {
             stack.push(index)
-            calculateCompose(stack, totalSize, composeSize, depth + 1, index, block)
+            calculateCompose(stack, totalSize, composeSize, depth + 1, index + 1, block)
             stack.pop()
         }
     }

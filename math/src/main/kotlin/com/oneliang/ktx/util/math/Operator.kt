@@ -1,53 +1,9 @@
-package com.oneliang.ktx.util.common
+package com.oneliang.ktx.util.math
 
-object MathCalculator {
-    enum class CheckType(val value: Int) {
-        RANGE_LEFT_OPEN_RIGHT_OPEN(0),//(,)
-        RANGE_LEFT_OPEN_RIGHT_CLOSED(1),//(,]
-        RANGE_LEFT_CLOSED_RIGHT_OPEN(2),//[,)
-        RANGE_LEFT_CLOSED_RIGHT_CLOSED(3)//[,]
-    }
+import com.oneliang.ktx.util.common.parseRegexGroup
+import com.oneliang.ktx.util.common.toDoubleSafely
 
-    enum class ParameterCheckType(val value: Int) {
-        PERCENT(0), DIFF(1)
-    }
-
-    fun checkValue(value: Double, compareValue: Double, parameterArray: Array<Double>, checkType: CheckType, parameterCheckType: ParameterCheckType): Boolean {
-        if (parameterArray.isEmpty() || parameterArray.size != 2) {
-            error("match rule parameter size error, $checkType need two parameter")
-        }
-        val left = when (parameterCheckType) {
-            ParameterCheckType.PERCENT -> value * parameterArray[0]
-            else -> value + parameterArray[0]
-        }
-        val right = when (parameterCheckType) {
-            ParameterCheckType.PERCENT -> value * parameterArray[1]
-            else -> value + parameterArray[1]
-        }
-        when (checkType) {
-            CheckType.RANGE_LEFT_OPEN_RIGHT_OPEN -> {
-                if (!(left < compareValue && compareValue < right)) {
-                    return false
-                }
-            }
-            CheckType.RANGE_LEFT_OPEN_RIGHT_CLOSED -> {
-                if (!(left < compareValue && compareValue <= right)) {
-                    return false
-                }
-            }
-            CheckType.RANGE_LEFT_CLOSED_RIGHT_OPEN -> {
-                if (!(left <= compareValue && compareValue < right)) {
-                    return false
-                }
-            }
-            CheckType.RANGE_LEFT_CLOSED_RIGHT_CLOSED -> {
-                if (!(left <= compareValue && compareValue <= right)) {
-                    return false
-                }
-            }
-        }
-        return true
-    }
+object Operator {
 
     enum class Operate(val value: String, val regex: String) {
         ADD("ADD", "^ADD\\(([\\w]+)\\+([\\w]+)\\)$"),
@@ -56,7 +12,7 @@ object MathCalculator {
         DIVIDE("DIVIDE", "^DIVIDE\\(([\\w]+)/([\\w]+)\\)$")
     }
 
-    fun operateValue(dataMap: Map<String, String>, operateString: String): Double {
+    fun operate(dataMap: Map<String, String>, operateString: String): Double {
         when {
             operateString.startsWith(Operate.ADD.value) -> {
                 val keyList = operateString.parseRegexGroup(Operate.ADD.regex)
