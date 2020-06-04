@@ -1,5 +1,5 @@
 package com.oneliang.ktx.util.common
 
-fun Int.calculateCompose(composeSize: Int) = MathUtil.calculateCompose(this, composeSize)
+fun Int.calculateCompose(composeSize: Int, outputIndex: Boolean = false) = MathUtil.calculateCompose(this, composeSize, outputIndex)
 
-fun Int.calculateCompose(composeSize: Int, block: (Array<Int>) -> Unit) = MathUtil.calculateCompose(this, composeSize, block)
+fun Int.calculateCompose(composeSize: Int, outputIndex: Boolean = false, block: (Array<Int>) -> Unit) = MathUtil.calculateCompose(this, composeSize, outputIndex, block)
