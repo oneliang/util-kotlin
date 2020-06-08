@@ -1,0 +1,2 @@
+def big_module_name = ':libraries'
+include "$big_module_name:jxl"

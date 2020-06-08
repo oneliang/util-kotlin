@@ -15,3 +15,6 @@ include ':resource'
 include ':state'
 include ':upload'
 include ':math'
+
+//libraries
+apply from: "${rootDir}/libraries/libraries.gradle"
