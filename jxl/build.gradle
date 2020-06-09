@@ -5,5 +5,5 @@ dependencies {
     implementation project(":base")
     implementation project(":common")
 //    implementation rootProject.ext.dependencies['jexcelapi-jxl']
-    implementation project(":libraries:jxl")
+    implementation project(":libraries:3rd-jxl")
 }
