@@ -63,7 +63,7 @@ object Constants {
                 }
             }
         }
-        val NEW_LINE = System.getProperty("line.separator") ?: CRLF_STRING
+        val NEW_LINE = System.lineSeparator() ?: CRLF_STRING
     }
 
     object Symbol {
