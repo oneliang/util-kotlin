@@ -191,7 +191,7 @@ object JxlUtil {
 
     @Throws(Exception::class)
     fun writeSimpleExcel(writableWorkbook: WritableWorkbook, headerArray: Array<String> = emptyArray(), writeDataRows: (writableSheet: WritableSheet, currentRow: Int) -> Unit) {
-        val writableSheet = writableWorkbook.createSheet("sheet", 0)
+        val writableSheet = getOrCreateSheet(writableWorkbook,"sheet", 0)
         var row = 0
         if (headerArray.isNotEmpty()) {
             for ((column, header) in headerArray.withIndex()) {
@@ -309,5 +309,25 @@ object JxlUtil {
          * @return String
         </T> */
         fun <T : Any> writeProcess(fieldName: String, value: Any?): String
+    }
+
+    fun getOrCreateWorkbook(file: File): WritableWorkbook {
+        return if (!file.exists()) {
+            Workbook.createWorkbook(file)
+        } else {
+            val book = Workbook.getWorkbook(file)
+            val newBook = Workbook.createWorkbook(file, book)
+            book.close()
+            newBook
+        }
+    }
+
+    private fun getOrCreateSheet(workbook: WritableWorkbook, sheetName: String, index: Int = 0): WritableSheet {
+        val sheet = if (sheetName.isNotBlank()) {
+            workbook.getSheet(sheetName)
+        } else {
+            workbook.getSheet(index)
+        }
+        return sheet ?: workbook.createSheet(sheetName, index)
     }
 }
