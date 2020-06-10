@@ -4,6 +4,6 @@ apply from: "${rootDir}/gradle/maven-publish.gradle"
 dependencies {
     implementation project(":base")
     implementation project(":common")
-//    implementation rootProject.ext.dependencies['jexcelapi-jxl']
-    implementation project(":libraries:3rd-jxl")
+    implementation rootProject.ext.dependencies['jexcelapi-jxl']
+//    implementation project(":libraries:3rd-jxl")
 }
