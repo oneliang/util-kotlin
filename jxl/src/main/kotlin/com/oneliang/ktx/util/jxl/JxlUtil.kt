@@ -4,6 +4,8 @@ import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.ObjectUtil
 import com.oneliang.ktx.util.common.nullToBlank
 import com.oneliang.ktx.util.common.toMapWithIndex
+import com.oneliang.ktx.util.file.create
+import com.oneliang.ktx.util.file.createDirectory
 import jxl.Cell
 import jxl.Sheet
 import jxl.Workbook
@@ -313,6 +315,7 @@ object JxlUtil {
 
     fun getOrCreateWorkbook(file: File): WritableWorkbook {
         return if (!file.exists()) {
+            file.create()
             Workbook.createWorkbook(file)
         } else {
             val book = Workbook.getWorkbook(file)
