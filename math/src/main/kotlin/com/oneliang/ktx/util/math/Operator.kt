@@ -12,16 +12,16 @@ object Operator {
         DIVIDE("DIVIDE", "^DIVIDE\\(([\\w]+)/([\\w]+)\\)$")
     }
 
-    fun operate(dataMap: Map<String, String>, operateString: String): Double {
+    fun <K : Any, V : Any> operate(dataMap: Map<K, V>, operateString: String, operateKeyTransform: (key: String) -> K): Double {
         when {
             operateString.startsWith(Operate.ADD.value) -> {
                 val keyList = operateString.parseRegexGroup(Operate.ADD.regex)
                 return if (keyList.size != 2) {
                     0.0
                 } else {
-                    val firstDataKey = keyList[0]
-                    val secondDataKey = keyList[1]
-                    dataMap[firstDataKey].toDoubleSafely() + dataMap[secondDataKey].toDoubleSafely()
+                    val firstDataKey = operateKeyTransform(keyList[0])
+                    val secondDataKey = operateKeyTransform(keyList[1])
+                    dataMap[firstDataKey].toString().toDoubleSafely() + dataMap[secondDataKey].toString().toDoubleSafely()
                 }
             }
             operateString.startsWith(Operate.MINUS.value) -> {
@@ -29,9 +29,9 @@ object Operator {
                 return if (keyList.size != 2) {
                     0.0
                 } else {
-                    val firstDataKey = keyList[0]
-                    val secondDataKey = keyList[1]
-                    dataMap[firstDataKey].toDoubleSafely() - dataMap[secondDataKey].toDoubleSafely()
+                    val firstDataKey = operateKeyTransform(keyList[0])
+                    val secondDataKey = operateKeyTransform(keyList[1])
+                    dataMap[firstDataKey].toString().toDoubleSafely() - dataMap[secondDataKey].toString().toDoubleSafely()
                 }
             }
             operateString.startsWith(Operate.MULTIPLY.value) -> {
@@ -39,9 +39,9 @@ object Operator {
                 return if (keyList.size != 2) {
                     0.0
                 } else {
-                    val firstDataKey = keyList[0]
-                    val secondDataKey = keyList[1]
-                    dataMap[firstDataKey].toDoubleSafely() * dataMap[secondDataKey].toDoubleSafely()
+                    val firstDataKey = operateKeyTransform(keyList[0])
+                    val secondDataKey = operateKeyTransform(keyList[1])
+                    dataMap[firstDataKey].toString().toDoubleSafely() * dataMap[secondDataKey].toString().toDoubleSafely()
                 }
             }
             operateString.startsWith(Operate.DIVIDE.value) -> {
@@ -49,9 +49,9 @@ object Operator {
                 return if (keyList.size != 2) {
                     0.0
                 } else {
-                    val firstDataKey = keyList[0]
-                    val secondDataKey = keyList[1]
-                    dataMap[firstDataKey].toDoubleSafely() / dataMap[secondDataKey].toDoubleSafely()
+                    val firstDataKey = operateKeyTransform(keyList[0])
+                    val secondDataKey = operateKeyTransform(keyList[1])
+                    dataMap[firstDataKey].toString().toDoubleSafely() / dataMap[secondDataKey].toString().toDoubleSafely()
                 }
             }
         }
