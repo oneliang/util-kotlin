@@ -192,9 +192,9 @@ object JxlUtil {
     }
 
     @Throws(Exception::class)
-    fun writeSimpleExcel(writableWorkbook: WritableWorkbook, headerArray: Array<String> = emptyArray(), writeDataRows: (writableSheet: WritableSheet, currentRow: Int) -> Unit) {
+    fun writeSimpleExcel(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), writeDataRows: (writableSheet: WritableSheet, currentRow: Int) -> Unit) {
         val writableSheet = getOrCreateSheet(writableWorkbook,"sheet", 0)
-        var row = 0
+        var row = startRow
         if (headerArray.isNotEmpty()) {
             for ((column, header) in headerArray.withIndex()) {
                 val cell = Label(column, row, header)
@@ -216,9 +216,9 @@ object JxlUtil {
      * @param transform
     </T> */
     @Throws(Exception::class)
-    fun <T> writeSimpleExcel(writableWorkbook: WritableWorkbook, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (value: T) -> String = { it.toString() }) {
-        writeSimpleExcel(writableWorkbook, headerArray) { writableSheet, currentRow ->
-            var row = currentRow
+    fun <T> writeSimpleExcel(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (value: T) -> String = { it.toString() }) {
+        writeSimpleExcel(writableWorkbook, startRow, headerArray) { writableSheet, currentRow ->
+            var row = startRow + currentRow
             for (array in iterable) {
                 array.forEachIndexed { index, value ->
                     val cell = Label(index, row, transform(value))
@@ -253,7 +253,7 @@ object JxlUtil {
             return
         }
         val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
-        writeSimpleExcel(writableWorkbook, newHeaders.toTypedArray()) { sheet, currentRow ->
+        writeSimpleExcel(writableWorkbook, headerArray = newHeaders.toTypedArray()) { sheet, currentRow ->
             val jxlMappingColumnBeanList = jxlMappingBean.jxlMappingColumnBeanList
             var row = currentRow
             for (instance in iterable) {
@@ -281,7 +281,7 @@ object JxlUtil {
     @Throws(Exception::class)
     fun <T> writeSimpleExcel(headerArray: Array<String> = emptyArray(), fullFilename: String, iterable: Iterable<Array<T>>, transform: (value: T) -> String = { it.toString() }) {
         val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
-        writeSimpleExcel(writableWorkbook, headerArray, iterable, transform)
+        writeSimpleExcel(writableWorkbook, headerArray = headerArray, iterable = iterable, transform =  transform)
     }
 
     interface JxlProcessor {
