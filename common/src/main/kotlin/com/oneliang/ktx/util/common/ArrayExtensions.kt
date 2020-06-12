@@ -1,5 +1,7 @@
 package com.oneliang.ktx.util.common
 
+inline fun <T, K> Array<T>.toMapBy(keySelector: (t: T) -> K): Map<K, T> = this.associateBy { keySelector(it) }
+
 inline fun <T, K, V> Array<T>.toMap(transform: (t: T) -> Pair<K, V>): Map<K, V> = this.associate(transform)
 
 inline fun <T, K, V> Array<out T>.toMapWithIndex(transform: (index: Int, t: T) -> Pair<K, V>): Map<K, V> {

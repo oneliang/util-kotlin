@@ -1,10 +1,7 @@
 package com.oneliang.ktx.util.math
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.util.common.nullToBlank
-import com.oneliang.ktx.util.common.parseRegexGroup
-import com.oneliang.ktx.util.common.toDoubleSafely
-import com.oneliang.ktx.util.common.toIntSafely
+import com.oneliang.ktx.util.common.*
 
 object Stater {
     enum class StatFunction(val value: String, val regex: String) {
@@ -12,6 +9,12 @@ object Stater {
         COUNT("COUNT", "^COUNT\\(([\\w]+)\\)$"),
         DISTINCT("DISTINCT", "^DISTINCT\\(([\\w]+)\\)$"),
         SUM("SUM", "^SUM\\(([\\w]+)\\)$")
+    }
+
+    class StatKey {
+        var newKey = Constants.String.BLANK
+        var function = Constants.String.BLANK
+        var format = Constants.String.BLANK
     }
 
     class Result {
@@ -22,7 +25,7 @@ object Stater {
         var function = Constants.String.BLANK
     }
 
-    private fun generateNoneStatResult(): Result {
+    internal fun generateNoneStatResult(): Result {
         return Result.build(Constants.String.BLANK, function = StatFunction.NONE.value)
     }
 
@@ -42,7 +45,12 @@ object Stater {
                     generateNoneStatResult()
                 } else {
                     val dataStatKey = statKeyTransform(keyList[0])
-                    Result.build(valueSet = hashSetOf(dataMap[dataStatKey].toString().nullToBlank()), function = StatFunction.DISTINCT.value)
+                    val value = dataMap[dataStatKey]
+                    if (value == null) {
+                        generateNoneStatResult()
+                    } else {
+                        Result.build(valueSet = hashSetOf(value.toString().nullToBlank()), function = StatFunction.DISTINCT.value)
+                    }
                 }
             }
             functionString.startsWith(StatFunction.SUM.value) -> {
@@ -51,13 +59,36 @@ object Stater {
                     generateNoneStatResult()
                 } else {
                     val dataStatKey = statKeyTransform(keyList[0])
-                    Result.build(value = dataMap[dataStatKey]?.toString() ?: Constants.String.ZERO, function = StatFunction.SUM.value)
+                    val value = dataMap[dataStatKey]
+                    if (value == null) {
+                        generateNoneStatResult()
+                    } else {
+                        Result.build(value = dataMap[dataStatKey]?.toString() ?: Constants.String.ZERO, function = StatFunction.SUM.value)
+                    }
                 }
             }
             else -> {
                 generateNoneStatResult()
             }
         }
+    }
+
+    fun <K : Any, V : Any> stat(dataMap: Map<K, V>, statKeyArray: Array<StatKey>, statKeyTransform: (statKey: String) -> K): Map<String, Result> {
+        val statResultMap = mutableMapOf<String, Result>()
+        statKeyArray.forEach { statKey ->
+            statResultMap[statKey.newKey] = stat(dataMap, statKey.function, statKeyTransform)
+        }
+        return statResultMap
+    }
+
+    fun <K : Any, V : Any> stat(dataMapIterable: Iterable<Map<K, V>>, statKeyArray: Array<StatKey>, statKeyTransform: (statKey: String) -> K): Map<String, Result> {
+        val statResultMap = mutableMapOf<String, Result>()
+        val statKeyMap = statKeyArray.toMapBy { it.newKey }
+        dataMapIterable.forEach { dataMap ->
+            val currentStatResultMap = stat(dataMap, statKeyArray, statKeyTransform)
+            statResultMap.merge(currentStatResultMap, statKeyMap)
+        }
+        return statResultMap
     }
 }
 
@@ -69,7 +100,7 @@ fun Stater.Result.Companion.build(value: String = Constants.String.BLANK, valueS
     }
 }
 
-fun Stater.Result.Companion.merge(currentResult: Stater.Result, previousResult: Stater.Result, format: String = Constants.String.BLANK): Stater.Result {
+fun Stater.Result.Companion.mergeToNew(currentResult: Stater.Result, previousResult: Stater.Result, format: String = Constants.String.BLANK): Stater.Result {
     return Stater.Result().also {
         it.function = previousResult.function
         when {
@@ -90,6 +121,18 @@ fun Stater.Result.Companion.merge(currentResult: Stater.Result, previousResult: 
                     format.format(sumResult)
                 }
             }
+        }
+    }
+}
+
+fun MutableMap<String, Stater.Result>.merge(statResultMap: Map<String, Stater.Result>, statKeyMap: Map<String, Stater.StatKey>) {
+    statResultMap.forEach { (statResultKey, statResult) ->
+        val statKey = statKeyMap[statResultKey] ?: return@forEach //no include in stat key map
+        val originalStatResult = this[statResultKey]
+        this[statResultKey] = if (originalStatResult == null) {
+            Stater.generateNoneStatResult()
+        } else {
+            Stater.Result.mergeToNew(statResult, originalStatResult, statKey.format)
         }
     }
 }
