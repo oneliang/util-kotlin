@@ -39,15 +39,15 @@ fun <T : Any> InputStream.readSimpleExcel(headerRowIndex: Int = -1, dataRowOffse
 
 fun <T> File.writeSimpleExcel(headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (value: T) -> String = { it.toString() }) {
     val writableWorkbook = Workbook.createWorkbook(this)
-    JxlUtil.writeSimpleExcel(writableWorkbook, headerArray = headerArray, iterable = iterable, transform = transform)
+    JxlUtil.writeSimpleExcelForArray(writableWorkbook, headerArray = headerArray, iterable = iterable, transform = transform)
 }
 
 fun <T> OutputStream.writeSimpleExcel(headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (value: T) -> String = { it.toString() }) {
     val writableWorkbook = Workbook.createWorkbook(this)
-    JxlUtil.writeSimpleExcel(writableWorkbook, headerArray = headerArray, iterable = iterable, transform = transform)
+    JxlUtil.writeSimpleExcelForArray(writableWorkbook, headerArray = headerArray, iterable = iterable, transform = transform)
 }
 
 fun <T> File.writeOrModifySimpleExcel(startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (value: T) -> String = { it.toString() }) {
     val writableWorkbook = JxlUtil.getOrCreateWorkbook(this)
-    JxlUtil.writeSimpleExcel(writableWorkbook, startRow, headerArray, iterable, transform)
+    JxlUtil.writeSimpleExcelForArray(writableWorkbook, startRow, headerArray, iterable, transform)
 }

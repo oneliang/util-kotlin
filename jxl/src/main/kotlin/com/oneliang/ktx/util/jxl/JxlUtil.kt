@@ -5,7 +5,6 @@ import com.oneliang.ktx.util.common.ObjectUtil
 import com.oneliang.ktx.util.common.nullToBlank
 import com.oneliang.ktx.util.common.toMapWithIndex
 import com.oneliang.ktx.util.file.create
-import com.oneliang.ktx.util.file.createDirectory
 import jxl.Cell
 import jxl.Sheet
 import jxl.Workbook
@@ -193,7 +192,7 @@ object JxlUtil {
 
     @Throws(Exception::class)
     fun writeSimpleExcel(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), writeDataRows: (writableSheet: WritableSheet, currentRow: Int) -> Unit) {
-        val writableSheet = getOrCreateSheet(writableWorkbook,"sheet", 0)
+        val writableSheet = getOrCreateSheet(writableWorkbook, "sheet", 0)
         var row = startRow
         if (headerArray.isNotEmpty()) {
             for ((column, header) in headerArray.withIndex()) {
@@ -216,7 +215,7 @@ object JxlUtil {
      * @param transform
     </T> */
     @Throws(Exception::class)
-    fun <T> writeSimpleExcel(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (value: T) -> String = { it.toString() }) {
+    fun <T> writeSimpleExcelForArray(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (value: T) -> String = { it.toString() }) {
         writeSimpleExcel(writableWorkbook, startRow, headerArray) { writableSheet, currentRow ->
             var row = startRow + currentRow
             for (array in iterable) {
@@ -227,6 +226,56 @@ object JxlUtil {
                 row++
             }
         }
+    }
+
+    /**
+     * write simple excel for array
+     * @param <T>
+     * @param fullFilename
+     * @param headerArray
+     * @param iterable
+     * @param transform
+    </T> */
+    @Throws(Exception::class)
+    fun <T> writeSimpleExcelForArray(fullFilename: String, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (value: T) -> String = { it.toString() }) {
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
+        writeSimpleExcelForArray(writableWorkbook, headerArray = headerArray, iterable = iterable, transform = transform)
+    }
+
+    /**
+     * write simple excel for iterable
+     * @param <T>
+     * @param writableWorkbook
+     * @param headerArray
+     * @param iterable
+     * @param transform
+    </T> */
+    @Throws(Exception::class)
+    fun <T> writeSimpleExcelForIterable(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>, transform: (value: T) -> String = { it.toString() }) {
+        writeSimpleExcel(writableWorkbook, startRow, headerArray) { writableSheet, currentRow ->
+            var row = startRow + currentRow
+            for (innerIterable in iterable) {
+                innerIterable.forEachIndexed { index, value ->
+                    val cell = Label(index, row, transform(value))
+                    writableSheet.addCell(cell)
+                }
+                row++
+            }
+        }
+    }
+
+    /**
+     * write simple excel for array
+     * @param <T>
+     * @param fullFilename
+     * @param headerArray
+     * @param iterable
+     * @param transform
+    </T> */
+    @Throws(Exception::class)
+    fun <T> writeSimpleExcelForIterable(fullFilename: String, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>, transform: (value: T) -> String = { it.toString() }) {
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
+        writeSimpleExcelForIterable(writableWorkbook, headerArray = headerArray, iterable = iterable, transform = transform)
     }
 
     /**
@@ -271,17 +320,30 @@ object JxlUtil {
     }
 
     /**
-     * write simple excel
-     * @param <T>
-     * @param headerArray
-     * @param fullFilename
-     * @param iterable
-     * @param transform
-    </T> */
-    @Throws(Exception::class)
-    fun <T> writeSimpleExcel(headerArray: Array<String> = emptyArray(), fullFilename: String, iterable: Iterable<Array<T>>, transform: (value: T) -> String = { it.toString() }) {
-        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
-        writeSimpleExcel(writableWorkbook, headerArray = headerArray, iterable = iterable, transform =  transform)
+     * get or create workbook
+     */
+    fun getOrCreateWorkbook(file: File): WritableWorkbook {
+        return if (!file.exists()) {
+            file.create()
+            Workbook.createWorkbook(file)
+        } else {
+            val workbook = Workbook.getWorkbook(file)
+            val writableWorkbook = Workbook.createWorkbook(file, workbook)
+            workbook.close()
+            writableWorkbook
+        }
+    }
+
+    /**
+     * get or create sheet
+     */
+    private fun getOrCreateSheet(writableWorkbook: WritableWorkbook, sheetName: String, index: Int = 0): WritableSheet {
+        val sheet = if (sheetName.isNotBlank()) {
+            writableWorkbook.getSheet(sheetName)
+        } else {
+            writableWorkbook.getSheet(index)
+        }
+        return sheet ?: writableWorkbook.createSheet(sheetName, index)
     }
 
     interface JxlProcessor {
@@ -311,26 +373,5 @@ object JxlUtil {
          * @return String
         </T> */
         fun <T : Any> writeProcess(fieldName: String, value: Any?): String
-    }
-
-    fun getOrCreateWorkbook(file: File): WritableWorkbook {
-        return if (!file.exists()) {
-            file.create()
-            Workbook.createWorkbook(file)
-        } else {
-            val book = Workbook.getWorkbook(file)
-            val newBook = Workbook.createWorkbook(file, book)
-            book.close()
-            newBook
-        }
-    }
-
-    private fun getOrCreateSheet(workbook: WritableWorkbook, sheetName: String, index: Int = 0): WritableSheet {
-        val sheet = if (sheetName.isNotBlank()) {
-            workbook.getSheet(sheetName)
-        } else {
-            workbook.getSheet(index)
-        }
-        return sheet ?: workbook.createSheet(sheetName, index)
     }
 }
