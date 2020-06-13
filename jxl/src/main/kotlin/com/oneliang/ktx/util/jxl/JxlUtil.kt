@@ -253,7 +253,7 @@ object JxlUtil {
     @Throws(Exception::class)
     fun <T> writeSimpleExcelForIterable(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>, transform: (value: T) -> String = { it.toString() }) {
         writeSimpleExcel(writableWorkbook, startRow, headerArray) { writableSheet, currentRow ->
-            var row = startRow + currentRow
+            var row = currentRow
             for (innerIterable in iterable) {
                 innerIterable.forEachIndexed { index, value ->
                     val cell = Label(index, row, transform(value))
