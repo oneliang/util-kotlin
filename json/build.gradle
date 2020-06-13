@@ -5,4 +5,5 @@ dependencies {
     implementation project(":base")
     implementation project(":common")
     implementation project(":concurrent")
+    testImplementation rootProject.ext.dependencies["kotlinx-coroutines-core"]
 }
