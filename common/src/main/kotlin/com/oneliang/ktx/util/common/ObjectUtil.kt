@@ -27,7 +27,6 @@ object ObjectUtil {
      * @param ignoreFirstLetterCase
      * @return methodName
      */
-    @JvmOverloads
     fun fieldNameToMethodName(methodPrefix: String, fieldName: String, ignoreFirstLetterCase: Boolean = false): String {
         return if (fieldName.isNotEmpty()) {
             if (ignoreFirstLetterCase) {
@@ -48,7 +47,6 @@ object ObjectUtil {
      * @param ignoreFirstLetterCase
      * @return fieldName
      */
-    @JvmOverloads
     fun methodNameToFieldName(methodPrefix: String, methodName: String, ignoreFirstLetterCase: Boolean = false): String {
         return if (methodName.length > methodPrefix.length) {
             val front = methodPrefix.length
@@ -71,7 +69,6 @@ object ObjectUtil {
      * @param ignoreFirstLetterCase
      * @return String
      */
-    @JvmOverloads
     fun methodNameToFieldName(methodName: String, ignoreFirstLetterCase: Boolean = false): String {
         return if (methodName.startsWith(Constants.Method.PREFIX_GET) && methodName != Constants.Method.GET_CLASS) {
             methodNameToFieldName(Constants.Method.PREFIX_GET, methodName, ignoreFirstLetterCase)
@@ -208,9 +205,8 @@ object ObjectUtil {
      * @param ignoreFirstLetterCase
      * @return Object
      */
-    @JvmOverloads
-    fun getterOrIsMethodInvoke(instance: Any, fieldName: String, ignoreFirstLetterCase: Boolean = false): Any {
-        val value: Any
+    fun getterOrIsMethodInvoke(instance: Any, fieldName: String, ignoreFirstLetterCase: Boolean = false): Any? {
+        val value: Any?
         var methodName = fieldNameToMethodName(Constants.Method.PREFIX_GET, fieldName, ignoreFirstLetterCase)
         var method: Method
         try {

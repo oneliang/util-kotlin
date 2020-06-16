@@ -1,13 +1,13 @@
 package com.oneliang.ktx.util.jxl
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.util.common.KotlinClassUtil
-import com.oneliang.ktx.util.common.ObjectUtil
-import com.oneliang.ktx.util.common.parseRegexGroup
-import com.oneliang.ktx.util.common.toFormatString
+import com.oneliang.ktx.util.common.*
 import jxl.Cell
 import jxl.CellType
+import jxl.biff.EmptyCell
 import jxl.write.Label
+import jxl.write.Number
+import jxl.write.WritableCell
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -52,34 +52,37 @@ class DefaultJxlProcessor : JxlUtil.JxlProcessor {
      * @param cell
      * @return Object
     </T> */
-    override fun <T : Any> readProcess(parameterClass: KClass<*>, cell: Cell): Any {
+    override fun <T : Any> readProcess(parameterClass: KClass<T>, cell: Cell): Any {
         val cellValue = cell.contents
         return KotlinClassUtil.changeType(parameterClass, arrayOf(cellValue)) ?: Any()
     }
 
     /**
      * export process
-     * @param <T>
+     * @param column
+     * @param row
      * @param value
      * @param fieldName
      * @return String
     </T> */
-    override fun <T : Any> writeProcess(fieldName: String, value: Any?): String {
+    override fun writeProcess(column: Int, row: Int, fieldName: String, value: Any?): WritableCell {
         return if (value == null) {
-            Constants.String.BLANK
+            EmptyCell(column, row)
         } else {
-            val clazz = value::class
-            if (clazz == Boolean::class || clazz == Short::class
-                    || clazz == Int::class || clazz == Long::class
-                    || clazz == Float::class || clazz == Double::class
-                    || clazz == Byte::class) {
-                value.toString()
-            } else if (clazz == String::class || clazz == Char::class) {
-                value.toString()
-            } else if (clazz == Date::class.java) {
-                (value as Date).toFormatString()
+            val kClass = value::class
+            if (kClass == Boolean::class) {
+                jxl.write.Boolean(column, row, (value as Boolean))
+            } else if (kClass == Short::class
+                    || kClass == Int::class || kClass == Long::class
+                    || kClass == Float::class || kClass == Double::class
+                    || kClass == Byte::class) {
+                Number(column, row, value.toString().toDoubleSafely())
+            } else if (kClass == String::class || kClass == Char::class) {
+                Label(column, row, value.toString())
+            } else if (kClass == Date::class) {
+                Label(column, row, (value as Date).toFormatString())
             } else {
-                value.toString()
+                Label(column, row, value.toString())
             }
         }
     }

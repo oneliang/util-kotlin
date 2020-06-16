@@ -341,11 +341,6 @@ object JsonUtil {
                                 }
                             }
                         } catch (e: Throwable) {
-//                            if (KotlinClassUtil.isSimpleClass(objectClass)) {
-//                                value = KotlinClassUtil.changeType(objectClass, emptyArray(), fieldName, classProcessor)
-//                            } else {
-//                                value = null
-//                            }
                             throw JsonException(kClass.simpleName + Constants.Symbol.DOT + fieldName + ", value:${jsonObject.get(fieldName)}", e)
                         }
                         try {
