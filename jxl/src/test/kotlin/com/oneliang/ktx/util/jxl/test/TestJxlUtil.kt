@@ -29,5 +29,5 @@ fun main() {
             println("$row:$key:$value")
         }
     }
-    File(writeFullFilename).writeSimpleExcel(headers, iterable = newList)
+    File(writeFullFilename).writeSimpleExcel(headerArray = headers, iterable = newList)
 }

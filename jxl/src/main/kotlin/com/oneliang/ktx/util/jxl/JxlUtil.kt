@@ -215,7 +215,7 @@ object JxlUtil {
     @Throws(Exception::class)
     fun <T> writeSimpleExcelForArray(fullFilename: String, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>) {
         val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
-        writeSimpleExcelForArray(writableWorkbook, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value.toString() }
+        writeSimpleExcelForArray(writableWorkbook, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }
     }
 
     /**
@@ -243,7 +243,7 @@ object JxlUtil {
     </T> */
     @Throws(Exception::class)
     fun <T> writeSimpleExcelForArray(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>) {
-        writeSimpleExcelForArray(writableWorkbook, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value.toString() }
+        writeSimpleExcelForArray(writableWorkbook, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }
     }
 
     /**
@@ -281,7 +281,7 @@ object JxlUtil {
     @Throws(Exception::class)
     fun <T> writeSimpleExcelForIterable(fullFilename: String, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>) {
         val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
-        writeSimpleExcelForIterable(writableWorkbook, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value.toString() }
+        writeSimpleExcelForIterable(writableWorkbook, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }
     }
 
     /**
@@ -309,7 +309,7 @@ object JxlUtil {
     </T> */
     @Throws(Exception::class)
     fun <T> writeSimpleExcelForIterable(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>) {
-        writeSimpleExcelForIterable(writableWorkbook, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value.toString() }
+        writeSimpleExcelForIterable(writableWorkbook, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }
     }
 
     /**
