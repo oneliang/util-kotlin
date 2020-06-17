@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream
 import java.io.OutputStream
 import java.lang.reflect.Method
 import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.reflect.KClass
 
 /**
  * reflect the object property and invoke the method
@@ -198,6 +199,17 @@ object ObjectUtil {
     }
 
     /**
+     * judge the object is it the entity of class or interface
+     *
+     * @param instance
+     * @param kClass
+     * @return boolean
+     */
+    fun isEntity(instance: Any, kClass: KClass<*>): Boolean {
+        return isEntity(instance, kClass.java)
+    }
+
+    /**
      * invoke getter or is method for field
      *
      * @param instance
@@ -234,12 +246,13 @@ object ObjectUtil {
      * @param inputStream
      * @return Object
      */
-    fun readObject(inputStream: InputStream): Any? {
-        var value: Any? = null
+    @Suppress("UNCHECKED_CAST")
+    fun <T : java.io.Serializable> readObject(inputStream: InputStream): T? {
+        var value: T? = null
         var objectInputStream: ObjectInputStream? = null
         try {
             objectInputStream = ObjectInputStream(inputStream)
-            value = objectInputStream.readObject()
+            value = objectInputStream.readObject() as T?
         } catch (e: Exception) {
             logger.warning("Read exception:" + e.message)
         } finally {
@@ -257,14 +270,14 @@ object ObjectUtil {
     /**
      * write object
      *
-     * @param serializable
      * @param outputStream
+     * @param instance
      */
-    fun writeObject(serializable: java.io.Serializable, outputStream: OutputStream) {
+    fun <T : java.io.Serializable> writeObject(outputStream: OutputStream, instance: T) {
         var objectOutputStream: ObjectOutputStream? = null
         try {
             objectOutputStream = ObjectOutputStream(outputStream)
-            objectOutputStream.writeObject(serializable)
+            objectOutputStream.writeObject(instance)
             objectOutputStream.flush()
         } catch (e: Exception) {
             logger.warning("Write exception:" + e.message)
@@ -343,7 +356,6 @@ object ObjectUtil {
         } catch (e: Exception) {
             throw ObjectUtilException(e)
         }
-
         return value
     }
 
