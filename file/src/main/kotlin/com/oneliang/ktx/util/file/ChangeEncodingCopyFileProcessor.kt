@@ -1,10 +1,11 @@
 package com.oneliang.ktx.util.file
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.util.file.FileUtil.FileCopyProcessor
+import com.oneliang.ktx.util.file.FileUtil.CopyFileProcessor
 import java.io.*
 
-class GbkToUtf8FileCopyProcessor : FileCopyProcessor {
+class ChangeEncodingCopyFileProcessor(private val fromEncoding: String, private val toEncoding: String) : CopyFileProcessor {
+
     /**
      * copyFileToFileProcess
      * @param from,maybe directory
@@ -18,8 +19,8 @@ class GbkToUtf8FileCopyProcessor : FileCopyProcessor {
                 FileUtil.createFile(to)
                 val inputStream = FileInputStream(from)
                 val outputStream = FileOutputStream(to)
-                val bufferedReader = BufferedReader(InputStreamReader(inputStream, Constants.Encoding.GBK))
-                val bufferedWriter = BufferedWriter(OutputStreamWriter(outputStream, Constants.Encoding.UTF8))
+                val bufferedReader = BufferedReader(InputStreamReader(inputStream, this.fromEncoding))
+                val bufferedWriter = BufferedWriter(OutputStreamWriter(outputStream, this.toEncoding))
                 var string: String? = bufferedReader.readLine()
                 while (string != null) {
                     bufferedWriter.write(string + Constants.String.CRLF_STRING)

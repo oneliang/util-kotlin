@@ -1,19 +1,16 @@
 package com.oneliang.ktx.util.file
 
 import com.oneliang.ktx.Constants
+import com.oneliang.ktx.util.common.MD5String
 import java.io.*
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.zip.ZipEntry
-import java.util.zip.ZipException
-import java.util.zip.ZipFile
-import java.util.zip.ZipOutputStream
-import kotlin.collections.ArrayList
 import kotlin.collections.set
+
 
 object FileUtil {
 
-    private val DEFAULT_FILE_COPY_PROCESSOR = DefaultFileCopyProcessor()
+    private val DEFAULT_FILE_COPY_PROCESSOR = DefaultCopyFileProcessor()
 
     /**
      * file exists,include directory or file
@@ -145,14 +142,14 @@ object FileUtil {
      * copy file
      * @param from
      * @param to
-     * @param fileCopyType
-     * @param fileCopyProcessor
+     * @param copyType
+     * @param copyFileProcessor
      */
-    fun copyFile(from: String, to: String, fileCopyType: FileCopyType = FileCopyType.PATH_TO_PATH, fileCopyProcessor: FileCopyProcessor = DEFAULT_FILE_COPY_PROCESSOR) {
-        when (fileCopyType) {
-            FileCopyType.FILE_TO_PATH -> copyFileToPath(from, to, fileCopyProcessor)
-            FileCopyType.FILE_TO_FILE -> copyFileToFile(from, to, fileCopyProcessor)
-            FileCopyType.PATH_TO_PATH -> copyPathToPath(from, to, fileCopyProcessor)
+    fun copyFile(from: String, to: String, copyType: CopyType = CopyType.PATH_TO_PATH, copyFileProcessor: CopyFileProcessor = DEFAULT_FILE_COPY_PROCESSOR) {
+        when (copyType) {
+            CopyType.FILE_TO_PATH -> copyFileToPath(from, to, copyFileProcessor)
+            CopyType.FILE_TO_FILE -> copyFileToFile(from, to, copyFileProcessor)
+            CopyType.PATH_TO_PATH -> copyPathToPath(from, to, copyFileProcessor)
         }
     }
 
@@ -160,9 +157,9 @@ object FileUtil {
      * copy path to path,copy process include directory copy
      * @param fromPath
      * @param toPath
-     * @param fileCopyProcessor
+     * @param copyFileProcessor
      */
-    fun copyPathToPath(fromPath: String, toPath: String, fileCopyProcessor: FileCopyProcessor) {
+    fun copyPathToPath(fromPath: String, toPath: String, copyFileProcessor: CopyFileProcessor) {
         val fromDirectoryFile = File(fromPath)
         val toDirectoryFile = File(toPath)
         val fromDirectoryPath = fromDirectoryFile.absolutePath
@@ -177,7 +174,7 @@ object FileUtil {
             val fromFilePath = file.absolutePath
             val toFilePath = toDirectoryPath + fromFilePath.substring(fromDirectoryPath.length)
             if (file.isDirectory) {
-                val result = fileCopyProcessor.copyFileToFileProcess(fromFilePath, toFilePath, false)
+                val result = copyFileProcessor.copyFileToFileProcess(fromFilePath, toFilePath, false)
                 if (result) {
                     val fileArray = file.listFiles()
                     if (fileArray != null) {
@@ -185,7 +182,7 @@ object FileUtil {
                     }
                 }
             } else if (file.isFile) {
-                fileCopyProcessor.copyFileToFileProcess(fromFilePath, toFilePath, true)
+                copyFileProcessor.copyFileToFileProcess(fromFilePath, toFilePath, true)
             }
         }
     }
@@ -193,264 +190,16 @@ object FileUtil {
     /**
      * @param fromFile
      * @param toPath
-     * @param fileCopyProcessor
+     * @param copyFileProcessor
      */
-    private fun copyFileToPath(fromFile: String, toPath: String, fileCopyProcessor: FileCopyProcessor) {
+    private fun copyFileToPath(fromFile: String, toPath: String, copyFileProcessor: CopyFileProcessor) {
         val from = File(fromFile)
         val to = File(toPath)
         if (from.exists() && from.isFile) {
             createDirectory(toPath)
             val tempFromFile = from.absolutePath
             val tempToFile = to.absolutePath + File.separator + from.getName()
-            copyFileToFile(tempFromFile, tempToFile, fileCopyProcessor)
-        }
-    }
-
-    /**
-     * unzip
-     * @param zipFullFilename
-     * @param outputDirectory
-     * @param zipEntryNameList,if
-     * it is null or empty,will unzip all
-     * @return List<String>
-    </String> */
-    fun unzip(zipFullFilename: String, outputDirectory: String, zipEntryNameList: List<String>): List<String> {
-        createDirectory(outputDirectory)
-        val storeFileList = mutableListOf<String>()
-        var zipFile: ZipFile? = null
-        try {
-            zipFile = ZipFile(zipFullFilename)
-            val outputDirectoryAbsolutePath = File(outputDirectory).absolutePath
-            val enumeration = zipFile.entries()
-            while (enumeration.hasMoreElements()) {
-                val zipEntry = enumeration.nextElement()
-                val zipEntryName = zipEntry.name
-                var contains = false
-                if (zipEntryNameList.isEmpty()) {
-                    contains = true
-                } else {
-                    if (zipEntryNameList.contains(zipEntryName)) {
-                        contains = true
-                    }
-                }
-                if (contains) {
-                    val inputStream = zipFile.getInputStream(zipEntry)
-                    val outputFullFilename = outputDirectoryAbsolutePath + Constants.Symbol.SLASH_LEFT + zipEntryName
-                    if (zipEntry.isDirectory) {
-                        createDirectory(outputFullFilename)
-                    } else {
-                        createFile(outputFullFilename)
-                        val outputStream = FileOutputStream(outputFullFilename)
-                        try {
-                            val buffer = ByteArray(Constants.Capacity.BYTES_PER_KB)
-                            var length = inputStream.read(buffer, 0, buffer.size)
-                            while (length != -1) {
-                                outputStream.write(buffer, 0, length)
-                                outputStream.flush()
-                                length = inputStream.read(buffer, 0, buffer.size)
-                            }
-                        } finally {
-                            inputStream?.close()
-                            outputStream.close()
-                        }
-                        storeFileList.add(outputFullFilename)
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            throw FileUtilException(e)
-        } finally {
-            try {
-                zipFile?.close()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-
-        }
-        return storeFileList
-    }
-
-    /**
-     * zip
-     *
-     * @param outputZipFullFilename
-     * @param directory
-     * @param fileSuffix
-     * @param zipProcessor
-     */
-    fun zip(outputZipFullFilename: String, directory: String, fileSuffix: String, zipProcessor: ZipProcessor) {
-        val matchOption = MatchOption()
-        matchOption.fileSuffix = fileSuffix
-        val fileList = findMatchFile(directory, matchOption)
-        if (fileList.isNotEmpty()) {
-            val zipEntryPathList = ArrayList<ZipEntryPath>()
-            val outputFullFilenameLength = File(directory).absolutePath.length + 1
-            for (file in fileList) {
-                var zipEntryName = file.substring(outputFullFilenameLength, file.length)
-                zipEntryName = zipEntryName.replace(Constants.Symbol.SLASH_RIGHT, Constants.Symbol.SLASH_LEFT)
-                zipEntryPathList.add(ZipEntryPath(file, ZipEntry(zipEntryName), true))
-            }
-            zip(outputZipFullFilename, Constants.String.BLANK, zipEntryPathList, zipProcessor)
-        }
-    }
-
-    /**
-     * zip
-     *
-     * @param outputZipFullFilename
-     * @param inputZipFullFilename,can
-     * blank,the entry will not from the input file
-     * @param zipEntryPathList
-     * @param zipProcessor
-     */
-    fun zip(outputZipFullFilename: String, inputZipFullFilename: String = Constants.String.BLANK, zipEntryPathList: List<ZipEntryPath>, zipProcessor: ZipProcessor? = null) {
-        var zipOutputStream: ZipOutputStream? = null
-        var zipFile: ZipFile? = null
-        val zipEntryPathMap = mutableMapOf<String, ZipEntryPath>()
-        val needToAddEntryNameList = mutableListOf<String>()
-        if (zipEntryPathList.isNotEmpty()) {
-            for (zipEntryPath in zipEntryPathList) {
-                zipEntryPathMap[zipEntryPath.zipEntry.name] = zipEntryPath
-                needToAddEntryNameList.add(zipEntryPath.zipEntry.name)
-            }
-        }
-        try {
-            createFile(outputZipFullFilename)
-            zipOutputStream = ZipOutputStream(FileOutputStream(outputZipFullFilename))
-            if (inputZipFullFilename.isBlank()) {
-                zipFile = ZipFile(inputZipFullFilename)
-                val enumeration = zipFile.entries()
-                while (enumeration.hasMoreElements()) {
-                    var zipEntry = enumeration.nextElement()
-                    val zipEntryName = zipEntry.name
-                    var inputStream: InputStream? = null
-                    if (zipEntryPathMap.containsKey(zipEntryName)) {
-                        val zipEntryPath = zipEntryPathMap[zipEntryName]!!
-                        needToAddEntryNameList.remove(zipEntryName)
-                        if (zipEntryPath.replace) {
-                            zipEntry = zipEntryPath.zipEntry
-                            inputStream = FileInputStream(zipEntryPath.fullFilename)
-                        } else {
-                            //input stream is null, no need to replace
-                        }
-                    } else {
-                        //input stream is null, no need to replace
-                    }
-                    val newInputStream: InputStream
-                    if (inputStream == null) {
-                        inputStream = zipFile.getInputStream(zipEntry)
-                        if (zipProcessor != null) {
-                            newInputStream = zipProcessor.zipEntryProcess(zipEntryName, inputStream)
-                            if (newInputStream !== inputStream) {
-                                inputStream.close()
-                            }
-                        } else {
-                            newInputStream = inputStream
-                        }
-                    } else {
-                        newInputStream = inputStream
-                    }
-                    val newZipEntry = ZipEntry(zipEntryName)
-                    addZipEntry(zipOutputStream, newZipEntry, newInputStream)
-                }
-            }
-            for (zipEntryName in needToAddEntryNameList) {
-                val zipEntryPath = zipEntryPathMap[zipEntryName]!!
-                val zipEntry = zipEntryPath.zipEntry
-                val inputStream = FileInputStream(zipEntryPath.fullFilename)
-                val newInputStream: InputStream
-                if (zipProcessor != null) {
-                    newInputStream = zipProcessor.zipEntryProcess(zipEntry.name, inputStream)
-                    if (newInputStream !== inputStream) {
-                        inputStream.close()
-                    }
-                } else {
-                    newInputStream = inputStream
-                }
-                addZipEntry(zipOutputStream, zipEntry, newInputStream)
-            }
-        } catch (e: Exception) {
-            throw FileUtilException(e)
-        } finally {
-            try {
-                if (zipOutputStream != null) {
-                    zipOutputStream.finish()
-                    zipOutputStream.flush()
-                    zipOutputStream.close()
-                }
-                if (zipFile != null) {
-                    zipFile.close()
-                }
-            } catch (e: Exception) {
-                throw FileUtilException(e)
-            }
-
-        }
-    }
-
-    /**
-     * merge zip file
-     *
-     * @param zipOutputFullFilename
-     * @param zipFullFilenameList
-     */
-    fun mergeZip(zipOutputFullFilename: String, zipFullFilenameList: List<String>?) {
-        createFile(zipOutputFullFilename)
-        var zipOutputStream: ZipOutputStream? = null
-        try {
-            zipOutputStream = ZipOutputStream(FileOutputStream(zipOutputFullFilename))
-            if (zipFullFilenameList != null) {
-                for (zipFullFilename in zipFullFilenameList) {
-                    if (exists(zipFullFilename)) {
-                        val zipFile = ZipFile(zipFullFilename)
-                        val enumeration = zipFile.entries()
-                        while (enumeration.hasMoreElements()) {
-                            val zipEntry = enumeration.nextElement()
-                            val inputStream = zipFile.getInputStream(zipEntry)
-                            val newZipEntry = ZipEntry(zipEntry.name)
-                            addZipEntry(zipOutputStream, newZipEntry, inputStream)
-                        }
-                        zipFile.close()
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            throw FileUtilException(e)
-        } finally {
-            try {
-                if (zipOutputStream != null) {
-                    zipOutputStream.close()
-                }
-            } catch (e: Exception) {
-                throw FileUtilException(e)
-            }
-
-        }
-    }
-
-    /**
-     * add zip entry
-     *
-     * @param zipOutputStream
-     * @param zipEntry
-     * @param inputStream
-     * @throws Exception
-     */
-    fun addZipEntry(zipOutputStream: ZipOutputStream, zipEntry: ZipEntry, inputStream: InputStream) {
-        try {
-            zipOutputStream.putNextEntry(zipEntry)
-            val buffer = ByteArray(Constants.Capacity.BYTES_PER_KB)
-            var length = inputStream.read(buffer, 0, buffer.size)
-            while (length != -1) {
-                zipOutputStream.write(buffer, 0, length)
-                zipOutputStream.flush()
-                length = inputStream.read(buffer, 0, buffer.size)
-            }
-        } catch (e: ZipException) {
-            // do nothing
-        } finally {
-            inputStream.close()
-            zipOutputStream.closeEntry()
+            copyFileToFile(tempFromFile, tempToFile, copyFileProcessor)
         }
     }
 
@@ -710,7 +459,7 @@ object FileUtil {
      * @param onMatch
      * @return List<String>
      */
-    fun findMatchFileDirectory(directoryFile: File, matchOption: MatchOption, onMatch: (file: File) -> String = { it.absolutePath }): List<String> {
+    fun findMatchFileDirectory(directoryFile: File, matchOption: MatchOption = MatchOption(), onMatch: (file: File) -> String = { it.absolutePath }): List<String> {
         matchOption.findType = MatchOption.FindType.FILE_DIRECTORY
         return findMatchFileOrMatchFileDirectory(directoryFile, matchOption, onMatch)
     }
@@ -733,7 +482,7 @@ object FileUtil {
      * @param onMatch
      * @return List<String>
      */
-    fun findMatchFile(directoryFile: File, matchOption: MatchOption, onMatch: (file: File) -> String = { it.absolutePath }): List<String> {
+    fun findMatchFile(directoryFile: File, matchOption: MatchOption = MatchOption(), onMatch: (file: File) -> String = { it.absolutePath }): List<String> {
         matchOption.findType = MatchOption.FindType.FILE
         return findMatchFileOrMatchFileDirectory(directoryFile, matchOption, onMatch)
     }
@@ -745,7 +494,7 @@ object FileUtil {
      * @param onMatch
      * @return List<String>
      */
-    fun findMatchFile(directory: String, matchOption: MatchOption, onMatch: (file: File) -> String = { it.absolutePath }): List<String> {
+    fun findMatchFile(directory: String, matchOption: MatchOption = MatchOption(), onMatch: (file: File) -> String = { it.absolutePath }): List<String> {
         return findMatchFile(File(directory), matchOption, onMatch)
     }
 
@@ -755,7 +504,7 @@ object FileUtil {
      * @param matchOption
      * @return List<String>
      */
-    fun findMatchDirectory(directoryFile: File, matchOption: MatchOption): List<String> {
+    fun findMatchDirectory(directoryFile: File, matchOption: MatchOption = MatchOption()): List<String> {
         matchOption.findType = MatchOption.FindType.DIRECTORY
         return findMatchFileOrMatchFileDirectory(directoryFile, matchOption)
     }
@@ -766,7 +515,7 @@ object FileUtil {
      * @param matchOption
      * @return List<String>
      */
-    fun findMatchDirectory(directory: String, matchOption: MatchOption): List<String> {
+    fun findMatchDirectory(directory: String, matchOption: MatchOption = MatchOption()): List<String> {
         return findMatchDirectory(File(directory), matchOption)
     }
 
@@ -777,7 +526,7 @@ object FileUtil {
      * @param onMatch
      * @return List<String>
      */
-    private fun findMatchFileOrMatchFileDirectory(directory: String, matchOption: MatchOption, onMatch: (file: File) -> String = { it.absolutePath }): List<String> {
+    private fun findMatchFileOrMatchFileDirectory(directory: String, matchOption: MatchOption = MatchOption(), onMatch: (file: File) -> String = { it.absolutePath }): List<String> {
         val directoryFile = File(directory)
         return findMatchFileOrMatchFileDirectory(directoryFile, matchOption, onMatch)
     }
@@ -789,8 +538,8 @@ object FileUtil {
      * @param onMatch
      * @return List<String>
      */
-    private fun findMatchFileOrMatchFileDirectory(directoryFile: File, matchOption: MatchOption, onMatch: (file: File) -> String = { it.absolutePath }): List<String> {
-        val list = ArrayList<String>()
+    private fun findMatchFileOrMatchFileDirectory(directoryFile: File, matchOption: MatchOption = MatchOption(), onMatch: (file: File) -> String = { it.absolutePath }): List<String> {
+        val list = mutableListOf<String>()
         val queue = ConcurrentLinkedQueue<File>()
         queue.add(directoryFile)
         while (!queue.isEmpty()) {
@@ -845,47 +594,45 @@ object FileUtil {
     }
 
     /**
-     * get zip entry map
-     * @param zipFullFilename
-     * @return Map<String></String>, String>
+     * differ directory
+     *
+     * @param differentOutputDirectory
+     * @param oldDirectory
+     * @param newDirectory
      */
-    private fun getZipEntryMap(zipFullFilename: String): Map<String, String> {
-        var zipFile: ZipFile? = null
-        val map = mutableMapOf<String, String>()
-        try {
-            zipFile = ZipFile(zipFullFilename)
-            val entries = zipFile.entries()
-            while (entries.hasMoreElements()) {
-                val zipEntry = entries.nextElement() as ZipEntry
-                if (!zipEntry.isDirectory) {
-                    val key = zipEntry.name
-                    val value = zipEntry.crc.toString() + Constants.Symbol.DOT + zipEntry.size
-                    map[key] = value
-                }
-            }
-        } catch (e: Exception) {
-            throw FileUtilException(e)
-        } finally {
-            if (zipFile != null) {
-                try {
-                    zipFile.close()
-                } catch (e: IOException) {
-                    throw FileUtilException(e)
-                }
+    fun differDirectory(differentOutputDirectory: String, oldDirectory: String, newDirectory: String) {
+        val oldFileList: List<String> = findMatchFile(oldDirectory, MatchOption())
+        val oldDirectoryAbsolutePath = File(oldDirectory).absolutePath
+        val oldFileMD5Map: MutableMap<String, String> = HashMap()
+        val differentOutputDirectoryFullFilename = File(differentOutputDirectory).absolutePath
+        for (oldFile in oldFileList) {
+            var key = File(oldFile).absolutePath.substring(oldDirectoryAbsolutePath.length + 1)
+            key = key.replace(Constants.Symbol.SLASH_RIGHT, Constants.Symbol.SLASH_LEFT)
+            val value: String = oldFile.MD5String()
+            oldFileMD5Map[key] = value
+        }
+        val newFileList: List<String> = findMatchFile(newDirectory, MatchOption())
+        val newDirectoryAbsolutePath = File(newDirectory).absolutePath
+        for (newFile in newFileList) {
+            var key = File(newFile).absolutePath.substring(newDirectoryAbsolutePath.length + 1)
+            key = key.replace(Constants.Symbol.SLASH_RIGHT, Constants.Symbol.SLASH_LEFT)
+            val value: String = newFile.MD5String()
+            val oldValue = oldFileMD5Map[key]
+            if (oldValue == null || oldValue != value) {
+                val toFile = differentOutputDirectoryFullFilename + Constants.Symbol.SLASH_LEFT + key
+                // System.out.println("key:"+key+",oldValue:"+oldValue+",value:"+value);
+                copyFile(newFile, toFile, CopyType.FILE_TO_FILE)
             }
         }
-        return map
     }
-
-    class ZipEntryPath(val fullFilename: String, val zipEntry: ZipEntry, val replace: Boolean = false)
 
     /**
      * @param fromFile
      * @param toFile
-     * @param fileCopyProcessor
+     * @param copyFileProcessor
      */
-    private fun copyFileToFile(fromFile: String, toFile: String, fileCopyProcessor: FileCopyProcessor) {
-        fileCopyProcessor.copyFileToFileProcess(fromFile, toFile, true)
+    private fun copyFileToFile(fromFile: String, toFile: String, copyFileProcessor: CopyFileProcessor) {
+        copyFileProcessor.copyFileToFileProcess(fromFile, toFile, true)
     }
 
     /**
@@ -967,11 +714,11 @@ object FileUtil {
 
     class FileUtilException(cause: Throwable) : RuntimeException(cause)
 
-    enum class FileCopyType {
+    enum class CopyType {
         PATH_TO_PATH, FILE_TO_PATH, FILE_TO_FILE
     }
 
-    interface FileCopyProcessor {
+    interface CopyFileProcessor {
 
         /**
          * copyFileToFileProcess
@@ -987,18 +734,6 @@ object FileUtil {
          */
         fun copyFileToFileProcess(from: String, to: String, isFile: Boolean): Boolean
 
-    }
-
-    interface ZipProcessor {
-
-        /**
-         * zip entry process
-         *
-         * @param zipEntryName
-         * @param inputStream
-         * @return InputStream
-         */
-        fun zipEntryProcess(zipEntryName: String, inputStream: InputStream): InputStream
     }
 
     interface CacheProcessor {
@@ -1036,6 +771,7 @@ object FileUtil {
      * match option
      */
     class MatchOption {
+
         internal enum class FindType {
             FILE, DIRECTORY, FILE_DIRECTORY
         }
@@ -1044,33 +780,6 @@ object FileUtil {
         internal var findType = FindType.FILE
         var includeHidden = false
         var deepMatch = true
-    }
-
-    interface DifferZipProcessor {
-        /**
-         * found added zip entry process
-         *
-         * @param zipEntryName
-         * @return boolean true is need to save in different.zip
-         */
-        fun foundAddedZipEntryProcess(zipEntryName: String): ZipEntryInformation
-
-        /**
-         * found modified zip entry process
-         *
-         * @param zipEntryName
-         * @return boolean true is need to save in different.zip
-         */
-        fun foundModifiedZipEntryProcess(zipEntryName: String): ZipEntryInformation
-
-        /**
-         * found deleted zip entry process
-         *
-         * @param zipEntryName
-         */
-        fun foundDeletedZipEntryProcess(zipEntryName: String)
-
-        class ZipEntryInformation(val needToSave: Boolean, val zipEntry: ZipEntry, val inputStream: InputStream)
     }
 
     interface ReadFileContentProcessor {

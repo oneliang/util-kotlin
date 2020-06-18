@@ -88,15 +88,19 @@ fun <K, V> Map<K, V>.matchesBy(keyValueArrayMap: Map<K, Array<V>>): List<K> {
     val keyList = mutableListOf<K>()
     for (keyValueArray in keyValueArrayMap) {
         val (dataKey, valueArray) = keyValueArray
-        keyList += if (valueArray.isEmpty()) {
-            dataKey
-        } else {//is not empty then check value
-            val dataValue = this[dataKey]
-            if (valueArray.contains(dataValue)) {
+        if (this.containsKey(dataKey)) {//contains the key
+            keyList += if (valueArray.isEmpty()) {//if value array is empty, success
                 dataKey
             } else {
-                return emptyList()
+                val dataValue = this[dataKey]
+                if (valueArray.contains(dataValue)) {
+                    dataKey
+                } else {
+                    return emptyList()
+                }
             }
+        } else {//not include data key, so do not match
+            return emptyList()
         }
     }
     return keyList

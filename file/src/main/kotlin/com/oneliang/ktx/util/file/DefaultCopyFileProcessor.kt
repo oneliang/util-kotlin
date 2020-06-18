@@ -1,12 +1,12 @@
 package com.oneliang.ktx.util.file
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.util.file.FileUtil.FileCopyProcessor
+import com.oneliang.ktx.util.file.FileUtil.CopyFileProcessor
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-open class DefaultFileCopyProcessor : FileCopyProcessor {
+open class DefaultCopyFileProcessor : CopyFileProcessor {
     /**
      * copyFileToFileProcess
      * @param from,maybe directory
