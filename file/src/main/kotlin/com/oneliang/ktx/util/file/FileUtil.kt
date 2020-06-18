@@ -170,19 +170,19 @@ object FileUtil {
         val queue = ConcurrentLinkedQueue<File>()
         queue.add(fromDirectoryFile)
         while (!queue.isEmpty()) {
-            val file = queue.poll()
-            val fromFilePath = file.absolutePath
-            val toFilePath = toDirectoryPath + fromFilePath.substring(fromDirectoryPath.length)
-            if (file.isDirectory) {
-                val result = copyFileProcessor.copyFileToFileProcess(fromFilePath, toFilePath, false)
+            val fromFile = queue.poll()
+            val fromFilePath = fromFile.absolutePath
+            val toFile = File(toDirectoryPath + fromFilePath.substring(fromDirectoryPath.length))
+            if (fromFile.isDirectory) {
+                val result = copyFileProcessor.copyFileToFileProcess(fromFile, toFile)
                 if (result) {
-                    val fileArray = file.listFiles()
+                    val fileArray = fromFile.listFiles()
                     if (fileArray != null) {
                         queue.addAll(fileArray)
                     }
                 }
-            } else if (file.isFile) {
-                copyFileProcessor.copyFileToFileProcess(fromFilePath, toFilePath, true)
+            } else if (fromFile.isFile) {
+                copyFileProcessor.copyFileToFileProcess(fromFile, toFile)
             }
         }
     }
@@ -214,7 +214,7 @@ object FileUtil {
         var inputStream: InputStream? = null
         try {
             inputStream = FileInputStream(fullFilename)
-            copyStream(inputStream, byteArrayOutputStream)
+            inputStream.copyTo(byteArrayOutputStream)
         } catch (e: FileNotFoundException) {
             throw FileUtilException(e)
         } finally {
@@ -246,7 +246,7 @@ object FileUtil {
         var outputStream: OutputStream? = null
         try {
             outputStream = FileOutputStream(outputFullFilename, append)
-            copyStream(inputStream, outputStream)
+            inputStream.copyTo(outputStream)
         } catch (e: FileNotFoundException) {
             throw FileUtilException(e)
         } finally {
@@ -389,26 +389,6 @@ object FileUtil {
     }
 
     /**
-     * copy stream , from input to output,it don't close
-     *
-     * @param inputStream
-     * @param outputStream
-     */
-    fun copyStream(inputStream: InputStream, outputStream: OutputStream) {
-        try {
-            val buffer = ByteArray(Constants.Capacity.BYTES_PER_MB)
-            var length = inputStream.read(buffer, 0, buffer.size)
-            while (length != -1) {
-                outputStream.write(buffer, 0, length)
-                outputStream.flush()
-                length = inputStream.read(buffer, 0, buffer.size)
-            }
-        } catch (e: Exception) {
-            throw FileUtilException(e)
-        }
-    }
-
-    /**
      * merge file
      *
      * @param outputFullFilename
@@ -425,7 +405,7 @@ object FileUtil {
                 var inputStream: InputStream? = null
                 try {
                     inputStream = FileInputStream(fullFilename)
-                    copyStream(inputStream, outputStream)
+                    inputStream.copyTo(outputStream)
                 } catch (e: Exception) {
                     throw FileUtilException(e)
                 } finally {
@@ -627,12 +607,12 @@ object FileUtil {
     }
 
     /**
-     * @param fromFile
-     * @param toFile
+     * @param fromFullFilename
+     * @param toFullFilename
      * @param copyFileProcessor
      */
-    private fun copyFileToFile(fromFile: String, toFile: String, copyFileProcessor: CopyFileProcessor) {
-        copyFileProcessor.copyFileToFileProcess(fromFile, toFile, true)
+    private fun copyFileToFile(fromFullFilename: String, toFullFilename: String, copyFileProcessor: CopyFileProcessor) {
+        copyFileProcessor.copyFileToFileProcess(File(fromFullFilename), File(toFullFilename))
     }
 
     /**
@@ -712,6 +692,44 @@ object FileUtil {
         }
     }
 
+    /**
+     * find file list with cache
+     * @param directoryList
+     * @param cacheMap, it will update the cache map
+     * @param fileSuffix
+     * @param includeHidden
+     * @return List<String>, only return the changed file
+     */
+    fun findFileListWithCache(directoryList: List<String>, cacheMap: MutableMap<String, String>, fileSuffix: String, includeHidden: Boolean = false, cacheKeyProcessor: ((cacheKey: String) -> String)? = null): List<String> {
+        val sourceList = mutableListOf<String>()
+        // with cache
+        for (directory in directoryList) {
+            val matchOption = MatchOption()
+            matchOption.fileSuffix = fileSuffix
+            matchOption.includeHidden = includeHidden
+            findMatchFile(directory, matchOption) {
+                val fullFilename = it.absolutePath
+                var cacheKey = fullFilename
+                if (cacheKeyProcessor != null) {
+                    cacheKey = cacheKeyProcessor(cacheKey)
+                }
+                val sourceFileMd5 = File(fullFilename).MD5String()
+                if (cacheMap.containsKey(cacheKey)) {
+                    val md5 = cacheMap[cacheKey]
+                    if (sourceFileMd5 != md5) {
+                        sourceList.add(fullFilename)
+                        cacheMap[cacheKey] = sourceFileMd5
+                    }
+                } else {
+                    sourceList.add(fullFilename)
+                    cacheMap[cacheKey] = sourceFileMd5
+                }
+                fullFilename
+            }
+        }
+        return sourceList
+    }
+
     class FileUtilException(cause: Throwable) : RuntimeException(cause)
 
     enum class CopyType {
@@ -719,52 +737,17 @@ object FileUtil {
     }
 
     interface CopyFileProcessor {
-
         /**
          * copyFileToFileProcess
-         *
-         * @param from,maybe
+         * @param fromFile,maybe
          *            directory
-         * @param to,maybe
+         * @param toFile,maybe
          *            directory
-         * @param isFile,maybe
-         *            directory or file
          * @return boolean,if true keep going copy,only active in directory so
          *         far
          */
-        fun copyFileToFileProcess(from: String, to: String, isFile: Boolean): Boolean
+        fun copyFileToFileProcess(fromFile: File, toFile: File): Boolean
 
-    }
-
-    interface CacheProcessor {
-        /**
-         * key process,can change key to save cache
-         *
-         * @param key
-         * @return String
-         */
-        fun keyProcess(key: String): String
-    }
-
-    interface NoCacheFileProcessor {
-        /**
-         * process
-         *
-         * @param uncachedFileList
-         * @return boolean,true is save cache else false
-         */
-        fun process(uncachedFileList: List<String>): Boolean
-    }
-
-    interface NoCacheFileFinder {
-
-        /**
-         * find no cache file list
-         *
-         * @param cacheFileMapping
-         * @return List<String>
-         */
-        fun findNoCacheFileList(cacheFileMapping: Properties): List<String>
     }
 
     /**

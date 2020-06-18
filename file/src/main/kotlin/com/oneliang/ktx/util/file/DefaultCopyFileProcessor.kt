@@ -9,36 +9,29 @@ import java.io.FileOutputStream
 open class DefaultCopyFileProcessor : CopyFileProcessor {
     /**
      * copyFileToFileProcess
-     * @param from,maybe directory
-     * @param to,maybe directory
-     * @param isFile,maybe directory or file
+     * @param fromFile,maybe directory
+     * @param toFile,maybe directory
      * @return boolean,if true keep going copy,only active in directory so far
      */
-    override fun copyFileToFileProcess(from: String, to: String, isFile: Boolean): Boolean {
+    override fun copyFileToFileProcess(fromFile: File, toFile: File): Boolean {
         try {
-            if (isFile) {
-                val fromFile = File(from).absolutePath
-                var toFile = File(to).absolutePath
-                if (fromFile == toFile) {
-                    toFile += "_copy"
+            if (fromFile.isFile) {
+                val fromFullFilename = fromFile.absolutePath
+                var toFullFilename = toFile.absolutePath
+                if (fromFullFilename == toFullFilename) {
+                    toFullFilename += "_copy"
                 }
-                FileUtil.createFile(toFile)
-                val inputStream = FileInputStream(fromFile)
-                val outputStream = FileOutputStream(toFile)
+                FileUtil.createFile(toFullFilename)
+                val inputStream = FileInputStream(fromFullFilename)
+                val outputStream = FileOutputStream(toFullFilename)
                 try {
-                    val buffer = ByteArray(Constants.Capacity.BYTES_PER_KB)
-                    var length = inputStream.read(buffer, 0, buffer.size)
-                    while (length != -1) {
-                        outputStream.write(buffer, 0, length)
-                        outputStream.flush()
-                        length = inputStream.read(buffer, 0, buffer.size)
-                    }
+                    inputStream.copyTo(outputStream)
                 } finally {
                     inputStream.close()
                     outputStream.close()
                 }
             } else {
-                FileUtil.createDirectory(to)
+                FileUtil.createDirectory(toFile)
             }
         } catch (e: Exception) {
             throw FileCopyException(e)

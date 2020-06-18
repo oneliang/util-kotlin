@@ -8,17 +8,16 @@ class ChangeEncodingCopyFileProcessor(private val fromEncoding: String, private 
 
     /**
      * copyFileToFileProcess
-     * @param from,maybe directory
-     * @param to,maybe directory
-     * @param isFile,maybe directory or file
+     * @param fromFile,maybe directory
+     * @param toFile,maybe directory
      * @return boolean,if true keep going copy,only active in directory so far
      */
-    override fun copyFileToFileProcess(from: String, to: String, isFile: Boolean): Boolean {
+    override fun copyFileToFileProcess(fromFile: File, toFile: File): Boolean {
         try {
-            if (isFile) {
-                FileUtil.createFile(to)
-                val inputStream = FileInputStream(from)
-                val outputStream = FileOutputStream(to)
+            if (fromFile.isFile) {
+                FileUtil.createFile(toFile)
+                val inputStream = FileInputStream(fromFile)
+                val outputStream = FileOutputStream(toFile)
                 val bufferedReader = BufferedReader(InputStreamReader(inputStream, this.fromEncoding))
                 val bufferedWriter = BufferedWriter(OutputStreamWriter(outputStream, this.toEncoding))
                 var string: String? = bufferedReader.readLine()
@@ -31,7 +30,7 @@ class ChangeEncodingCopyFileProcessor(private val fromEncoding: String, private 
                 bufferedWriter.flush()
                 bufferedWriter.close()
             } else {
-                FileUtil.createDirectory(to)
+                FileUtil.createDirectory(toFile)
             }
         } catch (e: Exception) {
             e.printStackTrace()

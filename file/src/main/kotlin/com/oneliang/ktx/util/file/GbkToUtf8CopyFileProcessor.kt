@@ -9,15 +9,14 @@ class GbkToUtf8CopyFileProcessor : CopyFileProcessor {
      * copyFileToFileProcess
      * @param from,maybe directory
      * @param to,maybe directory
-     * @param isFile,maybe directory or file
      * @return boolean,if true keep going copy,only active in directory so far
      */
-    override fun copyFileToFileProcess(from: String, to: String, isFile: Boolean): Boolean {
+    override fun copyFileToFileProcess(fromFile: File, toFile: File): Boolean {
         try {
-            if (isFile) {
-                FileUtil.createFile(to)
-                val inputStream = FileInputStream(from)
-                val outputStream = FileOutputStream(to)
+            if (fromFile.isFile) {
+                FileUtil.createFile(toFile)
+                val inputStream = FileInputStream(fromFile)
+                val outputStream = FileOutputStream(toFile)
                 val bufferedReader = BufferedReader(InputStreamReader(inputStream, Constants.Encoding.GBK))
                 val bufferedWriter = BufferedWriter(OutputStreamWriter(outputStream, Constants.Encoding.UTF8))
                 var string: String? = bufferedReader.readLine()
@@ -30,7 +29,7 @@ class GbkToUtf8CopyFileProcessor : CopyFileProcessor {
                 bufferedWriter.flush()
                 bufferedWriter.close()
             } else {
-                FileUtil.createDirectory(to)
+                FileUtil.createDirectory(toFile)
             }
         } catch (e: Exception) {
             e.printStackTrace()
