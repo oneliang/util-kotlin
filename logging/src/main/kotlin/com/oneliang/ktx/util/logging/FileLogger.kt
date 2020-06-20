@@ -37,27 +37,27 @@ class FileLogger(level: Level,
 
     init {
         val beginDate = Date()
-        this.currentBeginTime = beginDate.toFormatString(rule.filenameFormat).toUtilDate(rule.filenameFormat).time
-        this.currentFileOutputStream = newFileOutputStream(directory, currentBeginTime, filename, rule)
+        this.currentBeginTime = beginDate.toFormatString(this.rule.filenameFormat).toUtilDate(this.rule.filenameFormat).time
+        this.currentFileOutputStream = newFileOutputStream(this.directory, this.currentBeginTime, this.filename, this.rule)
     }
 
     override fun log(level: Level, message: String, throwable: Throwable?, extraInfo: ExtraInfo) {
         val logContent = this.generateLogContent(level, message, throwable, extraInfo) + Constants.String.CRLF_STRING
         try {
             val currentTime = System.currentTimeMillis()
-            var timeInterval = currentTime - currentBeginTime
+            var timeInterval = currentTime - this.currentBeginTime
             //next time internal
-            if (timeInterval >= rule.interval) {
+            if (timeInterval >= this.rule.interval) {
                 this.logLock.lock()
-                timeInterval = currentTime - currentBeginTime
+                timeInterval = currentTime - this.currentBeginTime
                 //double check, current day may be change, day internal is the same when first in, but second time is not the same
-                if (timeInterval >= rule.interval) {
-                    currentBeginTime += rule.interval
+                if (timeInterval >= this.rule.interval) {
+                    this.currentBeginTime += this.rule.interval
                     //close current file output stream
                     destroy()
                     //set to new file output stream
-                    deleteExpireFile(directory, currentBeginTime, rule)
-                    val fileOutputStream = newFileOutputStream(directory, currentBeginTime, filename, rule)
+                    deleteExpireFile(this.directory, this.currentBeginTime, this.rule)
+                    val fileOutputStream = newFileOutputStream(this.directory, this.currentBeginTime, this.filename, this.rule)
                     destroyCurrentFileOutputStream()//destroy
                     //reset
                     this.currentFileOutputStream = fileOutputStream
