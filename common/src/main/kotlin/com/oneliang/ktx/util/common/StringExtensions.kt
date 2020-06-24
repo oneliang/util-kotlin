@@ -111,20 +111,24 @@ fun String.unicodeToString(regex: String = UnicodeRegex.REGEX_ALL): String {
     return result
 }
 
-fun String.transformQuotes(): String {
-    return this.replace(Constants.Symbol.DOUBLE_QUOTE, Constants.Symbol.SLASH_RIGHT + Constants.Symbol.DOUBLE_QUOTE)
+fun String?.transformQuotes(): String {
+    return this.nullToBlank().replace(Constants.Symbol.DOUBLE_QUOTE, Constants.Symbol.SLASH_RIGHT + Constants.Symbol.DOUBLE_QUOTE)
 }
 
-fun String.transformLines(): String {
-    return this.replace(Constants.String.CR_STRING, Constants.String.CR_TRANSFER_STRING).replace(Constants.String.LF_STRING, Constants.String.LF_TRANSFER_STRING)
+fun String?.transformLines(): String {
+    return this.nullToBlank().replace(Constants.String.CR_STRING, Constants.String.CR_TRANSFER_STRING).replace(Constants.String.LF_STRING, Constants.String.LF_TRANSFER_STRING)
 }
 
-fun String.replaceAllSpace(): String {
-    return this.replace("\\s".toRegex(), Constants.String.BLANK)
+fun String?.replaceAllSpace(): String {
+    return this.nullToBlank().replace("\\s".toRegex(), Constants.String.BLANK)
 }
 
-fun String.replaceAllLines(): String {
-    return this.replace(Constants.String.CR_STRING, Constants.String.BLANK).replace(Constants.String.LF_STRING, Constants.String.BLANK)
+fun String?.replaceAllLines(): String {
+    return this.nullToBlank().replace(Constants.String.CR_STRING, Constants.String.BLANK).replace(Constants.String.LF_STRING, Constants.String.BLANK)
+}
+
+fun String?.replaceAllSlashToLeft(): String {
+    return this.nullToBlank().replace(Constants.Symbol.SLASH_RIGHT, Constants.Symbol.SLASH_LEFT)
 }
 
 fun String.toUtilDate(format: String = Constants.Time.YEAR_MONTH_DAY_HOUR_MINUTE_SECOND, locale: Locale = Locale.getDefault()): Date {
