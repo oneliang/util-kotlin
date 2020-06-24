@@ -4,7 +4,7 @@ import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.getDayZeroTimePrevious
 import com.oneliang.ktx.util.common.toFormatString
 import com.oneliang.ktx.util.common.toUtilDate
-import com.oneliang.ktx.util.file.FileUtil
+import com.oneliang.ktx.util.file.create
 import com.oneliang.ktx.util.file.deleteAll
 import com.oneliang.ktx.util.logging.Logger.Level
 import java.io.File
@@ -22,6 +22,8 @@ class FileLogger(level: Level,
     private var currentFileOutputStream: FileOutputStream? = null
     private var currentBeginTime: Long = 0L
     private val logLock = ReentrantLock()
+    var currentFile: File
+        private set
 
     enum class Rule(val interval: Long, internal val directoryNameFormat: String, val filenameFormat: String) {
         DAY(Constants.Time.MILLISECONDS_OF_DAY,
@@ -38,7 +40,8 @@ class FileLogger(level: Level,
     init {
         val beginDate = Date()
         this.currentBeginTime = beginDate.toFormatString(this.rule.filenameFormat).toUtilDate(this.rule.filenameFormat).time
-        this.currentFileOutputStream = newFileOutputStream(this.directory, this.currentBeginTime, this.filename, this.rule)
+        this.currentFile = newFile(this.directory, this.currentBeginTime, this.filename, this.rule)
+        this.currentFileOutputStream = newFileOutputStream(this.currentFile)
     }
 
     override fun log(level: Level, message: String, throwable: Throwable?, extraInfo: ExtraInfo) {
@@ -57,9 +60,11 @@ class FileLogger(level: Level,
                     destroy()
                     //set to new file output stream
                     deleteExpireFile(this.directory, this.currentBeginTime, this.rule)
-                    val fileOutputStream = newFileOutputStream(this.directory, this.currentBeginTime, this.filename, this.rule)
+                    val file = newFile(this.directory, this.currentBeginTime, this.filename, this.rule)
+                    val fileOutputStream = newFileOutputStream(file)
                     destroyCurrentFileOutputStream()//destroy
                     //reset
+                    this.currentFile = file
                     this.currentFileOutputStream = fileOutputStream
                 }
                 this.logLock.unlock()
@@ -82,13 +87,17 @@ class FileLogger(level: Level,
         }
     }
 
-    private fun newFileOutputStream(directory: File, currentBeginTime: Long, filename: String, rule: Rule): FileOutputStream {
+    private fun newFile(directory: File, currentBeginTime: Long, filename: String, rule: Rule): File {
         val beginDate = Date(currentBeginTime)
         val subDirectoryName = beginDate.toFormatString(rule.directoryNameFormat)
         val subDirectoryFile = File(directory, subDirectoryName)
         val filenamePrefix = beginDate.toFormatString(rule.filenameFormat)
-        val outputFile = File(subDirectoryFile, filenamePrefix + Constants.Symbol.UNDERLINE + filename)
-        FileUtil.createFile(outputFile.absolutePath)
+        val file = File(subDirectoryFile, filenamePrefix + Constants.Symbol.UNDERLINE + filename)
+        file.create()
+        return file
+    }
+
+    private fun newFileOutputStream(outputFile: File): FileOutputStream {
         return FileOutputStream(outputFile, true)
     }
 
