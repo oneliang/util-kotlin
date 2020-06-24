@@ -22,7 +22,7 @@ class FileLogger(level: Level,
     private var currentFileOutputStream: FileOutputStream? = null
     private var currentBeginTime: Long = 0L
     private val logLock = ReentrantLock()
-    var currentFile: File
+    var currentFileAbsolutePath: String
         private set
 
     enum class Rule(val interval: Long, internal val directoryNameFormat: String, val filenameFormat: String) {
@@ -40,8 +40,9 @@ class FileLogger(level: Level,
     init {
         val beginDate = Date()
         this.currentBeginTime = beginDate.toFormatString(this.rule.filenameFormat).toUtilDate(this.rule.filenameFormat).time
-        this.currentFile = newFile(this.directory, this.currentBeginTime, this.filename, this.rule)
-        this.currentFileOutputStream = newFileOutputStream(this.currentFile)
+        val file = newFile(this.directory, this.currentBeginTime, this.filename, this.rule)
+        this.currentFileAbsolutePath = file.absolutePath
+        this.currentFileOutputStream = newFileOutputStream(file)
     }
 
     override fun log(level: Level, message: String, throwable: Throwable?, extraInfo: ExtraInfo) {
@@ -64,7 +65,7 @@ class FileLogger(level: Level,
                     val fileOutputStream = newFileOutputStream(file)
                     destroyCurrentFileOutputStream()//destroy
                     //reset
-                    this.currentFile = file
+                    this.currentFileAbsolutePath = file.absolutePath
                     this.currentFileOutputStream = fileOutputStream
                 }
                 this.logLock.unlock()
