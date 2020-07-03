@@ -129,7 +129,7 @@ fun <K, V> Map<K, V>.sameAs(map: Map<K, V>, valueComparator: (key: K, value: V, 
 
 fun <K, V> Map<K, V>.includes(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { key, value, mapValue -> value == mapValue }): Boolean = map.differs(this, valueComparator).isEmpty()
 
-fun <K, V> Map<K, V>.matches(map: Map<K, V>): Boolean = this.includes(map)
+fun <K, V> Map<K, V>.matches(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { key, value, mapValue -> value == mapValue }): Boolean = this.includes(map, valueComparator)
 
 inline fun <K, reified V> Map<K, V>.toArray(indexMapping: Map<K, Int>, defaultValue: V): Array<V> = this.toArray(indexMapping, defaultValue) { _, value -> value }
 
