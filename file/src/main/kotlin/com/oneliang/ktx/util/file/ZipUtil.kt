@@ -65,7 +65,7 @@ object ZipUtil {
         try {
             FileUtil.createFile(outputZipFullFilename)
             zipOutputStream = ZipOutputStream(FileOutputStream(outputZipFullFilename))
-            if (inputZipFullFilename.isBlank()) {
+            if (inputZipFullFilename.isNotBlank()) {
                 zipFile = ZipFile(inputZipFullFilename)
                 val enumeration = zipFile.entries()
                 while (enumeration.hasMoreElements()) {
