@@ -1,6 +1,7 @@
 package com.oneliang.ktx.util.file
 
 import com.oneliang.ktx.Constants
+import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipException
@@ -8,6 +9,7 @@ import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 
 object ZipUtil {
+    private val logger = LoggerManager.getLogger(ZipUtil::class)
 
     /**
      * zip
@@ -105,17 +107,21 @@ object ZipUtil {
             for (zipEntryName in needToAddEntryNameList) {
                 val zipEntryPath = zipEntryPathMap[zipEntryName]!!
                 val zipEntry = zipEntryPath.zipEntry
-                val inputStream = FileInputStream(zipEntryPath.fullFilename)
-                val newInputStream: InputStream
-                if (zipProcessor != null) {
-                    newInputStream = zipProcessor(zipEntry.name, inputStream)
-                    if (newInputStream !== inputStream) {
-                        inputStream.close()
+                if (zipEntryPath.fullFilename.fileExists()) {
+                    val inputStream = FileInputStream(zipEntryPath.fullFilename)
+                    val newInputStream: InputStream
+                    if (zipProcessor != null) {
+                        newInputStream = zipProcessor(zipEntry.name, inputStream)
+                        if (newInputStream !== inputStream) {
+                            inputStream.close()
+                        }
+                    } else {
+                        newInputStream = inputStream
                     }
+                    addZipEntry(zipOutputStream, zipEntry, newInputStream)
                 } else {
-                    newInputStream = inputStream
+                    logger.error("add zip entry, file is not exists, full filename :%s", zipEntryPath.fullFilename)
                 }
-                addZipEntry(zipOutputStream, zipEntry, newInputStream)
             }
         } catch (e: Exception) {
             throw ZipUtilException(e)
