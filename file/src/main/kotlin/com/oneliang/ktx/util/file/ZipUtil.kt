@@ -192,7 +192,7 @@ object ZipUtil {
 
     /**
      * unzip
-     * @param file
+     * @param zipFullFilename
      * @param outputDirectory
      * @param zipEntryNameList,if
      * it is null or empty,will unzip all
