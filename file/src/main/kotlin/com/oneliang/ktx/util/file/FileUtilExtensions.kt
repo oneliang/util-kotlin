@@ -21,3 +21,5 @@ fun File.create() = FileUtil.createFile(this)
 fun File.createDirectory() = FileUtil.createDirectory(this)
 
 fun String.fileExists(): Boolean = FileUtil.exists(this)
+
+fun File.hasFile(fileSuffix: String = Constants.String.BLANK): Boolean = FileUtil.hasFile(this, fileSuffix)

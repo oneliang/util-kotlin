@@ -5,8 +5,6 @@ import com.oneliang.ktx.util.common.MD5String
 import java.io.*
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
-import kotlin.collections.set
-
 
 object FileUtil {
 
@@ -22,15 +20,24 @@ object FileUtil {
         return File(path).exists()
     }
 
+
     /**
      * has file in directory
-     *
      * @param directory
      * @param fileSuffix
      * @return boolean
      */
     fun hasFile(directory: String, fileSuffix: String = Constants.String.BLANK): Boolean {
-        val directoryFile = File(directory)
+        return hasFile(File(directory), fileSuffix)
+    }
+
+    /**
+     * has file in directory
+     * @param directoryFile
+     * @param fileSuffix
+     * @return boolean
+     */
+    fun hasFile(directoryFile: File, fileSuffix: String = Constants.String.BLANK): Boolean {
         val queue = ConcurrentLinkedQueue<File>()
         queue.add(directoryFile)
         var result = false
