@@ -2,7 +2,7 @@ package com.oneliang.ktx.util.state
 
 import com.oneliang.ktx.util.logging.LoggerManager
 
-class StateMachine<T : State>(var currentState: T) {
+class StateMachine<K, T : State<K>>(var currentState: T) {
 
     companion object {
         private val logger = LoggerManager.getLogger(StateMachine::class)
@@ -10,10 +10,9 @@ class StateMachine<T : State>(var currentState: T) {
 
     /**
      * get previous state key set
-     *
      * @return Set<Integer>
     </Integer> */
-    val previousStateKeySet: Set<String>
+    val previousStateKeySet: Set<K>
         get() {
             return this.currentState.previousKeySet
         }
@@ -23,14 +22,13 @@ class StateMachine<T : State>(var currentState: T) {
      *
      * @return Set<Integer>
     </Integer> */
-    val nextStateKeySet: Set<String>
+    val nextStateKeySet: Set<K>
         get() {
             return this.currentState.nextKeySet
         }
 
     /**
      * has previous state
-     *
      * @return boolean
      */
     fun hasPreviousState(): Boolean {
@@ -39,13 +37,12 @@ class StateMachine<T : State>(var currentState: T) {
 
     /**
      * previous state
-     *
      * @param key
-     * @throws StateNotFoundException
+     * @throws State.StateNotFoundException
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(State.StateNotFoundException::class)
-    fun previousState(key: String) {
+    fun previousState(key: K) {
         this.currentState = this.currentState.previous(key) as T
     }
 
@@ -60,13 +57,12 @@ class StateMachine<T : State>(var currentState: T) {
 
     /**
      * next state
-     *
      * @param key
-     * @throws StateNotFoundException
+     * @throws State.StateNotFoundException
      */
     @Suppress("UNCHECKED_CAST")
     @Throws(State.StateNotFoundException::class)
-    fun nextState(key: String) {
+    fun nextState(key: K) {
         this.currentState = this.currentState.next(key) as T
     }
 }

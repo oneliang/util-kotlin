@@ -3,12 +3,12 @@ package com.oneliang.ktx.util.state
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.util.concurrent.ConcurrentHashMap
 
-class StateMap<T : State>(val startState: T, initializeStateMap: Map<String, T> = emptyMap()) {
+class StateMap<K, T : State<K>>(val startState: T, initializeStateMap: Map<K, T> = emptyMap()) {
     companion object {
         private val logger = LoggerManager.getLogger(StateMap::class)
 
         @Throws(Exception::class)
-        private fun printState(startState: State) {
+        private fun <K> printState(startState: State<K>) {
             logger.info("key:%s, name:%s", startState.key, startState.name)
             if (startState.hasNext()) {
                 val nextStateKeySet = startState.nextKeySet
@@ -20,30 +20,71 @@ class StateMap<T : State>(val startState: T, initializeStateMap: Map<String, T> 
         }
     }
 
-    private val stateMap = ConcurrentHashMap<String, T>()
+    private val stateMap = ConcurrentHashMap<K, T>()
 
     init {
         initializeStateMap.forEach { (key, state) ->
             this.stateMap[key] = state
         }
         this.stateMap[this.startState.key] = this.startState
+        travelAllNextStateToStateMap(this.startState)
     }
 
-    fun addNextState(key: String, nextState: T) {
-        if (stateMap.containsKey(key)) {
-            val previousState = stateMap[key]!!
+    @Suppress("UNCHECKED_CAST")
+    private fun travelAllNextStateToStateMap(state: T) {
+        if (state.hasNext()) {
+            val nextStateKeySet = state.nextKeySet
+            for (nextKey in nextStateKeySet) {
+                val nextState = state.next(nextKey) as T
+                this.addNextState(state.key, nextState)
+                travelAllNextStateToStateMap(nextState)
+            }
+        }
+    }
+
+    fun addNextState(key: K, nextState: T) {
+        if (this.stateMap.containsKey(key)) {
+            val previousState = this.stateMap[key]!!
             previousState.addNextState(nextState)
-            stateMap[nextState.key] = nextState
+            this.stateMap[nextState.key] = nextState
         } else {
             logger.error("state key:%s is not exist", key)
         }
     }
 
-    fun getState(key: String): T {
-        if (stateMap.containsKey(key)) {
-            return stateMap[key]!!
+    fun getState(key: K): T {
+        if (this.stateMap.containsKey(key)) {
+            return this.stateMap[key]!!
         } else {
-            error("state key:%s is not exist:%s".format(key))
+            throw State.StateNotFoundException("state key:%s is not exist:%s".format(key))
+        }
+    }
+
+    /**
+     * check previous
+     * @param key
+     * @param previousKey
+     * @return Boolean
+     */
+    fun checkPrevious(key: K, previousKey: K): Boolean {
+        if (this.stateMap.containsKey(key)) {
+            return this.stateMap[key]?.checkPrevious(previousKey) ?: return false
+        } else {
+            return false
+        }
+    }
+
+    /**
+     * check next
+     * @param key
+     * @param nextKey
+     * @return Boolean
+     */
+    fun checkNext(key: K, nextKey: K): Boolean {
+        if (this.stateMap.containsKey(key)) {
+            return this.stateMap[key]?.checkNext(nextKey) ?: return false
+        } else {
+            return false
         }
     }
 
