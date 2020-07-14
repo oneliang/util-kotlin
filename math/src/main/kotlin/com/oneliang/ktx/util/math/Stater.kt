@@ -130,7 +130,7 @@ fun MutableMap<String, Stater.Result>.merge(statResultMap: Map<String, Stater.Re
         val statKey = statKeyMap[statResultKey] ?: return@forEach //no include in stat key map
         val originalStatResult = this[statResultKey]
         this[statResultKey] = if (originalStatResult == null) {
-            Stater.generateNoneStatResult()
+            statResult
         } else {
             Stater.Result.mergeToNew(statResult, originalStatResult, statKey.format)
         }
