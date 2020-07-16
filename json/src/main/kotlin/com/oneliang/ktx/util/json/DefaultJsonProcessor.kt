@@ -19,7 +19,7 @@ open class DefaultJsonProcessor : JsonUtil.JsonProcessor {
             return Constants.String.NULL
         }
         val result: String
-        val valueKClazz = value.javaClass.kotlin
+        val valueKClazz = value::class
         if (valueKClazz.java.isArray) {
             result = when {
                 KotlinClassUtil.isBaseArray(valueKClazz) -> JsonUtil.baseArrayToJson(value)
@@ -41,7 +41,7 @@ open class DefaultJsonProcessor : JsonUtil.JsonProcessor {
         } else {
             result = when (value) {
                 is Iterable<*> -> JsonUtil.iterableToJson(value as Iterable<Any>, this, ignoreFirstLetterCase)
-                is Map<*, *> -> JsonUtil.mapToJson(value as Map<Any, Any>, this, ignoreFirstLetterCase)
+                is Map<*, *> -> JsonUtil.mapToJson(value, this, ignoreFirstLetterCase)
                 else -> JsonUtil.objectToJson(value, emptyArray(), this, ignoreFirstLetterCase)
             }
         }

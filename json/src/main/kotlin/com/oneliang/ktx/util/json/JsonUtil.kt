@@ -184,13 +184,13 @@ object JsonUtil {
      * @param ignoreFirstLetterCase
      * @return String
     </T> */
-    fun <T : Any> iterableToJson(iterable: Iterable<T>, jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
+    fun <T> iterableToJson(iterable: Iterable<T>, jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
         val string = StringBuilder()
         string.append(Constants.Symbol.MIDDLE_BRACKET_LEFT)
         val iterator = iterable.iterator()
         while (iterator.hasNext()) {
             val instance = iterator.next()
-            string.append(jsonProcessor.process(instance::class, Constants.String.BLANK, instance, ignoreFirstLetterCase))
+            string.append(jsonProcessor.process<Any>(null, Constants.String.BLANK, instance, ignoreFirstLetterCase))
             if (iterator.hasNext()) {
                 string.append(Constants.Symbol.COMMA)
             }
@@ -199,12 +199,12 @@ object JsonUtil {
         return string.toString()
     }
 
-    fun <K : Any, V : Any> mapToJson(map: Map<K, V>, jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
+    fun <K, V> mapToJson(map: Map<K, V>, jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
         val string = StringBuilder()
         string.append(Constants.Symbol.BIG_BRACKET_LEFT)
         val subString = StringBuilder()
         map.forEach { (key, instance) ->
-            val value = jsonProcessor.process(instance::class, key.toString(), instance, ignoreFirstLetterCase)
+            val value = jsonProcessor.process<Any>(null, key.toString(), instance, ignoreFirstLetterCase)
             subString.append(Constants.Symbol.DOUBLE_QUOTE + key.toString() + Constants.Symbol.DOUBLE_QUOTE + Constants.Symbol.COLON + value)
             subString.append(Constants.Symbol.COMMA)
         }

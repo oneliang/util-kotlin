@@ -16,9 +16,9 @@ fun Array<*>.toJson(jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSO
     }
 }
 
-fun <T : Any> Iterable<T>.toJson(jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR) = JsonUtil.iterableToJson(this, jsonProcessor)
+fun <T> Iterable<T>.toJson(jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR) = JsonUtil.iterableToJson(this, jsonProcessor)
 
-fun <K : Any, V : Any> Map<K, V>.toJson(jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR) = JsonUtil.mapToJson(this, jsonProcessor)
+fun <K, V> Map<K, V>.toJson(jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR) = JsonUtil.mapToJson(this, jsonProcessor)
 
 fun String.jsonToArrayBoolean(): Array<Boolean> = JsonUtil.jsonToArrayBoolean(this)
 
