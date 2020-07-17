@@ -1,7 +1,6 @@
 package com.oneliang.ktx.test.state
 
 import com.oneliang.ktx.util.state.State
-import com.oneliang.ktx.util.state.StateMachine
 import com.oneliang.ktx.util.state.StateMap
 
 fun main() {
