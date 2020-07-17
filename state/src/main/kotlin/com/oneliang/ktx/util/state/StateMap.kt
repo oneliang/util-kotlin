@@ -2,6 +2,7 @@ package com.oneliang.ktx.util.state
 
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedQueue
 
 class StateMap<K, T : State<K>>(val startState: T, initializeStateMap: Map<K, T> = emptyMap()) {
     companion object {
@@ -26,19 +27,34 @@ class StateMap<K, T : State<K>>(val startState: T, initializeStateMap: Map<K, T>
         initializeStateMap.forEach { (key, state) ->
             this.stateMap[key] = state
         }
-        this.stateMap[this.startState.key] = this.startState
         travelAllNextStateToStateMap(this.startState)
     }
 
     @Suppress("UNCHECKED_CAST")
     private fun travelAllNextStateToStateMap(state: T) {
-        if (state.hasNext()) {
-            val nextStateKeySet = state.nextKeySet
-            for (nextKey in nextStateKeySet) {
-                val nextState = state.next(nextKey) as T
-                this.addNextState(state.key, nextState)
-                travelAllNextStateToStateMap(nextState)
+        val queue = ConcurrentLinkedQueue<T>()
+        queue += state
+        this.stateMap[state.key] = state
+        while (queue.isNotEmpty()) {
+            val currentState = queue.poll()!!
+            if (currentState.hasNext()) {
+                val nextStateKeySet = currentState.nextKeySet
+                for (nextKey in nextStateKeySet) {
+                    val nextState = currentState.next(nextKey) as T
+                    if (!this.stateMap.containsKey(nextState.key)) {
+                        this.stateMap[nextState.key] = nextState
+                        queue += nextState
+                    }
+                }
             }
+        }
+    }
+
+    fun getState(key: K): T {
+        if (this.stateMap.containsKey(key)) {
+            return this.stateMap[key]!!
+        } else {
+            throw State.StateNotFoundException("state key:%s is not exist:%s".format(key))
         }
     }
 
@@ -49,14 +65,6 @@ class StateMap<K, T : State<K>>(val startState: T, initializeStateMap: Map<K, T>
             this.stateMap[nextState.key] = nextState
         } else {
             logger.error("state key:%s is not exist", key)
-        }
-    }
-
-    fun getState(key: K): T {
-        if (this.stateMap.containsKey(key)) {
-            return this.stateMap[key]!!
-        } else {
-            throw State.StateNotFoundException("state key:%s is not exist:%s".format(key))
         }
     }
 
