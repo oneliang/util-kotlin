@@ -35,7 +35,6 @@ object LoggerManager {
 
     /**
      * register logger
-     *
      * @param clazz
      * @param logger
      */
@@ -45,22 +44,20 @@ object LoggerManager {
 
     /**
      * register logger
-     *
      * @param pattern
      * @param logger
      */
     fun registerLogger(pattern: String, logger: Logger) {
-        patternLoggerMap.put(pattern, logger)
+        patternLoggerMap[pattern] = logger
         loggerPatternSet.add(pattern)
     }
 
     /**
      * unregister logger
-     *
-     * @param clazz
+     * @param kClass
      */
-    fun unregisterLogger(clazz: KClass<*>) {
-        loggerMap.remove(clazz)
+    fun unregisterLogger(kClass: KClass<*>) {
+        loggerMap.remove(kClass)
     }
 
     /**

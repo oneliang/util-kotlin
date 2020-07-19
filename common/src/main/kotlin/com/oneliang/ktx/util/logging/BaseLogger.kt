@@ -16,3 +16,5 @@ open class BaseLogger(level: Logger.Level) : AbstractLogger(level) {
 
     override fun destroy() {}
 }
+
+object EmptyLogger : BaseLogger(Logger.Level.ERROR)
