@@ -29,7 +29,7 @@ object Stater {
         return Result.build(Constants.String.BLANK, function = StatFunction.NONE.value)
     }
 
-    fun <K : Any, V : Any> stat(dataMap: Map<K, V>, functionString: String, statKeyTransform: (statKey: String) -> K): Result {
+    fun <K, V> stat(dataMap: Map<K, V>, functionString: String, statKeyTransform: (statKey: String) -> K): Result {
         return when {
             functionString.startsWith(StatFunction.COUNT.value) -> {
                 val keyList = functionString.parseRegexGroup(StatFunction.COUNT.regex)
@@ -73,7 +73,7 @@ object Stater {
         }
     }
 
-    fun <K : Any, V : Any> stat(dataMap: Map<K, V>, statKeyArray: Array<StatKey>, statKeyTransform: (statKey: String) -> K): Map<String, Result> {
+    fun <K, V> stat(dataMap: Map<K, V>, statKeyArray: Array<StatKey>, statKeyTransform: (statKey: String) -> K): Map<String, Result> {
         val statResultMap = mutableMapOf<String, Result>()
         statKeyArray.forEach { statKey ->
             statResultMap[statKey.newKey] = stat(dataMap, statKey.function, statKeyTransform)
@@ -81,7 +81,7 @@ object Stater {
         return statResultMap
     }
 
-    fun <K : Any, V : Any> stat(dataMapIterable: Iterable<Map<K, V>>, statKeyArray: Array<StatKey>, statKeyTransform: (statKey: String) -> K): Map<String, Result> {
+    fun <K, V> stat(dataMapIterable: Iterable<Map<K, V>>, statKeyArray: Array<StatKey>, statKeyTransform: (statKey: String) -> K): Map<String, Result> {
         val statResultMap = mutableMapOf<String, Result>()
         val statKeyMap = statKeyArray.toMapBy { it.newKey }
         dataMapIterable.forEach { dataMap ->
