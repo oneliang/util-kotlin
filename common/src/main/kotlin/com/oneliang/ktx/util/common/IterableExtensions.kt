@@ -95,3 +95,12 @@ fun <T> Iterable<T>.differs(compareIterable: Iterable<T>, valueComparator: (valu
         valueComparator(value, mapValue)
     }
 }
+
+
+inline fun <T, R> Iterable<T>.toHashSet(transform: (t: T) -> R): Set<R> {
+    val hashSet = HashSet<R>()
+    this.forEach {
+        hashSet += transform(it)
+    }
+    return hashSet
+}
