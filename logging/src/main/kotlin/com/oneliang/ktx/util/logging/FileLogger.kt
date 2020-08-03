@@ -59,8 +59,9 @@ class FileLogger(level: Level,
                     this.currentBeginTime += this.rule.interval
                     //close current file output stream
                     destroy()
-                    //set to new file output stream
+                    //delete expire file
                     deleteExpireFile(this.directory, this.currentBeginTime, this.rule)
+                    //set to new file output stream
                     val file = newFile(this.directory, this.currentBeginTime, this.filename, this.rule)
                     val fileOutputStream = newFileOutputStream(file)
                     destroyCurrentFileOutputStream()//destroy
@@ -81,10 +82,12 @@ class FileLogger(level: Level,
      */
     private fun deleteExpireFile(directory: File, currentBeginTime: Long, rule: Rule) {
         val beginDate = Date(currentBeginTime)
-        for (i in 30 downTo this.retainDays) {
-            val subDirectoryName = beginDate.getDayZeroTimePrevious(i).toUtilDate().toFormatString(rule.directoryNameFormat)
-            val subDirectoryFile = File(directory, subDirectoryName)
-            subDirectoryFile.deleteAll()
+        if (this.retainDays >= 0) {
+            for (i in 30 downTo this.retainDays) {
+                val subDirectoryName = beginDate.getDayZeroTimePrevious(i).toUtilDate().toFormatString(rule.directoryNameFormat)
+                val subDirectoryFile = File(directory, subDirectoryName)
+                subDirectoryFile.deleteAll()
+            }
         }
     }
 
