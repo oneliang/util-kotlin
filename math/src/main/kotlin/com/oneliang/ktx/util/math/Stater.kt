@@ -47,7 +47,7 @@ object Stater {
                     val dataStatKey = statKeyTransform(keyList[0])
                     val value = dataMap[dataStatKey]
                     if (value == null) {
-                        Result.build(valueSet = hashSetOf(), function = StatFunction.DISTINCT.value)
+                        Result.build(function = StatFunction.DISTINCT.value)
                     } else {
                         Result.build(valueSet = hashSetOf(value.toString()), function = StatFunction.DISTINCT.value)
                     }
