@@ -47,9 +47,9 @@ object Stater {
                     val dataStatKey = statKeyTransform(keyList[0])
                     val value = dataMap[dataStatKey]
                     if (value == null) {
-                        generateNoneStatResult()
+                        Result.build(valueSet = hashSetOf(), function = StatFunction.DISTINCT.value)
                     } else {
-                        Result.build(valueSet = hashSetOf(value.toString().nullToBlank()), function = StatFunction.DISTINCT.value)
+                        Result.build(valueSet = hashSetOf(value.toString()), function = StatFunction.DISTINCT.value)
                     }
                 }
             }
@@ -61,9 +61,9 @@ object Stater {
                     val dataStatKey = statKeyTransform(keyList[0])
                     val value = dataMap[dataStatKey]
                     if (value == null) {
-                        generateNoneStatResult()
+                        Result.build(value = Constants.String.ZERO, function = StatFunction.SUM.value)
                     } else {
-                        Result.build(value = dataMap[dataStatKey]?.toString() ?: Constants.String.ZERO, function = StatFunction.SUM.value)
+                        Result.build(value = value.toString(), function = StatFunction.SUM.value)
                     }
                 }
             }
