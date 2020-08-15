@@ -8,7 +8,10 @@ import com.oneliang.ktx.util.file.create
 import jxl.Cell
 import jxl.Sheet
 import jxl.Workbook
-import jxl.write.*
+import jxl.write.Label
+import jxl.write.WritableCell
+import jxl.write.WritableSheet
+import jxl.write.WritableWorkbook
 import java.io.File
 import kotlin.reflect.KClass
 
@@ -86,7 +89,7 @@ object JxlUtil {
     @Throws(Exception::class)
     fun readSimpleExcel(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0): List<Map<String, String>> {
         return readSimpleExcel(workbook, headerRowIndex, dataRowOffset) { sheet, rowIndex, existHeader, headerIndexMap ->
-            createRowData(sheet, rowIndex, existHeader, headerIndexMap) { it }
+            createRowData(sheet, rowIndex, existHeader, headerIndexMap, { cell, _, _ -> cell.contents.nullToBlank() }) { it }
         }
     }
 
@@ -96,12 +99,30 @@ object JxlUtil {
      * @param workbook
      * @param headerRowIndex
      * @param dataRowOffset
+     * @param valueTransform
      * @return List<T>
     </T></T> */
     @Throws(Exception::class)
-    fun <T : Any> readSimpleExcel(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0, transform: (dataMap: Map<String, String>) -> T): List<T> {
+    fun <V : Any> readSimpleExcel(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0, valueTransform: (cell: Cell, rowIndex: Int, columnIndex: Int) -> V): List<Map<String, V>> {
         return readSimpleExcel(workbook, headerRowIndex, dataRowOffset) { sheet, rowIndex, existHeader, headerIndexMap ->
-            createRowData(sheet, rowIndex, existHeader, headerIndexMap, transform)
+            createRowData(sheet, rowIndex, existHeader, headerIndexMap, valueTransform) { it }
+        }
+    }
+
+    /**
+     * read simple excel
+     * @param <T>
+     * @param workbook
+     * @param headerRowIndex
+     * @param dataRowOffset
+     * @param valueTransform
+     * @param rowDataTransform
+     * @return List<T>
+    </T></T> */
+    @Throws(Exception::class)
+    fun <V : Any, T : Any> readSimpleExcel(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0, valueTransform: (cell: Cell, rowIndex: Int, columnIndex: Int) -> V, rowDataTransform: (dataMap: Map<String, V>) -> T): List<T> {
+        return readSimpleExcel(workbook, headerRowIndex, dataRowOffset) { sheet, rowIndex, existHeader, headerIndexMap ->
+            createRowData(sheet, rowIndex, existHeader, headerIndexMap, valueTransform, rowDataTransform)
         }
     }
 
@@ -142,21 +163,21 @@ object JxlUtil {
     /**
      * create row data
      */
-    private fun <T : Any> createRowData(sheet: Sheet, rowIndex: Int, existHeader: Boolean, headerIndexMap: Map<String, Int>, transform: (dataMap: Map<String, String>) -> T): T {
-        val map = mutableMapOf<String, String>()
+    private fun <V : Any, T : Any> createRowData(sheet: Sheet, rowIndex: Int, existHeader: Boolean, headerIndexMap: Map<String, Int>, valueTransform: (cell: Cell, rowIndex: Int, columnIndex: Int) -> V, rowDataTransform: (dataMap: Map<String, V>) -> T): T {
+        val map = mutableMapOf<String, V>()
         if (existHeader) {
             headerIndexMap.forEach { (header, columnIndex) ->
                 val cell = sheet.getCell(columnIndex, rowIndex)
-                map[header] = cell.contents.nullToBlank()
+                map[header] = valueTransform(cell, rowIndex, columnIndex)
             }
         } else {
             val columns = sheet.columns
             for (columnIndex in 0 until columns) {
                 val cell = sheet.getCell(columnIndex, rowIndex)
-                map[columnIndex.toString()] = cell.contents.nullToBlank()
+                map[columnIndex.toString()] = valueTransform(cell, rowIndex, columnIndex)
             }
         }
-        return transform(map)
+        return rowDataTransform(map)
     }
 
     private fun <T : Any> createRowInstance(sheet: Sheet, rowIndex: Int, kClass: KClass<T>, existHeader: Boolean, headerIndexMap: Map<String, Int>, jxlMappingBean: JxlMappingBean, jxlProcessor: JxlProcessor = DEFAULT_JXL_PROCESSOR): T {
