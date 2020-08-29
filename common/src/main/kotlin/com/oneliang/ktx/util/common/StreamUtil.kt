@@ -40,7 +40,6 @@ object StreamUtil {
 
     /**
      * read input stream content ignore line
-     *
      * @param inputStream
      * @param encoding
      * @param append
@@ -54,6 +53,21 @@ object StreamUtil {
             true
         }
         return stringBuilder.toString()
+    }
+
+    /**
+     * read input stream lines
+     * @param inputStream
+     * @param encoding
+     * @return List<String>
+     */
+    fun readInputStreamLines(inputStream: InputStream, encoding: String = Constants.Encoding.UTF8): List<String> {
+        val list = mutableListOf<String>()
+        readInputStreamContentIgnoreLine(inputStream, encoding) { line ->
+            list += line
+            true
+        }
+        return list
     }
 
     class StreamUtilException(cause: Throwable) : RuntimeException(cause)
