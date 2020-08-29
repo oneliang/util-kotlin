@@ -2,6 +2,7 @@ package com.oneliang.ktx.util.file
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.MD5String
+import com.oneliang.ktx.util.common.StreamUtil
 import java.io.*
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -282,13 +283,11 @@ object FileUtil {
      */
     fun readFileContentIgnoreLine(fullFilename: String, encoding: String = Constants.Encoding.UTF8, append: String = Constants.String.BLANK): String {
         val stringBuilder = StringBuilder()
-        readFileContentIgnoreLine(fullFilename, encoding, object : ReadFileContentProcessor {
-            override fun afterReadLine(line: String): Boolean {
-                stringBuilder.append(line)
-                stringBuilder.append(append)
-                return true
-            }
-        })
+        readFileContentIgnoreLine(fullFilename, encoding) { line ->
+            stringBuilder.append(line)
+            stringBuilder.append(append)
+            true
+        }
         return stringBuilder.toString()
     }
 
@@ -299,11 +298,11 @@ object FileUtil {
      * @param encoding
      * @param readFileContentProcessor
      */
-    fun readFileContentIgnoreLine(fullFilename: String, encoding: String = Constants.Encoding.UTF8, readFileContentProcessor: ReadFileContentProcessor) {
+    fun readFileContentIgnoreLine(fullFilename: String, encoding: String = Constants.Encoding.UTF8, readFileContentProcessor: (line: String) -> Boolean) {
         var inputStream: InputStream? = null
         try {
             inputStream = FileInputStream(fullFilename)
-            readInputStreamContentIgnoreLine(inputStream, encoding, readFileContentProcessor)
+            StreamUtil.readInputStreamContentIgnoreLine(inputStream, encoding, readFileContentProcessor)
         } catch (e: Exception) {
             throw FileUtilException(e)
         } finally {
@@ -319,69 +318,17 @@ object FileUtil {
     }
 
     /**
-     * read input stream content ignore line
-     *
-     * @param inputStream
-     * @param encoding
-     * @param append
-     * @return String
-     */
-    fun readInputStreamContentIgnoreLine(inputStream: InputStream, encoding: String = Constants.Encoding.UTF8, append: String = Constants.String.BLANK): String {
-        val stringBuilder = StringBuilder()
-        readInputStreamContentIgnoreLine(inputStream, encoding, object : ReadFileContentProcessor {
-            override fun afterReadLine(line: String): Boolean {
-                stringBuilder.append(line)
-                stringBuilder.append(append)
-                return true
-            }
-        })
-        return stringBuilder.toString()
-    }
-
-    /**
-     * read input stream content ignore line
-     *
-     * @param inputStream
-     * @param encoding
-     * @param readFileContentProcessor
-     */
-    fun readInputStreamContentIgnoreLine(inputStream: InputStream, encoding: String = Constants.Encoding.UTF8, readFileContentProcessor: ReadFileContentProcessor) {
-        var bufferedReader: BufferedReader? = null
-        try {
-            bufferedReader = BufferedReader(InputStreamReader(inputStream, encoding))
-            var line: String? = bufferedReader.readLine()
-            while (line != null) {
-                val continueRead = readFileContentProcessor.afterReadLine(line)
-                if (!continueRead) {
-                    break
-                }
-                line = bufferedReader.readLine()
-            }
-        } catch (e: Exception) {
-            throw FileUtilException(e)
-        } finally {
-            if (bufferedReader != null) {
-                try {
-                    bufferedReader.close()
-                } catch (e: Exception) {
-                    throw FileUtilException(e)
-                }
-            }
-        }
-    }
-
-    /**
      * write file content,best for string content
      *
      * @param fullFilename
      * @param writeFileContentProcessor
      */
-    fun writeFileContent(fullFilename: String, charsetName: String = Constants.Encoding.UTF8, append: Boolean = false, writeFileContentProcessor: WriteFileContentProcessor? = null) {
+    fun writeFileContent(fullFilename: String, charsetName: String = Constants.Encoding.UTF8, append: Boolean = false, writeFileContentProcessor: ((bufferedWriter: BufferedWriter) -> Unit)? = null) {
         createFile(fullFilename)
         var bufferedWriter: BufferedWriter? = null
         try {
             bufferedWriter = BufferedWriter(OutputStreamWriter(FileOutputStream(fullFilename, append), charsetName))
-            writeFileContentProcessor?.writeContent(bufferedWriter)
+            writeFileContentProcessor?.invoke(bufferedWriter)
         } catch (e: Exception) {
             throw FileUtilException(e)
         } finally {
@@ -770,25 +717,5 @@ object FileUtil {
         internal var findType = FindType.FILE
         var includeHidden = false
         var deepMatch = true
-    }
-
-    interface ReadFileContentProcessor {
-        /**
-         * after read line
-         *
-         * @param line
-         * @return boolean, if true continue read, false break read
-         */
-        fun afterReadLine(line: String): Boolean
-    }
-
-    interface WriteFileContentProcessor {
-        /**
-         * write content
-         *
-         * @param bufferedWriter
-         * @throws Exception
-         */
-        fun writeContent(bufferedWriter: BufferedWriter)
     }
 }

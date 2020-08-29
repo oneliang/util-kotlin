@@ -9,10 +9,8 @@ import javax.script.ScriptContext
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 
-class Template {
-    companion object {
-        private val logger = LoggerManager.getLogger(Template::class)
-    }
+object Template {
+    private val logger = LoggerManager.getLogger(Template::class)
 
     private val scriptEngineManager = ScriptEngineManager()
     private val scriptEngine: ScriptEngine = scriptEngineManager.getEngineByExtension("js")
@@ -20,13 +18,11 @@ class Template {
     fun generate(option: Option) {
         try {
             val stringBuilder = StringBuilder()
-            FileUtil.readFileContentIgnoreLine(option.templateFile, Constants.Encoding.UTF8, object : FileUtil.ReadFileContentProcessor {
-                override fun afterReadLine(line: String): Boolean {
-                    stringBuilder.append(line)
-                    stringBuilder.append(Constants.String.CRLF_STRING)
-                    return true
-                }
-            })
+            FileUtil.readFileContentIgnoreLine(option.templateFile, Constants.Encoding.UTF8) { line ->
+                stringBuilder.append(line)
+                stringBuilder.append(Constants.String.CRLF_STRING)
+                true
+            }
             val templateContent = stringBuilder.toString()
             val bindings = scriptEngine.createBindings()
             scriptEngine.setBindings(bindings, ScriptContext.GLOBAL_SCOPE)
