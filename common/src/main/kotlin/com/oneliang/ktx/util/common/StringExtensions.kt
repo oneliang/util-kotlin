@@ -159,3 +159,25 @@ fun String.splitForCsv(): List<String> {
     }
     return newList
 }
+
+fun String.splitForWhitespace(): List<String> {
+    val list = mutableListOf<String>()
+    var beginIndex = 0
+    var endIndex = 0
+    val stringLength = this.length
+    this.toCharArray().forEach {
+        if (it.isWhitespace()) {
+            if (endIndex > beginIndex) {//for continuation white space
+                list += this.substring(beginIndex, endIndex)
+            }
+            endIndex++
+            beginIndex = endIndex
+        } else {
+            endIndex++
+            if (endIndex == stringLength && endIndex > beginIndex) {//for end position
+                list += this.substring(beginIndex, endIndex)
+            }
+        }
+    }
+    return list
+}
