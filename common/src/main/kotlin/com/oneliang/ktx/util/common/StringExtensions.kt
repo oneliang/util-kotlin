@@ -2,6 +2,8 @@ package com.oneliang.ktx.util.common
 
 import com.oneliang.ktx.Constants
 import java.io.File
+import java.math.BigDecimal
+import java.math.MathContext
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -12,6 +14,8 @@ fun String?.toLongSafely(defaultValue: Long = 0): Long = perform({ this?.toLong(
 fun String?.toFloatSafely(defaultValue: Float = 0f): Float = perform({ this?.toFloat() ?: defaultValue }, failure = { defaultValue })
 
 fun String?.toDoubleSafely(defaultValue: Double = 0.0): Double = perform({ this?.toDouble() ?: defaultValue }, failure = { defaultValue })
+
+fun String?.toBigDecimalSafely(defaultValue: BigDecimal = BigDecimal(0), mathContext: MathContext = MathContext.UNLIMITED): BigDecimal = perform({ BigDecimal(this, mathContext) }, failure = { defaultValue })
 
 fun String?.toBooleanSafely(defaultValue: Boolean = false): Boolean {
     this ?: return defaultValue

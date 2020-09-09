@@ -114,7 +114,7 @@ fun Stater.Result.Companion.mergeToNew(currentResult: Stater.Result, previousRes
                 it.valueSet = hashSet
             }
             it.function.startsWith(Stater.StatFunction.SUM.value) -> {
-                val sumResult = currentResult.value.toDoubleSafely() + previousResult.value.toDoubleSafely()
+                val sumResult = currentResult.value.toBigDecimalSafely().add(previousResult.value.toBigDecimalSafely())
                 it.value = if (format.isBlank()) {
                     sumResult.toString()
                 } else {
