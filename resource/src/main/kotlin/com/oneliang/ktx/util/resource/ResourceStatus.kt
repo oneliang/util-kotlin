@@ -1,14 +1,7 @@
 package com.oneliang.ktx.util.resource
 
-class ResourceStatus<T : Any> {
+class ResourceStatus<T : Any>(var resource: T) {
 
-    /**
-     * @return the resource
-     */
-    /**
-     * @param resource the resource to set
-     */
-    var resource: T? = null
     /**
      * @return the inUse
      */

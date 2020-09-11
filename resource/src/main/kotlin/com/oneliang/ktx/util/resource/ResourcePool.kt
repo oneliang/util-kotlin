@@ -41,21 +41,19 @@ abstract class ResourcePool<T : Any> : Runnable {
         return currentThreadHashCode % maxStableResourceSize
     }
 
-    val stableResource: T?
+    val stableResource: T
         get() {
             if (!this.hasBeenInitialized) {
                 this.initialize()
             }
             this.stableResourceLock.lock()
             logger.info("resource pool name:%s, stable resource current size:%s, stable resource map:%s", this.resourcePoolName, this.stableResourceStatusMap.size, this.stableResourceStatusMap)
-            val stableResource: T?
+            val stableResource: T
             try {
                 val stableResourceStatusKey = getStableResourceStatusKey()
                 val stableResourceStatus = this.stableResourceStatusMap.getOrPut(stableResourceStatusKey) {
                     val resource = this.resourceSource.resource
-                    StableResourceStatus<T>().apply {
-                        this.resource = resource
-                    }
+                    StableResourceStatus(resource)
                 }
                 stableResource = stableResourceStatus.resource
             } finally {
@@ -71,7 +69,7 @@ abstract class ResourcePool<T : Any> : Runnable {
      */
     //true prove if have the resource which have not in use
     //current size > 0 prove the resource pool have the resource
-    open val resource: T?
+    open val resource: T
         @Throws(ResourcePoolException::class)
         get() {
             if (!this.hasBeenInitialized) {
@@ -102,13 +100,10 @@ abstract class ResourcePool<T : Any> : Runnable {
                             continue
                         }
                         resource = this.resourceSource.resource
-                        if (resource != null) {
-                            val oneStatus = ResourceStatus<T>()
-                            oneStatus.resource = resource
-                            oneStatus.isInUse = true
-                            this.resourceStatusArray[index] = oneStatus
-                            this.resourceCurrentSize++
-                        }
+                        val oneStatus = ResourceStatus(resource)
+                        oneStatus.isInUse = true
+                        this.resourceStatusArray[index] = oneStatus
+                        this.resourceCurrentSize++
                         break
                     }
                 } else {
@@ -116,6 +111,9 @@ abstract class ResourcePool<T : Any> : Runnable {
                 }
             } finally {
                 this.resourceLock.unlock()
+            }
+            if (resource == null) {
+                throw ResourcePoolException("resource can not be null")
             }
             return resource
         }
@@ -136,8 +134,7 @@ abstract class ResourcePool<T : Any> : Runnable {
             this.resourceStatusArray = arrayOfNulls<ResourceStatus<T>?>(this.maxResourceSize)
             for (i in 0 until this.minResourceSize) {
                 val resource = this.resourceSource.resource ?: continue
-                val resourceStatus = ResourceStatus<T>()
-                resourceStatus.resource = resource
+                val resourceStatus = ResourceStatus(resource)
                 this.resourceStatusArray[i] = resourceStatus
                 this.resourceCurrentSize++
             }
