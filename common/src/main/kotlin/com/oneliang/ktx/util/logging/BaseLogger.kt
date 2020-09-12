@@ -10,7 +10,7 @@ open class BaseLogger(level: Logger.Level) : AbstractLogger(level) {
      * @param extraInfo
      */
     override fun log(level: Logger.Level, message: String, throwable: Throwable?, extraInfo: ExtraInfo) {
-        println(generateLogContent(level, message, throwable, extraInfo))
+        println(this.generateLogContent(level, message, throwable, extraInfo))
         throwable?.printStackTrace()
     }
 
