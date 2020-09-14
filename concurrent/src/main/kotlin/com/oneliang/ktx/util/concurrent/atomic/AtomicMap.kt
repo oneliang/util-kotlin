@@ -1,5 +1,6 @@
 package com.oneliang.ktx.util.concurrent.atomic
 
+import com.oneliang.ktx.util.common.perform
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
@@ -21,13 +22,16 @@ class AtomicMap<K, V> constructor() : AbstractMap<K, V>() {
         if (this.map.containsKey(key)) {
             atomicUpdate(key, update)
         } else {
-            lock.lock()
-            if (this.map.containsKey(key)) {
-                atomicUpdate(key, update)
-            } else {
-                this.map[key] = AtomicReference(create())
-            }
-            lock.unlock()
+            perform({
+                this.lock.lock()
+                if (this.map.containsKey(key)) {
+                    atomicUpdate(key, update)
+                } else {
+                    this.map[key] = AtomicReference(create())
+                }
+            }, finally = {
+                lock.unlock()
+            })
         }
     }
 
