@@ -52,24 +52,27 @@ class FileLogger(level: Level,
             var timeInterval = currentTime - this.currentBeginTime
             //next time internal
             if (timeInterval >= this.rule.interval) {
-                this.logLock.lock()
-                timeInterval = currentTime - this.currentBeginTime
-                //double check, current day may be change, day internal is the same when first in, but second time is not the same
-                if (timeInterval >= this.rule.interval) {
-                    this.currentBeginTime += this.rule.interval
-                    //close current file output stream
-                    destroy()
-                    //delete expire file
-                    deleteExpireFile(this.directory, this.currentBeginTime, this.rule)
-                    //set to new file output stream
-                    val file = newFile(this.directory, this.currentBeginTime, this.filename, this.rule)
-                    val fileOutputStream = newFileOutputStream(file)
-                    destroyCurrentFileOutputStream()//destroy
-                    //reset
-                    this.currentFileAbsolutePath = file.absolutePath
-                    this.currentFileOutputStream = fileOutputStream
+                try {
+                    this.logLock.lock()
+                    timeInterval = currentTime - this.currentBeginTime
+                    //double check, current day may be change, day internal is the same when first in, but second time is not the same
+                    if (timeInterval >= this.rule.interval) {
+                        this.currentBeginTime += this.rule.interval
+                        //close current file output stream
+                        destroy()
+                        //delete expire file
+                        deleteExpireFile(this.directory, this.currentBeginTime, this.rule)
+                        //set to new file output stream
+                        val file = newFile(this.directory, this.currentBeginTime, this.filename, this.rule)
+                        val fileOutputStream = newFileOutputStream(file)
+                        destroyCurrentFileOutputStream()//destroy
+                        //reset
+                        this.currentFileAbsolutePath = file.absolutePath
+                        this.currentFileOutputStream = fileOutputStream
+                    }
+                } finally {
+                    this.logLock.unlock()
                 }
-                this.logLock.unlock()
             }
             writeLogContent(this.currentFileOutputStream, logContent, throwable)
         } catch (e: Throwable) {

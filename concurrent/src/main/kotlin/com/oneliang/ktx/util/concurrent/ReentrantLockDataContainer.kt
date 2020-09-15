@@ -15,14 +15,18 @@ class ReentrantLockDataContainer<K : Any, V : Any> {
             val reentrantLock = this.reentrantLockMap[key] ?: error("not found ReentrantLock for key:$key, may be something error")
             doLockBlock(key, reentrantLock, block)
         } else {
-            this.lock.lock()
-            if (!this.reentrantLockMap.containsKey(key)) {
-                this.reentrantLockMap[key] = ReentrantLock()
-            }
-            val reentrantLock = this.reentrantLockMap[key] ?: error("not found ReentrantLock for key:$key, may be something error")
-            val result = doLockBlock(key, reentrantLock, block)
-            this.lock.unlock()
-            result
+            perform({
+                this.lock.lock()
+                if (!this.reentrantLockMap.containsKey(key)) {
+                    this.reentrantLockMap[key] = ReentrantLock()
+                }
+                val reentrantLock = this.reentrantLockMap[key] ?: error("not found ReentrantLock for key:$key, may be something error")
+                doLockBlock(key, reentrantLock, block)
+            }, failure = {
+                null
+            }, finally = {
+                this.lock.unlock()
+            })
         }
     }
 

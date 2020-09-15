@@ -46,10 +46,10 @@ abstract class ResourcePool<T : Any> : Runnable {
             if (!this.hasBeenInitialized) {
                 this.initialize()
             }
-            this.stableResourceLock.lock()
-            logger.info("resource pool name:%s, stable resource current size:%s, stable resource map:%s", this.resourcePoolName, this.stableResourceStatusMap.size, this.stableResourceStatusMap)
             val stableResource: T
             try {
+                this.stableResourceLock.lock()
+                logger.info("resource pool name:%s, stable resource current size:%s, stable resource map:%s", this.resourcePoolName, this.stableResourceStatusMap.size, this.stableResourceStatusMap)
                 val stableResourceStatusKey = getStableResourceStatusKey()
                 val stableResourceStatus = this.stableResourceStatusMap.getOrPut(stableResourceStatusKey) {
                     val resource = this.resourceSource.resource
@@ -76,9 +76,9 @@ abstract class ResourcePool<T : Any> : Runnable {
                 initialize()
             }
             var resource: T? = null
-            this.resourceLock.lock()
-            logger.info("resource pool name:%s, resource current size:%s", this.resourcePoolName, this.resourceCurrentSize)
             try {
+                this.resourceLock.lock()
+                logger.info("resource pool name:%s, resource current size:%s", this.resourcePoolName, this.resourceCurrentSize)
                 if (this.resourceCurrentSize > 0) {
                     for (resourceStatus in this.resourceStatusArray) {
                         if (resourceStatus == null || resourceStatus.isInUse) {
@@ -125,8 +125,8 @@ abstract class ResourcePool<T : Any> : Runnable {
         if (this.hasBeenInitialized) {
             return
         }
-        this.initializeLock.lock()
         try {
+            this.initializeLock.lock()
             if (this.hasBeenInitialized) {
                 this.initializeLock.unlock()
                 return//return will trigger finally, but use unlock safety
@@ -155,8 +155,8 @@ abstract class ResourcePool<T : Any> : Runnable {
             val stableResourceStatus = this.stableResourceStatusMap[stableResourceStatusKey]
             if (stableResourceStatus != null && stableResource == stableResourceStatus.resource) {
                 if (destroy) {
-                    this.stableResourceLock.lock()
                     perform({
+                        this.stableResourceLock.lock()
                         realDestroyStableResource(stableResourceStatusKey, stableResource)
                     }, failure = {
                         logger.error(Constants.Base.EXCEPTION, it)
@@ -190,8 +190,8 @@ abstract class ResourcePool<T : Any> : Runnable {
             //find the resource and set in use false
             if (resource == resourceStatus.resource) {
                 if (destroy) {
-                    this.resourceLock.lock()
                     perform({
+                        this.resourceLock.lock()
                         realDestroyResource(index, resource)
                     }, failure = {
                         logger.error(Constants.Base.EXCEPTION, it)
@@ -220,8 +220,8 @@ abstract class ResourcePool<T : Any> : Runnable {
      * @throws Exception
      */
     open fun clean() {
-        this.resourceLock.lock()
         try {
+            this.resourceLock.lock()
             for ((index, resourceStatus) in this.resourceStatusArray.withIndex()) {
                 if (resourceStatus == null || resourceStatus.isInUse) {
                     continue
@@ -237,8 +237,8 @@ abstract class ResourcePool<T : Any> : Runnable {
             this.resourceLock.unlock()
         }
         //stable resource
-        this.stableResourceLock.lock()
         try {
+            this.stableResourceLock.lock()
             this.stableResourceStatusMap.forEach { (stableResourceKey: Int, statusResourceStatus: StableResourceStatus<T>) ->
                 val lastTime = statusResourceStatus.lastNotInUseTime
                 val currentTime = System.currentTimeMillis()
