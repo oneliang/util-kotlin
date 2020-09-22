@@ -29,11 +29,9 @@ fun String?.toBooleanSafely(defaultValue: Boolean = false): Boolean {
 
 fun String.hexStringToByteArray(): ByteArray = ByteArray(this.length / 2) { this.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
 
-private
-val MATCH_PATTERN_REGEX = "[\\*]+".toRegex()
+private val MATCH_PATTERN_REGEX = "[\\*]+".toRegex()
 private const val MATCH_PATTERN = Constants.Symbol.WILDCARD
-private const
-val MATCH_PATTERN_REPLACEMENT = "[\\\\S|\\\\s]*"
+private const val MATCH_PATTERN_REPLACEMENT = "[\\\\S|\\\\s]*"
 
 fun CharSequence.matchesPattern(pattern: String): Boolean {
     if (pattern.indexOf(MATCH_PATTERN) >= 0) {
@@ -184,4 +182,9 @@ fun String.splitForWhitespace(): List<String> {
         }
     }
     return list
+}
+
+fun String.isEmail(): Boolean {
+    val regex = "^(\\w)+(\\.\\w+)*@(\\w)+((\\.\\w{2,3}){1,3})\$"
+    return this.matches(regex)
 }
