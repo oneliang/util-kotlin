@@ -3,7 +3,11 @@ package com.oneliang.ktx.util.math
 import com.oneliang.ktx.util.logging.LoggerManager
 
 object Segmenter {
-    class Segment(var begin: Long, var end: Long, var canUse: Boolean = true)
+    class Segment(var begin: Long, var end: Long, var canUse: Boolean = true) {
+        fun copy(): Segment {
+            return Segment(this.begin, this.end, this.canUse)
+        }
+    }
 
     private val logger = LoggerManager.getLogger(Segmenter::class)
 
@@ -27,6 +31,31 @@ object Segmenter {
 
     fun splitSegment(segmentList: List<Segment>, begin: Long, length: Long): List<Segment> {
         return splitSegment(segmentList, begin, listOf(length))
+    }
+
+    fun resetAndSplitSegment(segmentList: List<Segment>, begin: Long, length: Long): List<Segment> {
+        if (segmentList.isEmpty()) {
+            error("segment list is empty")
+        }
+        val firstSegmentBegin = segmentList.first().begin
+        val lengthList = mutableListOf<Long>()
+        val found = if (begin <= firstSegmentBegin) {
+            lengthList += length
+            true
+        } else {
+            false
+        }
+        val newSegmentList = mutableListOf<Segment>()
+        for (segment in segmentList) {
+            if (!found && segment.begin <= begin && begin <= segment.end) {
+                lengthList += length
+            }
+            if (!segment.canUse) {
+                lengthList += (segment.end - segment.begin)
+            }
+            newSegmentList += segment.copy().apply { this.canUse = true }
+        }
+        return splitSegment(newSegmentList, begin, lengthList)
     }
 
     fun splitSegment(segmentList: List<Segment>, begin: Long, lengthList: List<Long>): List<Segment> {

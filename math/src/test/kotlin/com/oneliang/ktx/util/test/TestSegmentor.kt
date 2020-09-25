@@ -17,4 +17,9 @@ fun main() {
     splitSegmentList.forEach {
         println("${it.begin}, ${it.end}, ${it.canUse}")
     }
+
+    splitSegmentList = Segmenter.resetAndSplitSegment(splitSegmentList, 0, 5)
+    splitSegmentList.forEach {
+        println("${it.begin}, ${it.end}, ${it.canUse}")
+    }
 }
