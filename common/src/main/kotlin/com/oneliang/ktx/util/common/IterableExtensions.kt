@@ -96,11 +96,20 @@ fun <T> Iterable<T>.differs(compareIterable: Iterable<T>, valueComparator: (valu
     }
 }
 
-
 inline fun <T, R> Iterable<T>.toHashSet(transform: (t: T) -> R): Set<R> {
     val hashSet = HashSet<R>()
     this.forEach {
         hashSet += transform(it)
     }
     return hashSet
+}
+
+inline fun <T, R : Any> Iterable<T>.filterAndMap(filter: (t: T) -> Boolean, transform: (t: T) -> R): List<R> {
+    return this.mapNotNull {
+        if (!filter(it)) {
+            null
+        } else {
+            transform(it)
+        }
+    }
 }
