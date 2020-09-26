@@ -25,6 +25,7 @@ object Constants {
         const val MILLISECOND = "SSS"//millisecond
         const val YEAR_MONTH = "yyyy-MM"// year month
         const val YEAR_MONTH_DAY = "yyyy-MM-dd"// year-month-day
+        const val YEAR_MONTH_DAY_CN = "yyyy年M月d日"// year-month-day
         const val YEAR_MONTH_DAY_HOUR_MINUTE_SECOND = "yyyy-MM-dd HH:mm:ss"//always used for database
         const val YEAR_MONTH_DAY_HOUR_MINUTE_SECOND_MILLISECOND = "yyyy-MM-dd HH:mm:ss,SSS"//always used for log
         const val HOUR_MINUTE_SECOND = "HH:mm:ss"//hour:minute:second
