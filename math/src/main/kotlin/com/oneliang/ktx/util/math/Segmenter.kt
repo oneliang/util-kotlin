@@ -3,15 +3,15 @@ package com.oneliang.ktx.util.math
 import com.oneliang.ktx.util.logging.LoggerManager
 
 object Segmenter {
-    class Segment(var begin: Long, var end: Long, var canUse: Boolean = true) {
-        fun copy(): Segment {
-            return Segment(this.begin, this.end, this.canUse)
+    class Segment<T>(var begin: Long, var end: Long, var canUse: Boolean = true, var data: T? = null) {
+        fun copy(): Segment<T> {
+            return Segment(this.begin, this.end, this.canUse, this.data)
         }
     }
 
     private val logger = LoggerManager.getLogger(Segmenter::class)
 
-    fun findSuitableBegin(segmentList: List<Segment>, begin: Long): Long {
+    fun findSuitableBegin(segmentList: List<Segment<*>>, begin: Long): Long {
         for (segment in segmentList) {
             if (!segment.canUse) {
                 continue
@@ -29,40 +29,58 @@ object Segmenter {
         error("begin(${begin}) is out of range")
     }
 
-    fun splitSegment(segmentList: List<Segment>, begin: Long, length: Long): List<Segment> {
-        return splitSegment(segmentList, begin, listOf(length))
+    fun <T> splitSegment(segmentList: List<Segment<T>>, begin: Long, lengthData: Pair<Long, T>): List<Segment<T>> {
+        return splitSegment(segmentList, begin, listOf(lengthData))
     }
 
-    fun resetAndSplitSegment(segmentList: List<Segment>, begin: Long, length: Long): List<Segment> {
+    fun <T> resetAndSplitSegment(segmentList: List<Segment<T>>, insertBegin: Long, insertLengthData: Pair<Long, T?>): List<Segment<T>> {
         if (segmentList.isEmpty()) {
             error("segment list is empty")
         }
-        val firstSegmentBegin = segmentList.first().begin
-        val lengthList = mutableListOf<Long>()
-        val found = if (begin <= firstSegmentBegin) {
-            lengthList += length
-            true
-        } else {
-            false
+        val (firstCanNotUseSegment, _) = findFirstAndLastSegment(segmentList, false)
+        val firstSegment = segmentList.first()
+        val lengthDataList = mutableListOf<Pair<Long, T?>>()
+        var fixBegin = insertBegin
+        var found = false//found the insert position
+        if (insertBegin <= firstSegment.begin) {
+            lengthDataList += insertLengthData
+            fixBegin = firstSegment.begin
+            found = true
         }
-        val newSegmentList = mutableListOf<Segment>()
+        val newSegmentList = mutableListOf<Segment<T>>()
         for (segment in segmentList) {
-            if (!found && segment.begin <= begin && begin <= segment.end) {
-                lengthList += length
-            }
-            if (!segment.canUse) {
-                lengthList += (segment.end - segment.begin)
+            if (segment.canUse) {
+                //segment can use, then add insert length
+                if (!found && segment.begin <= insertBegin && insertBegin <= segment.end) {
+                    lengthDataList += insertLengthData
+                    found = true
+                    fixBegin = insertBegin
+                }
+            } else {//segment can not use, add segment length first, then add insert length
+                lengthDataList += (segment.end - segment.begin) to segment.data
+                if (!found && segment.begin <= insertBegin && insertBegin <= segment.end) {
+                    lengthDataList += insertLengthData
+                    found = true
+                    if (firstCanNotUseSegment != null) {
+                        fixBegin = firstCanNotUseSegment.begin
+                    }
+                }
             }
             newSegmentList += segment.copy().apply { this.canUse = true }
         }
-        return splitSegment(newSegmentList, begin, lengthList)
+        //last check, insert length data
+        if (!found) {
+            lengthDataList += insertLengthData
+        }
+        logger.verbose("fix begin:%s, length data list:%s", fixBegin, lengthDataList)
+        return splitSegment(newSegmentList, fixBegin, lengthDataList)
     }
 
-    fun splitSegment(segmentList: List<Segment>, begin: Long, lengthList: List<Long>): List<Segment> {
+    fun <T> splitSegment(segmentList: List<Segment<T>>, begin: Long, lengthDataList: List<Pair<Long, T?>>): List<Segment<T>> {
         if (segmentList.isEmpty()) {
             error("segment list is empty")
         }
-        if (lengthList.isEmpty()) {
+        if (lengthDataList.isEmpty()) {
             error("length list is empty")
         }
         val checked = checkSegmentList(segmentList)
@@ -71,31 +89,31 @@ object Segmenter {
         }
         //check begin and length list
         var sumLength = 0L
-        lengthList.forEach { length ->
+        lengthDataList.forEach { (length, _) ->
             if (length < 0) {
                 error("length do not support less than 0")
             }
             sumLength += length
         }
-        val (firstSegment, lastSegment) = findFirstAndLastSegment(segmentList)
+        val (firstSegment, lastSegment) = findFirstAndLastSegment(segmentList, true)
         if (firstSegment == null || lastSegment == null) {
             return emptyList()
         }
         if (begin >= lastSegment.end || (begin + sumLength) >= lastSegment.end) {
             error("out of range(${lastSegment.end})")
         }
-        val splitSegmentList = mutableListOf<Segment>()
+        val splitSegmentList = mutableListOf<Segment<T>>()
         val fixBegin = if (begin <= firstSegment.begin) {
             firstSegment.begin
         } else {
             splitSegmentList += Segment(firstSegment.begin, begin, true)
             begin
         }
-        val lengthIterator = lengthList.iterator()
+        val lengthDataIterator = lengthDataList.iterator()
         var newBegin = fixBegin
-        var remainLength = lengthIterator.next()
+        var (remainLength, data) = lengthDataIterator.next()
         val segmentIterator = segmentList.iterator()
-        var segment: Segment?
+        var segment: Segment<T>?
         segment = segmentIterator.next()
         while (segment != null) {
             if (!segment.canUse) {
@@ -122,20 +140,23 @@ object Segmenter {
             logger.verbose("(%s,%s)(%s)-(%s,%s)", segment.begin, segment.end, segment.canUse, newBegin, remainLength)
             val end = newBegin + remainLength
             if (segment.begin <= end && end < segment.end) {//end is in segment
-                splitSegmentList += Segment(newBegin, end, false)
+                splitSegmentList += Segment(newBegin, end, false, data)
                 newBegin = end
                 remainLength = 0
+                data = null
             } else {
-                splitSegmentList += Segment(newBegin, segment.end, false)
+                splitSegmentList += Segment(newBegin, segment.end, false, data)
                 newBegin = segment.end
                 remainLength = end - segment.end
             }
             if (remainLength == 0L) {
-                if (lengthIterator.hasNext()) {
-                    remainLength = lengthIterator.next()
+                if (lengthDataIterator.hasNext()) {
+                    val remainLengthData = lengthDataIterator.next()
+                    remainLength = remainLengthData.first
+                    data = remainLengthData.second
                 } else {
                     if (end < segment.end) {
-                        splitSegmentList += Segment(end, segment.end, true)
+                        splitSegmentList += Segment<T>(end, segment.end, true)
                     }
                     while (segmentIterator.hasNext()) {
                         splitSegmentList += segmentIterator.next()
@@ -144,20 +165,20 @@ object Segmenter {
                 }
             }
         }
-        if (remainLength > 0 || lengthIterator.hasNext()) {
+        if (remainLength > 0 || lengthDataIterator.hasNext()) {
             logger.error("has remain, remain length in midway, remain:%s", remainLength)
-            lengthIterator.forEach {
+            lengthDataIterator.forEach {
                 logger.error("has remain, remain length in length list, remain:%s", it)
             }
         }
         return splitSegmentList
     }
 
-    private fun findFirstAndLastSegment(segmentList: List<Segment>): Pair<Segment?, Segment?> {
-        var firstSegment: Segment? = null
-        var lastSegment: Segment? = null
+    private fun <T> findFirstAndLastSegment(segmentList: List<Segment<T>>, canUse: Boolean): Pair<Segment<T>?, Segment<T>?> {
+        var firstSegment: Segment<T>? = null
+        var lastSegment: Segment<T>? = null
         for (segment in segmentList) {
-            if (!segment.canUse) {
+            if (segment.canUse != canUse) {
                 continue
             }
             if (firstSegment == null) {
@@ -168,7 +189,7 @@ object Segmenter {
         return firstSegment to lastSegment
     }
 
-    private fun checkSegmentList(segmentList: List<Segment>): Boolean {
+    private fun checkSegmentList(segmentList: List<Segment<*>>): Boolean {
         if (segmentList.isEmpty()) {
             return false
         }
