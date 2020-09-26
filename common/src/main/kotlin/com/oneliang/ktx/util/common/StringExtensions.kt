@@ -139,14 +139,9 @@ fun String.toUtilDate(format: String = Constants.Time.YEAR_MONTH_DAY_HOUR_MINUTE
     return simpleDateFormat.parse(this)
 }
 
-fun String?.toUtilDateSafely(format: String = Constants.Time.YEAR_MONTH_DAY_HOUR_MINUTE_SECOND, locale: Locale = Locale.getDefault()): Date {
-    perform(
-            block = {
-                val simpleDateFormat = SimpleDateFormat(format, locale)
-                return simpleDateFormat.parse(this) },
-            failure = { return Date() }
-    )
-}
+fun String?.toUtilDateSafely(format: String = Constants.Time.YEAR_MONTH_DAY_HOUR_MINUTE_SECOND, locale: Locale = Locale.getDefault()): Date = perform({
+    this?.toUtilDate(format, locale) ?: Date()
+}, failure = { Date() })
 
 fun String.toFile(): File = File(this)
 
