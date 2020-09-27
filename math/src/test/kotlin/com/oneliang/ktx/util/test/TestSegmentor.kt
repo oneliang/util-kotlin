@@ -21,9 +21,8 @@ fun main() {
 
     segmentList = Segmenter.resetAndSplitSegment(segmentList, 0, 5L to null)
     segmentList.forEach {
-        println("${it.id}, ${it.begin}, ${it.end}, ${it.canUse}")
+        println("${it.id}, ${it.begin}, ${it.end}, ${it.canUse}, ${it.data}")
     }
-
     segmentList = Segmenter.resetAndSplitSegment(segmentList, 5, 5L to null)
     segmentList.forEach {
         println("${it.id}, ${it.begin}, ${it.end}, ${it.canUse}")

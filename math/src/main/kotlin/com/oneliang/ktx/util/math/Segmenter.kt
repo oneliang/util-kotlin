@@ -78,7 +78,7 @@ object Segmenter {
         } else {
             lengthDataList.add(insertBeginIndex, insertLengthData)
         }
-        logger.verbose("fix begin:%s, length data list:%s", fixBegin, lengthDataList)
+        logger.verbose("insert begin:%s, fix begin:%s, length data list:%s", insertBegin, fixBegin, lengthDataList)
         return splitSegment(newSegmentList, fixBegin, lengthDataList)
     }
 
@@ -252,7 +252,7 @@ object Segmenter {
         for ((index, segment) in segmentList.withIndex()) {
             if (previousSegment != null) {
                 if (previousSegment.id != segment.id) {
-                    mergeSegmentList += Segment(previousSegment.id, begin, end, previousSegment.canUse)
+                    mergeSegmentList += Segment(previousSegment.id, begin, end, previousSegment.canUse, previousSegment.data)
                     begin = segment.begin
                     end = segment.end
                     if (index == lastIndex) {//add the last
@@ -263,10 +263,10 @@ object Segmenter {
                         if (previousSegment.end == segment.begin) {
                             end = segment.end
                             if (index == lastIndex) {//add the last
-                                mergeSegmentList += Segment(previousSegment.id, begin, end, previousSegment.canUse)
+                                mergeSegmentList += Segment(previousSegment.id, begin, end, previousSegment.canUse, previousSegment.data)
                             }
                         } else {
-                            mergeSegmentList += Segment(previousSegment.id, begin, end, previousSegment.canUse)
+                            mergeSegmentList += Segment(previousSegment.id, begin, end, previousSegment.canUse, previousSegment.data)
                             begin = segment.begin
                             end = segment.end
                             if (index == lastIndex) {//add the last
