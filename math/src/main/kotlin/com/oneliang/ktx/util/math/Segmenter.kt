@@ -1,11 +1,19 @@
 package com.oneliang.ktx.util.math
 
+import com.oneliang.ktx.util.common.forEachWithIndex
 import com.oneliang.ktx.util.logging.LoggerManager
+import java.util.*
 
 object Segmenter {
-    class Segment<T>(var begin: Long, var end: Long, var canUse: Boolean = true, var data: T? = null) {
+    class Segment<T>(var id: Long = 0L, var begin: Long, var end: Long, var canUse: Boolean = true, var data: T? = null) {
         fun copy(): Segment<T> {
-            return Segment(this.begin, this.end, this.canUse, this.data)
+            return Segment(this.id, this.begin, this.end, this.canUse, this.data)
+        }
+    }
+
+    private class BeginLengthData<T>(var begin: Long, var length: Long, var data: T? = null) {
+        override fun toString(): String {
+            return String.format("begin:%s, length:%s, data:%s", this.begin, this.length, this.data)
         }
     }
 
@@ -34,6 +42,47 @@ object Segmenter {
     }
 
     fun <T> resetAndSplitSegment(segmentList: List<Segment<T>>, insertBegin: Long, insertLengthData: Pair<Long, T?>): List<Segment<T>> {
+        if (segmentList.isEmpty()) {
+            error("segment list is empty")
+        }
+        val newSegmentList = mutableListOf<Segment<T>>()
+        val segmentIdLengthDataMap = TreeMap<Long, BeginLengthData<T>>()
+        for (segment in segmentList) {
+            newSegmentList += segment.copy().apply { this.canUse = true }
+            if (segment.id == 0L) continue
+            val length = segment.end - segment.begin
+            val beginLengthData = segmentIdLengthDataMap.getOrPut(segment.id) { BeginLengthData(segment.begin, 0L, segment.data) }
+            beginLengthData.length = beginLengthData.length + length
+        }
+        logger.info("%s", segmentIdLengthDataMap)
+        val lengthDataList = mutableListOf<Pair<Long, T?>>()
+        var fixBegin = insertBegin
+        var insertBeginIndex = 0
+        var insertAtLast = false
+        val segmentIdLengthDataMapLastIndex = segmentIdLengthDataMap.size - 1
+        segmentIdLengthDataMap.forEachWithIndex { index, _, beginLengthData ->
+            if (fixBegin > beginLengthData.begin) {
+                fixBegin = beginLengthData.begin
+            }
+            if (insertBegin <= beginLengthData.begin) {
+                insertBeginIndex = index
+            } else {
+                if (index == segmentIdLengthDataMapLastIndex) {
+                    insertAtLast = true
+                }
+            }
+            lengthDataList += beginLengthData.length to beginLengthData.data
+        }
+        if (insertAtLast) {
+            lengthDataList += insertLengthData
+        } else {
+            lengthDataList.add(insertBeginIndex, insertLengthData)
+        }
+        logger.verbose("fix begin:%s, length data list:%s", fixBegin, lengthDataList)
+        return splitSegment(newSegmentList, fixBegin, lengthDataList)
+    }
+
+    fun <T> resetAndSplitSegment2(segmentList: List<Segment<T>>, insertBegin: Long, insertLengthData: Pair<Long, T?>): List<Segment<T>> {
         if (segmentList.isEmpty()) {
             error("segment list is empty")
         }
@@ -99,14 +148,14 @@ object Segmenter {
         if (firstSegment == null || lastSegment == null) {
             return emptyList()
         }
-        if (begin >= lastSegment.end || (begin + sumLength) >= lastSegment.end) {
+        if (begin >= lastSegment.end || (begin + sumLength) > lastSegment.end) {
             error("out of range(${lastSegment.end})")
         }
         val splitSegmentList = mutableListOf<Segment<T>>()
         val fixBegin = if (begin <= firstSegment.begin) {
             firstSegment.begin
         } else {
-            splitSegmentList += Segment(firstSegment.begin, begin, true)
+            splitSegmentList += Segment(begin = firstSegment.begin, end = begin, canUse = true)
             begin
         }
         val lengthDataIterator = lengthDataList.iterator()
@@ -115,6 +164,7 @@ object Segmenter {
         val segmentIterator = segmentList.iterator()
         var segment: Segment<T>?
         segment = segmentIterator.next()
+        var id = 1L
         while (segment != null) {
             if (!segment.canUse) {
                 splitSegmentList += segment
@@ -140,23 +190,24 @@ object Segmenter {
             logger.verbose("(%s,%s)(%s)-(%s,%s)", segment.begin, segment.end, segment.canUse, newBegin, remainLength)
             val end = newBegin + remainLength
             if (segment.begin <= end && end < segment.end) {//end is in segment
-                splitSegmentList += Segment(newBegin, end, false, data)
+                splitSegmentList += Segment(id, begin = newBegin, end = end, canUse = false, data = data)
                 newBegin = end
                 remainLength = 0
                 data = null
             } else {
-                splitSegmentList += Segment(newBegin, segment.end, false, data)
+                splitSegmentList += Segment(id, begin = newBegin, end = segment.end, canUse = false, data = data)
                 newBegin = segment.end
                 remainLength = end - segment.end
             }
             if (remainLength == 0L) {
+                id++
                 if (lengthDataIterator.hasNext()) {
                     val remainLengthData = lengthDataIterator.next()
                     remainLength = remainLengthData.first
                     data = remainLengthData.second
-                } else {
+                } else {//last segment and other segment in rear
                     if (end < segment.end) {
-                        splitSegmentList += Segment<T>(end, segment.end, true)
+                        splitSegmentList += Segment(begin = end, end = segment.end, canUse = true)
                     }
                     while (segmentIterator.hasNext()) {
                         splitSegmentList += segmentIterator.next()
@@ -171,7 +222,7 @@ object Segmenter {
                 logger.error("has remain, remain length in length list, remain:%s", it)
             }
         }
-        return splitSegmentList
+        return mergeSegmentList(splitSegmentList)
     }
 
     private fun <T> findFirstAndLastSegment(segmentList: List<Segment<T>>, canUse: Boolean): Pair<Segment<T>?, Segment<T>?> {
@@ -189,6 +240,52 @@ object Segmenter {
         return firstSegment to lastSegment
     }
 
+    private fun <T> mergeSegmentList(segmentList: List<Segment<T>>): List<Segment<T>> {
+        if (segmentList.isEmpty() || segmentList.size == 1) {
+            return segmentList
+        }
+        val mergeSegmentList = mutableListOf<Segment<T>>()
+        val lastIndex = segmentList.size - 1
+        var previousSegment: Segment<T>? = null
+        var begin = 0L
+        var end = 0L
+        for ((index, segment) in segmentList.withIndex()) {
+            if (previousSegment != null) {
+                if (previousSegment.id != segment.id) {
+                    mergeSegmentList += Segment(previousSegment.id, begin, end, previousSegment.canUse)
+                    begin = segment.begin
+                    end = segment.end
+                    if (index == lastIndex) {//add the last
+                        mergeSegmentList += segment
+                    }
+                } else {//previous id == segment id
+                    if (previousSegment.canUse == segment.canUse) {
+                        if (previousSegment.end == segment.begin) {
+                            end = segment.end
+                            if (index == lastIndex) {//add the last
+                                mergeSegmentList += Segment(previousSegment.id, begin, end, previousSegment.canUse)
+                            }
+                        } else {
+                            mergeSegmentList += Segment(previousSegment.id, begin, end, previousSegment.canUse)
+                            begin = segment.begin
+                            end = segment.end
+                            if (index == lastIndex) {//add the last
+                                mergeSegmentList += segment
+                            }
+                        }
+                    } else {
+                        logger.error("may be segment error, previous segment id:%s, segment id:%s", previousSegment.id, segment.id)
+                    }
+                }
+            } else {
+                begin = segment.begin
+                end = segment.end
+            }
+            previousSegment = segment
+        }
+        return mergeSegmentList
+    }
+
     private fun checkSegmentList(segmentList: List<Segment<*>>): Boolean {
         if (segmentList.isEmpty()) {
             return false
@@ -196,6 +293,9 @@ object Segmenter {
         val segmentListSize = segmentList.size
         for (i in segmentList.indices) {
             val segment = segmentList[i]
+            if (segment.end <= segment.begin) {
+                error("segment end must greater than segment begin, begin:${segment.begin}, end:${segment.end}")
+            }
             val nextSegment = if (i + 1 < segmentListSize) {//check not the last
                 segmentList[i + 1]
             } else {
