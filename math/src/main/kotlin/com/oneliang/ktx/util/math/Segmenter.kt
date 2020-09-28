@@ -19,22 +19,23 @@ object Segmenter {
 
     private val logger = LoggerManager.getLogger(Segmenter::class)
 
-    fun findSuitableBegin(segmentList: List<Segment<*>>, begin: Long): Long {
+    fun findSuitableBegin(segmentList: List<Segment<*>>, begin: Long, length: Long = 0L): Pair<Boolean, Long> {
         for (segment in segmentList) {
             if (!segment.canUse) {
                 continue
             }
-            return if (segment.begin <= begin && begin < segment.end) {
-                begin
+            val end = begin + length
+            return if (segment.begin <= begin && begin < segment.end && segment.begin <= end && end < segment.end) {
+                true to begin
             } else {
-                if (begin <= segment.begin) {
-                    segment.begin
+                if (begin < segment.begin) {
+                    true to segment.begin
                 } else {
                     continue
                 }
             }
         }
-        error("begin(${begin}) is out of range")
+        return false to begin
     }
 
     fun <T> splitSegment(segmentList: List<Segment<T>>, begin: Long, lengthData: Pair<Long, T>): List<Segment<T>> {
@@ -54,7 +55,7 @@ object Segmenter {
             val beginLengthData = segmentIdLengthDataMap.getOrPut(segment.id) { BeginLengthData(segment.begin, 0L, segment.data) }
             beginLengthData.length = beginLengthData.length + length
         }
-        logger.info("%s", segmentIdLengthDataMap)
+        logger.info("segment id length data map:%s", segmentIdLengthDataMap)
         val lengthDataList = mutableListOf<Pair<Long, T?>>()
         var fixBegin = insertBegin
         var insertBeginIndex = 0
