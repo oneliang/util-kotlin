@@ -53,7 +53,9 @@ abstract class ResourcePool<T : Any> : Runnable {
                 val stableResourceStatusKey = getStableResourceStatusKey()
                 val stableResourceStatus = this.stableResourceStatusMap.getOrPut(stableResourceStatusKey) {
                     val resource = this.resourceSource.resource
-                    StableResourceStatus(resource)
+                    StableResourceStatus(resource).apply {
+                        this.lastNotInUseTime = System.currentTimeMillis()//initialize the not in use time
+                    }
                 }
                 stableResource = stableResourceStatus.resource
             } finally {
@@ -81,11 +83,11 @@ abstract class ResourcePool<T : Any> : Runnable {
                 logger.info("resource pool name:%s, resource current size:%s", this.resourcePoolName, this.resourceCurrentSize)
                 if (this.resourceCurrentSize > 0) {
                     for (resourceStatus in this.resourceStatusArray) {
-                        if (resourceStatus == null || resourceStatus.isInUse) {
+                        if (resourceStatus == null || resourceStatus.inUse) {
                             continue
                         }
                         resource = resourceStatus.resource
-                        resourceStatus.isInUse = true
+                        resourceStatus.inUse = true
                         break
                     }
                 }
@@ -100,8 +102,8 @@ abstract class ResourcePool<T : Any> : Runnable {
                             continue
                         }
                         resource = this.resourceSource.resource
-                        val oneStatus = ResourceStatus(resource)
-                        oneStatus.isInUse = true
+                        val oneStatus: ResourceStatus<T> = ResourceStatus(resource)
+                        oneStatus.inUse = true
                         this.resourceStatusArray[index] = oneStatus
                         this.resourceCurrentSize++
                         break
@@ -127,13 +129,13 @@ abstract class ResourcePool<T : Any> : Runnable {
         }
         try {
             this.initializeLock.lock()
-            if (this.hasBeenInitialized) {
+            if (this.hasBeenInitialized) {//double check
                 this.initializeLock.unlock()
                 return//return will trigger finally, but use unlock safety
             }
             this.resourceStatusArray = arrayOfNulls<ResourceStatus<T>?>(this.maxResourceSize)
             for (i in 0 until this.minResourceSize) {
-                val resource = this.resourceSource.resource ?: continue
+                val resource = this.resourceSource.resource
                 val resourceStatus = ResourceStatus(resource)
                 this.resourceStatusArray[i] = resourceStatus
                 this.resourceCurrentSize++
@@ -199,7 +201,7 @@ abstract class ResourcePool<T : Any> : Runnable {
                         this.resourceLock.unlock()
                     })
                 } else {
-                    resourceStatus.isInUse = false
+                    resourceStatus.inUse = false
                     resourceStatus.lastNotInUseTime = System.currentTimeMillis()
                 }
                 break
@@ -223,7 +225,7 @@ abstract class ResourcePool<T : Any> : Runnable {
         try {
             this.resourceLock.lock()
             for ((index, resourceStatus) in this.resourceStatusArray.withIndex()) {
-                if (resourceStatus == null || resourceStatus.isInUse) {
+                if (resourceStatus == null || resourceStatus.inUse) {
                     continue
                 }
                 val lastTime = resourceStatus.lastNotInUseTime
