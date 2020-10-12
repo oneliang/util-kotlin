@@ -365,6 +365,7 @@ object Constants {
         const val TXT = "txt"
         const val APK = "apk"
         const val XLS = "xls"
+        const val ZIP = "zip"
     }
 
     object Protocol {

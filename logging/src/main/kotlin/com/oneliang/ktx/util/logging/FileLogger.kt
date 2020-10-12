@@ -2,10 +2,12 @@ package com.oneliang.ktx.util.logging
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.getDayZeroTimePrevious
+import com.oneliang.ktx.util.common.toFile
 import com.oneliang.ktx.util.common.toFormatString
 import com.oneliang.ktx.util.common.toUtilDate
 import com.oneliang.ktx.util.file.create
 import com.oneliang.ktx.util.file.deleteAll
+import com.oneliang.ktx.util.file.zip
 import com.oneliang.ktx.util.logging.Logger.Level
 import java.io.File
 import java.io.FileOutputStream
@@ -57,9 +59,12 @@ class FileLogger(level: Level,
                     timeInterval = currentTime - this.currentBeginTime
                     //double check, current day may be change, day internal is the same when first in, but second time is not the same
                     if (timeInterval >= this.rule.interval) {
-                        this.currentBeginTime += this.rule.interval
                         //close current file output stream
                         destroy()
+                        //compress current log file with zip
+                        zipCurrentLogFileAndRemoveIt(this.directory, this.currentBeginTime, this.filename, this.rule)
+                        //update current begin time
+                        this.currentBeginTime += this.rule.interval
                         //delete expire file
                         deleteExpireFile(this.directory, this.currentBeginTime, this.rule)
                         //set to new file output stream
@@ -92,6 +97,17 @@ class FileLogger(level: Level,
                 subDirectoryFile.deleteAll()
             }
         }
+    }
+
+    private fun zipCurrentLogFileAndRemoveIt(directory: File, currentBeginTime: Long, filename: String, rule: Rule) {
+        val beginDate = Date(currentBeginTime)
+        val subDirectoryName = beginDate.toFormatString(rule.directoryNameFormat)
+        val subDirectoryFile = File(directory, subDirectoryName)
+        val filenamePrefix = beginDate.toFormatString(rule.filenameFormat)
+        val file = File(subDirectoryFile, filenamePrefix + Constants.Symbol.UNDERLINE + filename)
+        val outputZipFile = File(subDirectoryFile, filenamePrefix + Constants.Symbol.UNDERLINE + filename + Constants.Symbol.DOT + Constants.File.ZIP)
+        subDirectoryFile.zip(outputZipFile.absolutePath, fileSuffix = filename)
+        file.delete()
     }
 
     private fun newFile(directory: File, currentBeginTime: Long, filename: String, rule: Rule): File {
