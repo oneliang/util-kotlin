@@ -62,8 +62,8 @@ inline fun <R> String.jsonToMap(transform: (key: String, value: String) -> R): M
     return this.toJsonObject().toMap(transform)
 }
 
-inline fun <R> String.jsonToMap(destinationMap: MutableMap<String, R>, transform: (key: String, value: String) -> R) {
-    this.toJsonObject().toMap(destinationMap, transform)
+inline fun <R> String.jsonToMap(destinationMap: MutableMap<String, R>, transform: (key: String, value: String) -> R): Map<String, R> {
+    return this.toJsonObject().toMap(destinationMap, transform)
 }
 
 fun String.toJsonObject(): JsonObject {
@@ -90,10 +90,11 @@ inline fun <R> JsonObject.toMap(transform: (key: String, value: String) -> R): M
     return map
 }
 
-inline fun <R> JsonObject.toMap(destinationMap: MutableMap<String, R>, transform: (key: String, value: String) -> R) {
+inline fun <R> JsonObject.toMap(destinationMap: MutableMap<String, R>, transform: (key: String, value: String) -> R): Map<String, R> {
     this.forEach { key, value ->
         destinationMap[key] = transform(key, value.toString())
     }
+    return destinationMap
 }
 
 inline fun JsonObject.forEach(block: (key: String, value: Any) -> Unit) {
