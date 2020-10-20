@@ -51,8 +51,8 @@ fun String.jsonMatches(map: Map<String, String>): Boolean {
     return true
 }
 
-fun String.jsonToMap(): Map<String, String> {
-    return this.jsonToMap { _, value -> value }
+fun String.jsonToMap(destinationMap: MutableMap<String, String> = mutableMapOf()): Map<String, String> {
+    return this.jsonToMap(destinationMap) { _, value -> value }
 }
 
 inline fun <R> String.jsonToMap(transform: (key: String, value: String) -> R): Map<String, R> {
@@ -80,8 +80,8 @@ fun String.toJsonArray(): JsonArray {
     return JsonArray(this)
 }
 
-fun JsonObject.toMap(): Map<String, String> {
-    return this.toMap { _, value -> value }
+fun JsonObject.toMap(destinationMap: MutableMap<String, String> = mutableMapOf()): Map<String, String> {
+    return this.toMap(destinationMap) { _, value -> value }
 }
 
 inline fun <R> JsonObject.toMap(transform: (key: String, value: String) -> R): Map<String, R> {
