@@ -85,9 +85,7 @@ fun JsonObject.toMap(): Map<String, String> {
 }
 
 inline fun <R> JsonObject.toMap(transform: (key: String, value: String) -> R): Map<String, R> {
-    val map = mutableMapOf<String, R>()
-    this.toMap(map, transform)
-    return map
+    return this.toMap(mutableMapOf(), transform)
 }
 
 inline fun <R> JsonObject.toMap(destinationMap: MutableMap<String, R>, transform: (key: String, value: String) -> R): Map<String, R> {
