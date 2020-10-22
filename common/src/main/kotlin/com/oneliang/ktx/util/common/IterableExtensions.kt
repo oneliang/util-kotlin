@@ -3,7 +3,9 @@ package com.oneliang.ktx.util.common
 import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
 
-inline fun <T, K, V> Iterable<T>.toMap(transform: (t: T) -> Pair<K, V>): Map<K, V> = this.associate(transform)
+inline fun <T, K, V> Iterable<T>.toMap(destinationMap: MutableMap<K, V>, transform: (t: T) -> Pair<K, V>): Map<K, V> = this.associateTo(destinationMap, transform)
+
+inline fun <T, K, V> Iterable<T>.toMap(transform: (t: T) -> Pair<K, V>): Map<K, V> = this.toMap(mutableMapOf(), transform)
 
 inline fun <T, K, V> Iterable<T>.toMapWithIndex(transform: (index: Int, t: T) -> Pair<K, V>): Map<K, V> {
     val map = mutableMapOf<K, V>()
