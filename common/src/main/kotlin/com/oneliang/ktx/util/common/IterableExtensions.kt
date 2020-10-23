@@ -91,11 +91,21 @@ inline fun <K, V, R> Iterable<Map<K, V>>.matchesByThenTransform(keyValueArrayMap
 }
 
 fun <T> Iterable<T>.differs(compareIterable: Iterable<T>, valueComparator: (value: T, compareValue: T) -> Boolean = { value, compareValue -> value == compareValue }): List<T> {
-    val map = this.toMap { it to it }
-    val compareMap = compareIterable.toMap { it to it }
-    return map.differs(compareMap) { _: T, value: T, mapValue: T ->
+    return this.differs(compareIterable, { it }, valueComparator)
+}
+
+fun <T, K> Iterable<T>.differs(compareIterable: Iterable<T>, keySelector: (value: T) -> K, valueComparator: (value: T, compareValue: T) -> Boolean = { value, compareValue -> value == compareValue }): List<T> {
+    val map = this.toMap { keySelector(it) to it }
+    val compareMap = compareIterable.toMap { keySelector(it) to it }
+    val keyList = map.differs(compareMap) { _: K, value: T, mapValue: T ->
         valueComparator(value, mapValue)
     }
+    val valueList = mutableListOf<T>()
+    keyList.forEach {
+        val value = map[it] ?: return@forEach//continue, impossible null
+        valueList += value
+    }
+    return valueList
 }
 
 inline fun <T, R> Iterable<T>.toHashSet(transform: (t: T) -> R): Set<R> {

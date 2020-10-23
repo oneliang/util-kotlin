@@ -16,11 +16,24 @@ inline fun <T, K, V> Array<out T>.toMapWithIndex(transform: (index: Int, t: T) -
  * find the different value which in this but not in compare array
  */
 fun <T> Array<T>.differs(compareArray: Array<T>, valueComparator: (value: T, compareValue: T) -> Boolean = { value, compareValue -> value == compareValue }): List<T> {
-    val map = this.toMap { it to it }
-    val compareMap = compareArray.toMap { it to it }
-    return map.differs(compareMap) { _: T, value: T, mapValue: T ->
+    return this.differs(compareArray, { it }, valueComparator)
+}
+
+/**
+ * find the different value which in this but not in compare array
+ */
+fun <T, K> Array<T>.differs(compareArray: Array<T>, keySelector: (value: T) -> K, valueComparator: (value: T, compareValue: T) -> Boolean = { value, compareValue -> value == compareValue }): List<T> {
+    val map = this.toMap { keySelector(it) to it }
+    val compareMap = compareArray.toMap { keySelector(it) to it }
+    val keyList = map.differs(compareMap) { _: K, value: T, mapValue: T ->
         valueComparator(value, mapValue)
     }
+    val valueList = mutableListOf<T>()
+    keyList.forEach {
+        val value = map[it] ?: return@forEach//continue, impossible null
+        valueList += value
+    }
+    return valueList
 }
 
 fun <T> Array<T>.sameAs(array: Array<T>): Boolean = this.size == array.size && this.differs(array).isEmpty()

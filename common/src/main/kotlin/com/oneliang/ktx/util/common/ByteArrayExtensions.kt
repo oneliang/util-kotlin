@@ -1,14 +1,16 @@
 package com.oneliang.ktx.util.common
 
-private val hexStringTransform: (byte: Byte) -> CharSequence = { String.format("%02X", (it.toInt() and 0xFF)) }
-fun ByteArray.toHexString() = joinToString(separator = "", transform = hexStringTransform)
+import com.oneliang.ktx.Constants
 
-fun Array<Byte>.toHexString() = joinToString(separator = "", transform = hexStringTransform)
+private val hexStringTransform: (byte: Byte) -> CharSequence = { String.format("%02X", (it.toInt() and 0xFF)) }
+fun ByteArray.toHexString() = joinToString(separator = Constants.String.BLANK, transform = hexStringTransform)
+
+fun Array<Byte>.toHexString() = joinToString(separator = Constants.String.BLANK, transform = hexStringTransform)
 
 private val binaryStringTransform: (byte: Byte) -> CharSequence = { String.format("%8s", (it.toInt() and 0xFF).toString(radix = 2)).replace(' ', '0') }
-fun ByteArray.toBinaryString() = joinToString(separator = "", transform = binaryStringTransform)
+fun ByteArray.toBinaryString() = joinToString(separator = Constants.String.BLANK, transform = binaryStringTransform)
 
-fun Array<Byte>.toBinaryString() = joinToString(separator = "", transform = binaryStringTransform)
+fun Array<Byte>.toBinaryString() = joinToString(separator = Constants.String.BLANK, transform = binaryStringTransform)
 
 private val toShort: ((bytes: Array<Byte>) -> Short) = {
     if (it.isNotEmpty() && it.size == 2) {
