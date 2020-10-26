@@ -114,7 +114,7 @@ inline fun <K, V> Map<K, V>.forEachWithIndex(block: (index: Int, key: K, value: 
     }
 }
 
-fun <K, V> Map<K, V>.differs(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { key, value, mapValue -> value == mapValue }): List<K> {
+fun <K, V> Map<K, V>.differs(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { _, value, mapValue -> value == mapValue }): List<K> {
     val list = mutableListOf<K>()
     this.forEach { (key, value) ->
         val mapValue = map[key]
@@ -125,11 +125,11 @@ fun <K, V> Map<K, V>.differs(map: Map<K, V>, valueComparator: (key: K, value: V,
     return list
 }
 
-fun <K, V> Map<K, V>.sameAs(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { key, value, mapValue -> value == mapValue }): Boolean = this.size == map.size && this.differs(map, valueComparator).isEmpty()
+fun <K, V> Map<K, V>.sameAs(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { _, value, mapValue -> value == mapValue }): Boolean = this.size == map.size && this.differs(map, valueComparator).isEmpty()
 
-fun <K, V> Map<K, V>.includes(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { key, value, mapValue -> value == mapValue }): Boolean = map.differs(this, valueComparator).isEmpty()
+fun <K, V> Map<K, V>.includes(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { _, value, mapValue -> value == mapValue }): Boolean = map.differs(this, valueComparator).isEmpty()
 
-fun <K, V> Map<K, V>.matches(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { key, value, mapValue -> value == mapValue }): Boolean = this.includes(map, valueComparator)
+fun <K, V> Map<K, V>.matches(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { _, value, mapValue -> value == mapValue }): Boolean = this.includes(map, valueComparator)
 
 inline fun <K, reified V> Map<K, V>.toArray(indexMapping: Map<K, Int>, defaultValue: V): Array<V> = this.toArray(indexMapping, defaultValue) { _, value -> value }
 
