@@ -13,3 +13,7 @@ fun BigDecimal.minusByBigDecimal(double: Double): BigDecimal {
 fun BigDecimal.multiplyByBigDecimal(double: Double): BigDecimal {
     return this.times(double.toBigDecimal())
 }
+
+fun BigDecimal.divideByBigDecimal(double: Double): BigDecimal {
+    return this.div(double.toBigDecimal())
+}
