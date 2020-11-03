@@ -192,3 +192,8 @@ fun String.isEmail(): Boolean {
     val regex = "^(\\w)+(\\.\\w+)*@(\\w)+((\\.\\w{2,3}){1,3})\$"
     return this.matches(regex)
 }
+
+fun String.isHourMinute(): Boolean {
+    val reg = "^([0-1]?[0-9]|2[0-3]):([0-5][0-9])\$"
+    return this.matches(reg)
+}
