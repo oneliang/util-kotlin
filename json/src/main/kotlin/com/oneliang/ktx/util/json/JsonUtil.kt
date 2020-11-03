@@ -411,7 +411,7 @@ object JsonUtil {
      * @return T
      */
     fun <T : Any> jsonToObject(json: String, kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, ignoreFirstLetterCase: Boolean = false): T {
-        val jsonObject = json.toJsonObject()
+        val jsonObject = json.jsonToJsonObject()
         return jsonObjectToObject(jsonObject, kClass, classProcessor, ignoreFirstLetterCase)
     }
 
@@ -424,7 +424,7 @@ object JsonUtil {
      * @return List<T>
     </T> */
     fun <T : Any> jsonToObjectList(json: String, kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, ignoreFirstLetterCase: Boolean = false): List<T> {
-        val jsonArray = json.toJsonArray()
+        val jsonArray = json.jsonToJsonArray()
         return jsonArrayToList(jsonArray, kClass, classProcessor, ignoreFirstLetterCase)
     }
 

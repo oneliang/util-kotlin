@@ -39,7 +39,7 @@ fun String.jsonMatches(map: Map<String, String>): Boolean {
     if (this.isBlank()) {
         return false
     }
-    this.toJsonObject().forEach { key, value ->
+    this.jsonToJsonObject().forEach { key, value ->
         val inputValue = map[key].nullToBlank()
         val conditionValue = value.toString()
         if (inputValue == conditionValue) {
@@ -59,21 +59,21 @@ inline fun <R> String.jsonToMap(transform: (key: String, value: String) -> R): M
     if (this.isBlank()) {
         return emptyMap()
     }
-    return this.toJsonObject().toMap(transform)
+    return this.jsonToJsonObject().toMap(transform)
 }
 
 inline fun <R> String.jsonToMap(destinationMap: MutableMap<String, R>, transform: (key: String, value: String) -> R): Map<String, R> {
-    return this.toJsonObject().toMap(destinationMap, transform)
+    return this.jsonToJsonObject().toMap(destinationMap, transform)
 }
 
-fun String.toJsonObject(): JsonObject {
+fun String.jsonToJsonObject(): JsonObject {
     if (this.isBlank()) {
         return JsonObject()
     }
     return JsonObject(this)
 }
 
-fun String.toJsonArray(): JsonArray {
+fun String.jsonToJsonArray(): JsonArray {
     if (this.isBlank()) {
         return JsonArray()
     }
