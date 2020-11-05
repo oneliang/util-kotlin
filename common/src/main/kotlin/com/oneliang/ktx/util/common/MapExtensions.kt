@@ -155,3 +155,18 @@ fun <K, V, NK, NV> Map<K, V>.toMap(transform: (key: K, value: V) -> Pair<NK, NV>
 fun <K, V, NK> Map<K, V>.toMapWithNewKey(transformKey: (key: K) -> NK): Map<NK, V> = this.toMap { key, value -> transformKey(key) to value }
 
 fun <K, V, NV> Map<K, V>.toMapWithNewValue(transformValue: (value: V) -> NV): Map<K, NV> = this.toMap { key, value -> key to transformValue(value) }
+
+fun <K, V, RK, RV, T> Map<K, V>.relateBy(slaveMap: Map<RK, RV>, relationList: List<T>, relationDataKeySelector: (T) -> K, relationDataSlaveKeySelector: (T) -> RK): Map<V, List<RV>> {
+    val map = mutableMapOf<V, MutableList<RV>>()
+    relationList.forEach {
+        val key = relationDataKeySelector(it)
+        val slaveKey = relationDataSlaveKeySelector(it)
+        val value = this[key] ?: return@forEach
+        val list = map.getOrPut(value) { mutableListOf() }
+        val relationValue = slaveMap[slaveKey]
+        if (relationValue != null) {
+            list += relationValue
+        }
+    }
+    return map
+}

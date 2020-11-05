@@ -133,3 +133,9 @@ inline fun <T> Iterable<T>.sumByLong(selector: (T) -> Long): Long {
     }
     return sum
 }
+
+fun <V, K, RV, RK, T> Iterable<V>.relateBy(keySelector: (V) -> K, slaveIterable: Iterable<RV>, slaveKeySelector: (RV) -> RK, relationList: List<T>, relationDataKeySelector: (T) -> K, relationDataSlaveKeySelector: (T) -> RK): Map<V, List<RV>> {
+    val mainMap = this.toMap { keySelector(it) to it }
+    val relationMap = slaveIterable.toMap { slaveKeySelector(it) to it }
+    return mainMap.relateBy(relationMap, relationList, relationDataKeySelector, relationDataSlaveKeySelector)
+}
