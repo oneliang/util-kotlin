@@ -171,19 +171,15 @@ fun <K, V, RK, RV, T> Map<K, V>.relateBy(slaveMap: Map<RK, RV>, relationList: Li
     return map
 }
 
-fun <K, V> Map<K, V>.groupBy(): Map<K, List<V>> {
-    return this.groupByKey { it }
-}
-
-fun <K, V, NK> Map<K, V>.groupByKey(keySelector: (K) -> NK): Map<NK, List<V>> {
+fun <K, V, NK> Map<K, V>.groupByKey(keySelector: (K) -> NK): Map<NK, Map<K, V>> {
     return this.groupByKeyTo(keySelector = keySelector)
 }
 
-fun <K, V, NK> Map<K, V>.groupByKeyTo(destinationMap: MutableMap<NK, MutableList<V>> = mutableMapOf(), keySelector: (K) -> NK): Map<NK, List<V>> {
+fun <K, V, NK> Map<K, V>.groupByKeyTo(destinationMap: MutableMap<NK, MutableMap<K, V>> = mutableMapOf(), keySelector: (K) -> NK): Map<NK, Map<K, V>> {
     this.forEach { (key, value) ->
         val newKey = keySelector(key)
-        val valueList = destinationMap.getOrPut(newKey) { mutableListOf() }
-        valueList += value
+        val valueMap = destinationMap.getOrPut(newKey) { mutableMapOf() }
+        valueMap += key to value
     }
     return destinationMap
 }
