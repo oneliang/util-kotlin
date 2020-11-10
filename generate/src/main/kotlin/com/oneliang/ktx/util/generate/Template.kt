@@ -15,15 +15,8 @@ object Template {
     private val scriptEngineManager = ScriptEngineManager()
     private val scriptEngine: ScriptEngine = scriptEngineManager.getEngineByExtension("js")
 
-    fun generate(option: Option) {
+    fun generate(templateContent: String, option: Option): String {
         try {
-            val stringBuilder = StringBuilder()
-            FileUtil.readFileContentIgnoreLine(option.templateFile, Constants.Encoding.UTF8) { line ->
-                stringBuilder.append(line)
-                stringBuilder.append(Constants.String.CRLF_STRING)
-                true
-            }
-            val templateContent = stringBuilder.toString()
             val bindings = scriptEngine.createBindings()
             scriptEngine.setBindings(bindings, ScriptContext.GLOBAL_SCOPE)
             var json: String = Constants.String.BLANK
@@ -44,27 +37,39 @@ object Template {
             logger.debug(JavaScriptFunctionGenerator.getResult(functionResult.toString()))
             scriptEngine.eval(JavaScriptFunctionGenerator.getResult(functionResult.toString()))
             functionResult = invocable.invokeFunction(JavaScriptFunctionGenerator.FUNCTION_GET_RESULT)
-            val toFile = option.toFile
-            val toFileByteArray = if (functionResult != null && functionResult.toString().isNotBlank()) {
-                logger.debug(functionResult.toString())
-                functionResult.toString().toByteArray(Charsets.UTF_8)
+            return if (functionResult != null && functionResult.toString().isNotBlank()) {
+                functionResult.toString()
             } else {
-                logger.debug(templateContent)
-                stringBuilder.toString().toByteArray(Charsets.UTF_8)
+                templateContent
             }
-            FileUtil.writeFile(toFile, toFileByteArray)
+        } catch (e: Exception) {
+            logger.error(Constants.Base.EXCEPTION, e)
+            return templateContent
+        }
+    }
+
+    fun generate(templateFullFilename: String, toFullFilename: String, option: Option) {
+        try {
+            val stringBuilder = StringBuilder()
+            FileUtil.readFileContentIgnoreLine(templateFullFilename, Constants.Encoding.UTF8) { line ->
+                stringBuilder.append(line)
+                stringBuilder.append(Constants.String.CRLF_STRING)
+                true
+            }
+            val templateContent = stringBuilder.toString()
+            val result = generate(templateContent, option)
+            logger.debug(result)
+            val toFileByteArray = stringBuilder.toString().toByteArray(Charsets.UTF_8)
+            FileUtil.writeFile(toFullFilename, toFileByteArray)
         } catch (e: Exception) {
             logger.error(Constants.Base.EXCEPTION, e)
         }
     }
 
     class Option {
-        var templateFile: String = Constants.String.BLANK
-        var toFile: String = Constants.String.BLANK
         var instance: Any? = null
         var json: String = Constants.String.BLANK
         var jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR
-
     }
 
     private object JavaScriptFunctionGenerator {
