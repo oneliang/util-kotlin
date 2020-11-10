@@ -32,7 +32,7 @@ object Template {
             scriptEngine.eval(JavaScriptFunctionGenerator.getObject(json))
             scriptEngine.eval(JavaScriptFunctionGenerator.template())
             val invocable = scriptEngine as Invocable
-            logger.debug(templateContent)
+            logger.debug("template content:%s", templateContent)
             var functionResult = invocable.invokeFunction(JavaScriptFunctionGenerator.FUNCTION_TEMPLATE, templateContent)
             logger.debug(JavaScriptFunctionGenerator.getResult(functionResult.toString()))
             scriptEngine.eval(JavaScriptFunctionGenerator.getResult(functionResult.toString()))
@@ -58,8 +58,8 @@ object Template {
             }
             val templateContent = stringBuilder.toString()
             val result = generate(templateContent, option)
-            logger.debug(result)
-            val toFileByteArray = stringBuilder.toString().toByteArray(Charsets.UTF_8)
+            logger.debug("result:%s", result)
+            val toFileByteArray = result.toByteArray(Charsets.UTF_8)
             FileUtil.writeFile(toFullFilename, toFileByteArray)
         } catch (e: Exception) {
             logger.error(Constants.Base.EXCEPTION, e)
