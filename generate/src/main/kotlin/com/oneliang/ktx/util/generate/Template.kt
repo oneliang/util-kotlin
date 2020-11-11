@@ -3,6 +3,7 @@ package com.oneliang.ktx.util.generate
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.file.FileUtil
 import com.oneliang.ktx.util.json.JsonUtil
+import com.oneliang.ktx.util.json.toJson
 import com.oneliang.ktx.util.logging.LoggerManager
 import javax.script.Invocable
 import javax.script.ScriptContext
@@ -22,7 +23,7 @@ object Template {
             var json: String = Constants.String.BLANK
             val instance = option.instance
             if (instance != null) {
-                json = JsonUtil.objectToJson(instance, emptyArray(), option.jsonProcessor)
+                json = instance.toJson(option.jsonProcessor)
             } else {
                 if (option.json.isNotBlank()) {
                     json = option.json
