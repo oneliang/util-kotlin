@@ -4,6 +4,7 @@ import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.MethodInvokeException
 import com.oneliang.ktx.util.common.KotlinClassUtil
 import com.oneliang.ktx.util.common.ObjectUtil
+import com.oneliang.ktx.util.common.joinToString
 import kotlin.reflect.KClass
 
 object JsonUtil {
@@ -202,16 +203,10 @@ object JsonUtil {
     fun <K, V> mapToJson(map: Map<K, V>, jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
         val string = StringBuilder()
         string.append(Constants.Symbol.BIG_BRACKET_LEFT)
-        val subString = StringBuilder()
-        map.forEach { (key, instance) ->
+        string.append(map.joinToString { key, instance ->
             val value = jsonProcessor.process<Any>(null, key.toString(), instance, ignoreFirstLetterCase)
-            subString.append(Constants.Symbol.DOUBLE_QUOTE + key.toString() + Constants.Symbol.DOUBLE_QUOTE + Constants.Symbol.COLON + value)
-            subString.append(Constants.Symbol.COMMA)
-        }
-        if (subString.isNotEmpty()) {
-            subString.delete(subString.length - 1, subString.length)
-            string.append(subString.toString())
-        }
+            Constants.Symbol.DOUBLE_QUOTE + key.toString() + Constants.Symbol.DOUBLE_QUOTE + Constants.Symbol.COLON + value
+        })
         string.append(Constants.Symbol.BIG_BRACKET_RIGHT)
         return string.toString()
     }

@@ -1,5 +1,6 @@
 package com.oneliang.ktx.util.common
 
+import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.MethodInvokeException
 import kotlin.reflect.KClass
 
@@ -182,4 +183,25 @@ fun <K, V, NK> Map<K, V>.groupByKeyTo(destinationMap: MutableMap<NK, MutableMap<
         valueMap += key to value
     }
     return destinationMap
+}
+
+fun <K, V> Map<out K, V>.joinToString(separator: CharSequence = Constants.Symbol.COMMA, prefix: CharSequence = Constants.String.BLANK, postfix: CharSequence = Constants.String.BLANK, limit: Int = -1, truncated: CharSequence = "...", transform: ((K, V) -> CharSequence)? = null): String {
+    return joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
+}
+
+fun <K, V, A : Appendable> Map<out K, V>.joinTo(buffer: A, separator: CharSequence = Constants.Symbol.COMMA, prefix: CharSequence = Constants.String.BLANK, postfix: CharSequence = Constants.String.BLANK, limit: Int = -1, truncated: CharSequence = "...", transform: ((K, V) -> CharSequence)? = null): A {
+    buffer.append(prefix)
+    var count = 0
+    for (element in this) {
+        if (++count > 1) buffer.append(separator)
+        if (limit < 0 || count <= limit) {
+            if (transform != null)
+                buffer.append(transform(element.key, element.value))
+            else
+                buffer.append(element.toString())
+        } else break
+    }
+    if (limit in 0 until count) buffer.append(truncated)
+    buffer.append(postfix)
+    return buffer
 }

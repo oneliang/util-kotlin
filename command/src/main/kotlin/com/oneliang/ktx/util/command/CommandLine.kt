@@ -33,19 +33,7 @@ class CommandLine(private val maxCommandKeyLength: Int) {
          * @return String
          */
         fun toCommandKey(commandArray: Array<String>): String {
-            if (commandArray.isEmpty()) {
-                return Constants.String.BLANK
-            }
-            val stringBuilder = StringBuilder()
-            for (command in commandArray) {
-                stringBuilder.append(command.trim())
-                stringBuilder.append(Constants.String.SPACE)
-            }
-            val length = stringBuilder.length
-            if (length > 0) {
-                stringBuilder.delete(length - 1, length)
-            }
-            return stringBuilder.toString()
+            return commandArray.joinToString(Constants.String.SPACE) { it.trim() }
         }
     }
 
