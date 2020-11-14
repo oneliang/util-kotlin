@@ -23,6 +23,28 @@ object HttpUtil {
      * @return String
      */
     fun sendRequestGet(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), timeout: Int = DEFAULT_TIMEOUT, returnEncoding: String = Constants.Encoding.UTF8, advancedOption: AdvancedOption? = null): String {
+        val byteArray = sendRequestGetWithReturnBytes(httpUrl, httpHeaderList, timeout, advancedOption)
+        var result: String = Constants.String.BLANK
+        if (byteArray.isNotEmpty()) {
+            try {
+                result = String(byteArray, Charset.forName(returnEncoding))
+            } catch (e: UnsupportedEncodingException) {
+                logger.error(Constants.Base.EXCEPTION, e)
+            }
+        }
+        return result
+    }
+
+    /**
+     * send request with return bytes by set method,most for collect data
+     * return bytes means response is bytes
+     * @param httpUrl
+     * @param httpHeaderList
+     * @param timeout
+     * @param advancedOption
+     * @return byte[]
+     */
+    fun sendRequestGetWithReturnBytes(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), timeout: Int = DEFAULT_TIMEOUT, advancedOption: AdvancedOption? = null): ByteArray {
         val byteArrayOutputStream = ByteArrayOutputStream()
         sendRequestGet(httpUrl, httpHeaderList, timeout, advancedOption, object : Callback {
             @Throws(Throwable::class)
@@ -42,16 +64,7 @@ object HttpUtil {
                 byteArrayOutputStream.close()
             }
         })
-        val byteArray = byteArrayOutputStream.toByteArray()
-        var result: String = Constants.String.BLANK
-        if (byteArray.isNotEmpty()) {
-            try {
-                result = String(byteArray, Charset.forName(returnEncoding))
-            } catch (e: UnsupportedEncodingException) {
-                logger.error(Constants.Base.EXCEPTION, e)
-            }
-        }
-        return result
+        return byteArrayOutputStream.toByteArray()
     }
 
     /**
@@ -104,7 +117,6 @@ object HttpUtil {
             } catch (e: UnsupportedEncodingException) {
                 logger.error(Constants.Base.EXCEPTION, e)
             }
-
         }
         return result
     }
@@ -140,7 +152,6 @@ object HttpUtil {
             } catch (e: UnsupportedEncodingException) {
                 logger.error(Constants.Base.EXCEPTION, e)
             }
-
         }
         return result
     }
@@ -348,17 +359,9 @@ object HttpUtil {
             }
             val content = StringBuilder()
             if (httpParameterList.isNotEmpty()) {
-                val length = httpParameterList.size
-                var index = 0
-                for (httpParameter in httpParameterList) {
-                    content.append(httpParameter.name)
-                    content.append(Constants.Symbol.EQUAL)
-                    content.append(URLEncoder.encode(httpParameter.value, Constants.Encoding.UTF8))
-                    if (index < length - 1) {
-                        content.append(Constants.Symbol.AND)
-                    }
-                    index++
-                }
+                content.append(httpParameterList.joinToString(Constants.Symbol.AND) {
+                    it.name + Constants.Symbol.EQUAL + URLEncoder.encode(it.value, Constants.Encoding.UTF8)
+                })
             }
             httpUrlConnection.connect()
             if (method.isNotBlank() && method.equals(Constants.Http.RequestMethod.POST.value, ignoreCase = true)) {
