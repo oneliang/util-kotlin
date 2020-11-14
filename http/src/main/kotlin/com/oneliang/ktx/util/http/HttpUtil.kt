@@ -16,7 +16,6 @@ object HttpUtil {
 
     /**
      * send request by get method
-     *
      * @param httpUrl
      * @param httpHeaderList
      * @param returnEncoding
@@ -67,10 +66,8 @@ object HttpUtil {
         sendRequest(httpUrl, Constants.Http.RequestMethod.GET.value, httpHeaderList, emptyList(), ByteArray(0), null, timeout, null, advancedOption, callback)
     }
 
-
     /**
      * send request by post method
-     *
      * @param httpUrl
      * @param httpHeaderList
      * @param httpParameterList
@@ -127,7 +124,6 @@ object HttpUtil {
 
     /**
      * send request with bytes by post method,most for upload
-     *
      * @param httpUrl
      * @param httpHeaderList
      * @param byteArray
@@ -152,7 +148,6 @@ object HttpUtil {
     /**
      * send request with whole bytes by post method,most for communication,whole
      * bytes means request and response are bytes
-     *
      * @param httpUrl
      * @param httpHeaderList
      * @param byteArray
@@ -185,7 +180,6 @@ object HttpUtil {
 
     /**
      * send request with bytes by post method,most for upload
-     *
      * @param httpUrl
      * @param httpHeaderList
      * @param byteArray
@@ -199,7 +193,6 @@ object HttpUtil {
 
     /**
      * send request with input stream,most for upload
-     *
      * @param httpUrl
      * @param httpHeaderList
      * @param inputStream
@@ -224,7 +217,6 @@ object HttpUtil {
 
     /**
      * send request with input stream,most for upload
-     *
      * @param httpUrl
      * @param httpHeaderList
      * @param inputStream
@@ -269,7 +261,6 @@ object HttpUtil {
 
     /**
      * send request with input stream,most for upload
-     *
      * @param httpUrl
      * @param httpHeaderList
      * @param inputStream
@@ -293,7 +284,6 @@ object HttpUtil {
 
     /**
      * send request with input stream,most for upload
-     *
      * @param httpUrl
      * @param httpHeaderList
      * @param inputStream
@@ -308,7 +298,6 @@ object HttpUtil {
 
     /**
      * send request post
-     *
      * @param httpUrl
      * @param httpHeaderList
      * @param httpParameterList
@@ -325,7 +314,6 @@ object HttpUtil {
 
     /**
      * send request
-     *
      * @param httpUrl
      * @param method
      * @param httpHeaderList
@@ -419,7 +407,6 @@ object HttpUtil {
     interface InputStreamProcessor {
         /**
          * process
-         *
          * @param inputStream
          * @param outputStream
          * @throws Exception
