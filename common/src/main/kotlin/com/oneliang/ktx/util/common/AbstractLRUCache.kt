@@ -85,9 +85,7 @@ abstract class AbstractLRUCache<K, V>(private var maxSize: Int) {
     private var missCount: Int = 0
 
     init {
-        if (maxSize <= 0) {
-            throw IllegalArgumentException("maxSize <= 0")
-        }
+        require(maxSize > 0) { "maxSize must > 0" }
         this.map = LinkedHashMap(0, 0.75f, true)
     }
 
@@ -98,10 +96,7 @@ abstract class AbstractLRUCache<K, V>(private var maxSize: Int) {
      * @hide
      */
     fun resize(maxSize: Int) {
-        if (maxSize <= 0) {
-            throw IllegalArgumentException("maxSize <= 0")
-        }
-
+        require(maxSize > 0) { "maxSize must > 0" }
         synchronized(this) {
             this.maxSize = maxSize
         }
@@ -203,7 +198,7 @@ abstract class AbstractLRUCache<K, V>(private var maxSize: Int) {
                 var value: V? = null
                 synchronized(this) {
                     if (size < 0 || map.isEmpty() && size != 0) {
-                        throw IllegalStateException(javaClass.name + ".sizeOf() is reporting inconsistent results!")
+                        error(javaClass.name + ".sizeOf() is reporting inconsistent results!")
                     }
 
                     if (size <= maxSize) {
@@ -298,7 +293,7 @@ abstract class AbstractLRUCache<K, V>(private var maxSize: Int) {
     private fun safeSizeOf(key: K, value: V): Int {
         val result = sizeOf(key, value)
         if (result < 0) {
-            throw IllegalStateException("Negative size: $key=$value")
+            error("Negative size: $key=$value")
         }
         return result
     }
@@ -397,7 +392,7 @@ abstract class AbstractLRUCache<K, V>(private var maxSize: Int) {
     override fun toString(): String {
         val accesses = hitCount + missCount
         val hitPercent = if (accesses != 0) 100 * hitCount / accesses else 0
-        return String.format("LruCache[maxSize=%d,hits=%d,misses=%d,hitRate=%d%%]",
+        return String.format("LruCache[maxSize=%d, hits=%d, misses=%d, hitRate=%d%%]",
                 maxSize, hitCount, missCount, hitPercent)
     }
 }
