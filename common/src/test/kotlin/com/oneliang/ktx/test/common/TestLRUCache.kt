@@ -8,6 +8,6 @@ fun main() {
             return null
         }
     }
-    lruCache["a"]="b"
+    lruCache["a"] = "b"
     println(lruCache["a"])
 }
