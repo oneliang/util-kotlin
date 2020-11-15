@@ -1,6 +1,5 @@
 package com.oneliang.ktx.util.file
 
-import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.file.FileUtil.CopyFileProcessor
 import java.io.File
 import java.io.FileInputStream
@@ -21,7 +20,7 @@ open class DefaultCopyFileProcessor : CopyFileProcessor {
                 if (fromFullFilename == toFullFilename) {
                     toFullFilename += "_copy"
                 }
-                FileUtil.createFile(toFullFilename)
+                FileUtil.createFileIncludeDirectory(toFullFilename)
                 val inputStream = FileInputStream(fromFullFilename)
                 val outputStream = FileOutputStream(toFullFilename)
                 try {

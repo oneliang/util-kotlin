@@ -82,22 +82,22 @@ object FileUtil {
     }
 
     /**
-     * create file,full filename,signle empty file.
+     * create file and parent directory, full filename, single empty file.
      * @param fullFilename
      * @return boolean
      */
-    fun createFile(fullFilename: String): Boolean {
+    fun createFileIncludeDirectory(fullFilename: String): Boolean {
         if (fullFilename.isBlank()) return false
         val file = File(fullFilename)
-        return createFile(file)
+        return createFileIncludeDirectory(file)
     }
 
     /**
-     * create file,full filename,signle empty file.
+     * create file and parent directory, full filename, single empty file.
      * @param file
      * @return boolean
      */
-    fun createFile(file: File): Boolean {
+    fun createFileIncludeDirectory(file: File): Boolean {
         createDirectory(file.parent)
         try {
             file.setReadable(true, false)
@@ -249,7 +249,7 @@ object FileUtil {
      * @param byteArray
      */
     fun writeFile(outputFullFilename: String, byteArray: ByteArray, append: Boolean = false) {
-        createFile(outputFullFilename)
+        createFileIncludeDirectory(outputFullFilename)
         val inputStream = ByteArrayInputStream(byteArray)
         var outputStream: OutputStream? = null
         try {
@@ -324,7 +324,7 @@ object FileUtil {
      * @param writeFileContentProcessor
      */
     fun writeFileContent(fullFilename: String, charsetName: String = Constants.Encoding.UTF8, append: Boolean = false, writeFileContentProcessor: ((bufferedWriter: BufferedWriter) -> Unit)? = null) {
-        createFile(fullFilename)
+        createFileIncludeDirectory(fullFilename)
         var bufferedWriter: BufferedWriter? = null
         try {
             bufferedWriter = BufferedWriter(OutputStreamWriter(FileOutputStream(fullFilename, append), charsetName))
@@ -577,7 +577,7 @@ object FileUtil {
      */
     fun getPropertiesAutoCreate(propertiesFullFilename: String): Properties {
         if (!exists(propertiesFullFilename)) {
-            createFile(propertiesFullFilename)
+            createFileIncludeDirectory(propertiesFullFilename)
         }
         return getProperties(propertiesFullFilename)
     }

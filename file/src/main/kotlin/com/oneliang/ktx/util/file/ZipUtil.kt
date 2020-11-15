@@ -65,7 +65,7 @@ object ZipUtil {
             }
         }
         try {
-            FileUtil.createFile(outputZipFullFilename)
+            FileUtil.createFileIncludeDirectory(outputZipFullFilename)
             zipOutputStream = ZipOutputStream(FileOutputStream(outputZipFullFilename))
             if (inputZipFullFilename.isNotBlank()) {
                 zipFile = ZipFile(inputZipFullFilename)
@@ -143,7 +143,7 @@ object ZipUtil {
      * @param zipOutputFullFilename
      */
     fun mergeZip(zipFullFilenameList: List<String>, zipOutputFullFilename: String) {
-        FileUtil.createFile(zipOutputFullFilename)
+        FileUtil.createFileIncludeDirectory(zipOutputFullFilename)
         var zipOutputStream: ZipOutputStream? = null
         try {
             zipOutputStream = ZipOutputStream(FileOutputStream(zipOutputFullFilename))
@@ -241,7 +241,7 @@ object ZipUtil {
                     if (zipEntry.isDirectory) {
                         FileUtil.createDirectory(outputFullFilename)
                     } else {
-                        FileUtil.createFile(outputFullFilename)
+                        FileUtil.createFileIncludeDirectory(outputFullFilename)
                         val outputStream = FileOutputStream(outputFullFilename)
                         try {
                             val buffer = ByteArray(Constants.Capacity.BYTES_PER_KB)
@@ -319,7 +319,7 @@ object ZipUtil {
         try {
             newZipFile = ZipFile(newZipFullFilename)
             val entries = newZipFile.entries()
-            FileUtil.createFile(differentOutputFullFilename)
+            FileUtil.createFileIncludeDirectory(differentOutputFullFilename)
             zipOutputStream = ZipOutputStream(FileOutputStream(differentOutputFullFilename))
             while (entries.hasMoreElements()) {
                 val zipEntry = entries.nextElement()

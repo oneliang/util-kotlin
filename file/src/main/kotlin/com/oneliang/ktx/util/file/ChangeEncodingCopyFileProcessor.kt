@@ -15,7 +15,7 @@ class ChangeEncodingCopyFileProcessor(private val fromEncoding: String, private 
     override fun copyFileToFileProcess(fromFile: File, toFile: File): Boolean {
         try {
             if (fromFile.isFile) {
-                FileUtil.createFile(toFile)
+                FileUtil.createFileIncludeDirectory(toFile)
                 val inputStream = FileInputStream(fromFile)
                 val outputStream = FileOutputStream(toFile)
                 val bufferedReader = BufferedReader(InputStreamReader(inputStream, this.fromEncoding))

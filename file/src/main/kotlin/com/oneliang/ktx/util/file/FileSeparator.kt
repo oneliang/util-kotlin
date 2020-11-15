@@ -2,7 +2,6 @@ package com.oneliang.ktx.util.file
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.readContentIgnoreLine
-import com.oneliang.ktx.util.file.create
 import java.io.File
 import java.io.FileOutputStream
 
@@ -22,7 +21,7 @@ object FileSeparator {
                 val times = lineCount / maxLineCountPerFile
                 //new file
                 val outputFile = File(directory, filename + Constants.Symbol.UNDERLINE + (times) * maxLineCountPerFile + Constants.Symbol.UNDERLINE + (times + 1) * maxLineCountPerFile + Constants.Symbol.DOT + "log")
-                outputFile.create()
+                outputFile.createFileIncludeDirectory()
                 newFileOutputStream = outputFile.outputStream()
                 newFileOutputStream?.write((it + Constants.String.CRLF_STRING).toByteArray())
             }

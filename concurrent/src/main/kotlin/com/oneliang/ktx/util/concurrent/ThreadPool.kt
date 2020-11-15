@@ -45,7 +45,7 @@ class ThreadPool : Runnable {
                             this.processor?.beforeRunTaskProcess(this.threadTaskQueue)
                             val threadTask = this.threadTaskQueue.poll()
                             if (threadTask != null) {
-                                logger.verbose("second")
+                                logger.verbose("old inner thread, thread task:%s", threadTask)
                                 innerThread.setCurrentThreadTask(threadTask)
                             }
                         } else if (innerThread == null) {
@@ -53,7 +53,7 @@ class ThreadPool : Runnable {
                             this.processor?.beforeRunTaskProcess(this.threadTaskQueue)
                             val threadTask = this.threadTaskQueue.poll()
                             if (threadTask != null) {
-                                logger.verbose("first")
+                                logger.verbose("new inner thread, thread task:%s", threadTask)
                                 val tempInnerThread = InnerThread(this)
                                 tempInnerThread.setCurrentThreadTask(threadTask)
                                 tempInnerThread.start()

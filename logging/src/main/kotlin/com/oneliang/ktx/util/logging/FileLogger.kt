@@ -2,10 +2,9 @@ package com.oneliang.ktx.util.logging
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.getDayZeroTimePrevious
-import com.oneliang.ktx.util.common.toFile
 import com.oneliang.ktx.util.common.toFormatString
 import com.oneliang.ktx.util.common.toUtilDate
-import com.oneliang.ktx.util.file.create
+import com.oneliang.ktx.util.file.createFileIncludeDirectory
 import com.oneliang.ktx.util.file.deleteAll
 import com.oneliang.ktx.util.file.zip
 import com.oneliang.ktx.util.logging.Logger.Level
@@ -116,7 +115,7 @@ class FileLogger(level: Level,
         val subDirectoryFile = File(directory, subDirectoryName)
         val filenamePrefix = beginDate.toFormatString(rule.filenameFormat)
         val file = File(subDirectoryFile, filenamePrefix + Constants.Symbol.UNDERLINE + filename)
-        file.create()
+        file.createFileIncludeDirectory()
         return file
     }
 

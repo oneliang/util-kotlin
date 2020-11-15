@@ -2,7 +2,6 @@ package com.oneliang.ktx.util.file
 
 import com.oneliang.ktx.Constants
 import java.io.File
-import java.io.InputStream
 
 fun File.readContentIgnoreLine(encoding: String = Constants.Encoding.UTF8, append: String = Constants.String.BLANK) = FileUtil.readFileContentIgnoreLine(this.absolutePath, encoding, append)
 
@@ -11,8 +10,10 @@ fun File.readContentIgnoreLine(encoding: String = Constants.Encoding.UTF8, readF
 fun File.deleteAll() = FileUtil.deleteAllFile(this)
 
 fun File.findMatchFile(matchOption: FileUtil.MatchOption, onMatch: (file: File) -> String = { it.absolutePath }) = FileUtil.findMatchFile(this, matchOption, onMatch)
-
-fun File.create() = FileUtil.createFile(this)
+/**
+ * create file and parent directory, full filename, single empty file.
+ */
+fun File.createFileIncludeDirectory() = FileUtil.createFileIncludeDirectory(this)
 
 fun File.createDirectory() = FileUtil.createDirectory(this)
 
