@@ -196,6 +196,10 @@ object Constants {
          * percent "%"
          */
         const val PERCENT = "%"
+        /**
+         * pound key "#"
+         */
+        const val POUND_KEY = "#"
     }
 
     object Encoding {
