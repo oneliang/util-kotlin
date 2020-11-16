@@ -28,6 +28,7 @@ object JavaXmlUtil {
             val documentBuilder: DocumentBuilder
             val documentBuilderFactory = DocumentBuilderFactory.newInstance()
             try {
+                documentBuilderFactory.isValidating = false
                 documentBuilder = documentBuilderFactory.newDocumentBuilder()
             } catch (e: Exception) {
                 throw JavaXmlUtilException(e)
