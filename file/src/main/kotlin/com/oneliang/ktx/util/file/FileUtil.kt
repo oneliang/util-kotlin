@@ -21,7 +21,6 @@ object FileUtil {
         return File(path).exists()
     }
 
-
     /**
      * has file in directory
      * @param directory
@@ -244,16 +243,24 @@ object FileUtil {
 
     /**
      * write file
-     *
      * @param outputFullFilename
      * @param byteArray
      */
     fun writeFile(outputFullFilename: String, byteArray: ByteArray, append: Boolean = false) {
-        createFileIncludeDirectory(outputFullFilename)
+        this.writeFile(File(outputFullFilename), byteArray, append)
+    }
+
+    /**
+     * write file
+     * @param outputFile
+     * @param byteArray
+     */
+    fun writeFile(outputFile: File, byteArray: ByteArray, append: Boolean = false) {
+        createFileIncludeDirectory(outputFile)
         val inputStream = ByteArrayInputStream(byteArray)
         var outputStream: OutputStream? = null
         try {
-            outputStream = FileOutputStream(outputFullFilename, append)
+            outputStream = FileOutputStream(outputFile, append)
             inputStream.copyTo(outputStream)
         } catch (e: FileNotFoundException) {
             throw FileUtilException(e)
@@ -293,7 +300,6 @@ object FileUtil {
 
     /**
      * read file content ignore line
-     *
      * @param fullFilename
      * @param encoding
      * @param readFileContentProcessor
@@ -312,22 +318,29 @@ object FileUtil {
                 } catch (e: Exception) {
                     throw FileUtilException(e)
                 }
-
             }
         }
     }
 
     /**
      * write file content,best for string content
-     *
-     * @param fullFilename
+     * @param outputFullFilename
      * @param writeFileContentProcessor
      */
-    fun writeFileContent(fullFilename: String, charsetName: String = Constants.Encoding.UTF8, append: Boolean = false, writeFileContentProcessor: ((bufferedWriter: BufferedWriter) -> Unit)? = null) {
-        createFileIncludeDirectory(fullFilename)
+    fun writeFileContent(outputFullFilename: String, charsetName: String = Constants.Encoding.UTF8, append: Boolean = false, writeFileContentProcessor: ((bufferedWriter: BufferedWriter) -> Unit)? = null) {
+        this.writeFileContent(File(outputFullFilename), charsetName, append, writeFileContentProcessor)
+    }
+
+    /**
+     * write file content,best for string content
+     * @param outputFile
+     * @param writeFileContentProcessor
+     */
+    fun writeFileContent(outputFile: File, charsetName: String = Constants.Encoding.UTF8, append: Boolean = false, writeFileContentProcessor: ((bufferedWriter: BufferedWriter) -> Unit)? = null) {
+        createFileIncludeDirectory(outputFile)
         var bufferedWriter: BufferedWriter? = null
         try {
-            bufferedWriter = BufferedWriter(OutputStreamWriter(FileOutputStream(fullFilename, append), charsetName))
+            bufferedWriter = BufferedWriter(OutputStreamWriter(FileOutputStream(outputFile, append), charsetName))
             writeFileContentProcessor?.invoke(bufferedWriter)
         } catch (e: Exception) {
             throw FileUtilException(e)
