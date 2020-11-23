@@ -4,6 +4,8 @@ import com.oneliang.ktx.Constants
 import java.io.File
 import java.math.BigDecimal
 import java.math.MathContext
+import java.net.URLDecoder
+import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -197,3 +199,7 @@ fun String.isHourMinute(): Boolean {
     val reg = "^([0-1]?[0-9]|2[0-3]):([0-5][0-9])\$"
     return this.matches(reg)
 }
+
+fun String.urlEncode(encoding: String = Constants.Encoding.UTF8) = URLEncoder.encode(this, encoding).nullToBlank()
+
+fun String.urlDecode(encoding: String = Constants.Encoding.UTF8) = URLDecoder.decode(this, encoding).nullToBlank()
