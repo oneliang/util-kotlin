@@ -22,6 +22,6 @@ fun String.fileExists(): Boolean = FileUtil.exists(this)
 
 fun File.hasFile(fileSuffix: String = Constants.String.BLANK): Boolean = FileUtil.hasFile(this, fileSuffix)
 
-fun File.write(byteArray: ByteArray, append: Boolean) = FileUtil.writeFile(this, byteArray, append)
+fun File.write(byteArray: ByteArray, append: Boolean = false) = FileUtil.writeFile(this, byteArray, append)
 
 fun File.writeContent(charsetName: String = Constants.Encoding.UTF8, append: Boolean = false, writeFileContentProcessor: ((bufferedWriter: BufferedWriter) -> Unit)? = null) = FileUtil.writeFileContent(this, charsetName, append, writeFileContentProcessor)
