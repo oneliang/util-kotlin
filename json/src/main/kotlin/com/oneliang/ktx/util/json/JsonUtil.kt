@@ -160,7 +160,7 @@ object JsonUtil {
      * @return String
     </T> */
     @Deprecated("Deprecated")
-    private fun <T : Any> objectArrayToJson(array: Array<T>, fieldMap: Map<String, String> = mapOf(), jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String? {
+    private fun <T : Any> objectArrayToJson(array: Array<T>, fieldMap: Map<String, String> = emptyMap(), jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String? {
         val result: String
         val string = StringBuilder()
         string.append(Constants.Symbol.MIDDLE_BRACKET_LEFT)
@@ -219,7 +219,7 @@ object JsonUtil {
      * @param ignoreFirstLetterCase
      * @return json string
      */
-    fun <T : Any> objectToJson(instance: T, fields: Array<String>, jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
+    fun <T : Any> objectToJson(instance: T, fields: Array<String> = emptyArray(), jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
         val objectJson = StringBuilder()
         val kClass = instance.javaClass.kotlin
         objectJson.append(Constants.Symbol.BIG_BRACKET_LEFT)
