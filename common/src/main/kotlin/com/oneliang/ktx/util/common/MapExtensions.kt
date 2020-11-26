@@ -205,3 +205,34 @@ fun <K, V, A : Appendable> Map<out K, V>.joinTo(buffer: A, separator: CharSequen
     buffer.append(postfix)
     return buffer
 }
+
+fun <K, V> Map<K, V>.merge(mergeMap: Map<K, V>, existBlock: (key: K, value: V, mergeValue: V) -> V = { _, value, _ -> value },
+                           mergeNotExistBlock: (key: K, value: V) -> V = { _, value -> value },
+                           notExistBlock: (key: K, mergeValue: V) -> V = { _, mergeValue -> mergeValue }): Map<K, V> {
+    return this.mergeToNewValue(mergeMap, existBlock, mergeNotExistBlock, notExistBlock)
+}
+
+fun <K, V, NV> Map<K, V>.mergeToNewValue(mergeMap: Map<K, V>, existBlock: (key: K, value: V, mergeValue: V) -> NV,
+                                         mergeNotExistBlock: (key: K, value: V) -> NV,
+                                         notExistBlock: (key: K, mergeValue: V) -> NV): Map<K, NV> {
+    val mutableMap = mutableMapOf<K, NV>()
+    this.forEach { (key, value) ->
+        val mergeValue = mergeMap[key]
+        val newValue = if (mergeValue != null) {
+            existBlock(key, value, mergeValue)
+        } else {
+            mergeNotExistBlock(key, value)
+        }
+        mutableMap[key] = newValue
+    }
+    mergeMap.forEach { (key, mergeValue) ->
+        val value = this[key]
+        if (value == null) {
+            val newValue = notExistBlock(key, mergeValue)
+            mutableMap[key] = newValue
+        } else {
+            //it merged
+        }
+    }
+    return mutableMap
+}
