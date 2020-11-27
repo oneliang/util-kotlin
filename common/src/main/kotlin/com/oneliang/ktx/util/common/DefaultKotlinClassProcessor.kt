@@ -1,6 +1,7 @@
 package com.oneliang.ktx.util.common
 
 import com.oneliang.ktx.Constants
+import java.math.BigDecimal
 import kotlin.reflect.KClass
 
 open class DefaultKotlinClassProcessor : KotlinClassUtil.KotlinClassProcessor {
@@ -59,6 +60,11 @@ open class DefaultKotlinClassProcessor : KotlinClassUtil.KotlinClassProcessor {
                     DATE_TIME_LENGTH -> values[0].toUtilDate()
                     else -> null
                 }
+            }
+            KotlinClassUtil.ClassType.JAVA_MATH_BIG_DECIMAL -> value = if (values.isEmpty() || values[0].isBlank()) {
+                null
+            } else {
+                BigDecimal(values[0])
             }
             KotlinClassUtil.ClassType.KOTLIN_BYTE_ARRAY -> {
                 val byteArray = Array(values.size) { index ->

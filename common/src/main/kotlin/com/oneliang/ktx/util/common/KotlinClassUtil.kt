@@ -1,6 +1,7 @@
 package com.oneliang.ktx.util.common
 
 import com.oneliang.ktx.Constants
+import java.math.BigDecimal
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -20,7 +21,7 @@ object KotlinClassUtil {
 
     enum class ClassType {
         KOTLIN_STRING, KOTLIN_CHARACTER, KOTLIN_SHORT, KOTLIN_INTEGER, KOTLIN_LONG,
-        KOTLIN_FLOAT, KOTLIN_DOUBLE, KOTLIN_BOOLEAN, KOTLIN_BYTE, JAVA_UTIL_DATE,
+        KOTLIN_FLOAT, KOTLIN_DOUBLE, KOTLIN_BOOLEAN, KOTLIN_BYTE, JAVA_UTIL_DATE, JAVA_MATH_BIG_DECIMAL,
         //        CHAR, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN,
         KOTLIN_STRING_ARRAY,
         KOTLIN_CHAR_ARRAY, KOTLIN_SHORT_ARRAY, KOTLIN_INT_ARRAY, KOTLIN_LONG_ARRAY,
@@ -39,6 +40,7 @@ object KotlinClassUtil {
         classTypeMap[Boolean::class] = ClassType.KOTLIN_BOOLEAN
         classTypeMap[Byte::class] = ClassType.KOTLIN_BYTE
         classTypeMap[Date::class] = ClassType.JAVA_UTIL_DATE
+        classTypeMap[BigDecimal::class] = ClassType.JAVA_MATH_BIG_DECIMAL
 
         classTypeMap[Array<String>::class] = ClassType.KOTLIN_STRING_ARRAY
         classTypeMap[Array<Char>::class] = ClassType.KOTLIN_CHAR_ARRAY
