@@ -8,42 +8,42 @@ import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 
-fun <T : Any> File.readSimpleExcel(headerRowIndex: Int = -1, dataRowOffset: Int = 0, rowDataTransform: (dataMap: Map<String, String>) -> T): List<T> {
+fun <T : Any> File.readSimpleExcel(headerRowIndex: Int = -1, dataRowOffset: Int = 0, rowDataTransform: (dataMap: Map<String, String>) -> T): JxlUtil.ReadResult<T> {
     val workbook = Workbook.getWorkbook(this)
     return JxlUtil.readSimpleExcel(workbook, headerRowIndex, dataRowOffset, { _, cell: Cell, _: Int, _: Int -> cell.contents.nullToBlank() }, rowDataTransform)
 }
 
-fun <V : Any, T : Any> File.readSimpleExcel(headerRowIndex: Int = -1, dataRowOffset: Int = 0, valueTransform: (header: String, cell: Cell, rowIndex: Int, columnIndex: Int) -> V, rowDataTransform: (dataMap: Map<String, V>) -> T): List<T> {
+fun <V : Any, T : Any> File.readSimpleExcel(headerRowIndex: Int = -1, dataRowOffset: Int = 0, valueTransform: (header: String, cell: Cell, rowIndex: Int, columnIndex: Int) -> V, rowDataTransform: (dataMap: Map<String, V>) -> T): JxlUtil.ReadResult<T> {
     val workbook = Workbook.getWorkbook(this)
     return JxlUtil.readSimpleExcel(workbook, headerRowIndex, dataRowOffset, valueTransform, rowDataTransform)
 }
 
-fun <T : Any> InputStream.readSimpleExcel(headerRowIndex: Int = -1, dataRowOffset: Int = 0, rowDataTransform: (dataMap: Map<String, String>) -> T): List<T> {
+fun <T : Any> InputStream.readSimpleExcel(headerRowIndex: Int = -1, dataRowOffset: Int = 0, rowDataTransform: (dataMap: Map<String, String>) -> T): JxlUtil.ReadResult<T> {
     val workbook = Workbook.getWorkbook(this)
     return JxlUtil.readSimpleExcel(workbook, headerRowIndex, dataRowOffset, { _, cell: Cell, _: Int, _: Int -> cell.contents.nullToBlank() }, rowDataTransform)
 }
 
-fun <V : Any, T : Any> InputStream.readSimpleExcel(headerRowIndex: Int = -1, dataRowOffset: Int = 0, valueTransform: (header: String, cell: Cell, rowIndex: Int, columnIndex: Int) -> V, rowDataTransform: (dataMap: Map<String, V>) -> T): List<T> {
+fun <V : Any, T : Any> InputStream.readSimpleExcel(headerRowIndex: Int = -1, dataRowOffset: Int = 0, valueTransform: (header: String, cell: Cell, rowIndex: Int, columnIndex: Int) -> V, rowDataTransform: (dataMap: Map<String, V>) -> T): JxlUtil.ReadResult<T> {
     val workbook = Workbook.getWorkbook(this)
     return JxlUtil.readSimpleExcel(workbook, headerRowIndex, dataRowOffset, valueTransform, rowDataTransform)
 }
 
-fun File.readSimpleExcel(headerRowIndex: Int = -1, dataRowOffset: Int = 0): List<Map<String, String>> {
+fun File.readSimpleExcel(headerRowIndex: Int = -1, dataRowOffset: Int = 0): JxlUtil.ReadResult<Map<String, String>> {
     val workbook = Workbook.getWorkbook(this)
     return JxlUtil.readSimpleExcel(workbook, headerRowIndex, dataRowOffset)
 }
 
-fun InputStream.readSimpleExcel(headerRowIndex: Int = -1, dataRowOffset: Int = 0): List<Map<String, String>> {
+fun InputStream.readSimpleExcel(headerRowIndex: Int = -1, dataRowOffset: Int = 0): JxlUtil.ReadResult<Map<String, String>> {
     val workbook = Workbook.getWorkbook(this)
     return JxlUtil.readSimpleExcel(workbook, headerRowIndex, dataRowOffset)
 }
 
-fun <T : Any> File.readSimpleExcelForDataRow(headerRowIndex: Int = -1, dataRowOffset: Int = 0, readDataRow: (sheet: Sheet, rowIndex: Int, existHeader: Boolean, headerIndexMap: Map<String, Int>) -> T): List<T> {
+fun <T : Any> File.readSimpleExcelForDataRow(headerRowIndex: Int = -1, dataRowOffset: Int = 0, readDataRow: (sheet: Sheet, rowIndex: Int, existHeader: Boolean, headerIndexMap: Map<String, Int>) -> T): JxlUtil.ReadResult<T> {
     val workbook = Workbook.getWorkbook(this)
     return JxlUtil.readSimpleExcelForDataRow(workbook, headerRowIndex, dataRowOffset, readDataRow)
 }
 
-fun <T : Any> InputStream.readSimpleExcelForDataRow(headerRowIndex: Int = -1, dataRowOffset: Int = 0, readDataRow: (sheet: Sheet, rowIndex: Int, existHeader: Boolean, headerIndexMap: Map<String, Int>) -> T): List<T> {
+fun <T : Any> InputStream.readSimpleExcelForDataRow(headerRowIndex: Int = -1, dataRowOffset: Int = 0, readDataRow: (sheet: Sheet, rowIndex: Int, existHeader: Boolean, headerIndexMap: Map<String, Int>) -> T): JxlUtil.ReadResult<T> {
     val workbook = Workbook.getWorkbook(this)
     return JxlUtil.readSimpleExcelForDataRow(workbook, headerRowIndex, dataRowOffset, readDataRow)
 }

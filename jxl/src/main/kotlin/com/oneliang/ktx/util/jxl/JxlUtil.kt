@@ -52,10 +52,10 @@ object JxlUtil {
      * @param jxlMappingBean
      * @param dataRowOffset
      * @param jxlProcessor
-     * @return List<T>
+     * @return ReadResult<T>
     </T></T> */
     @Throws(Exception::class)
-    fun <T : Any> readSimpleExcel(fullFilename: String, kClass: KClass<T>, jxlMappingBean: JxlMappingBean, headerRowIndex: Int = -1, dataRowOffset: Int = 0, jxlProcessor: JxlProcessor = DEFAULT_JXL_PROCESSOR): List<T> {
+    fun <T : Any> readSimpleExcel(fullFilename: String, kClass: KClass<T>, jxlMappingBean: JxlMappingBean, headerRowIndex: Int = -1, dataRowOffset: Int = 0, jxlProcessor: JxlProcessor = DEFAULT_JXL_PROCESSOR): ReadResult<T> {
         val workbook = Workbook.getWorkbook(File(fullFilename))
         return readSimpleExcel(workbook, kClass, jxlMappingBean, headerRowIndex, dataRowOffset, jxlProcessor)
     }
@@ -69,10 +69,10 @@ object JxlUtil {
      * @param headerRowIndex
      * @param dataRowOffset
      * @param jxlProcessor
-     * @return List<T>
+     * @return ReadResult<T>
     </T></T> */
     @Throws(Exception::class)
-    fun <T : Any> readSimpleExcel(workbook: Workbook, kClass: KClass<T>, jxlMappingBean: JxlMappingBean, headerRowIndex: Int = -1, dataRowOffset: Int = 0, jxlProcessor: JxlProcessor = DEFAULT_JXL_PROCESSOR): List<T> {
+    fun <T : Any> readSimpleExcel(workbook: Workbook, kClass: KClass<T>, jxlMappingBean: JxlMappingBean, headerRowIndex: Int = -1, dataRowOffset: Int = 0, jxlProcessor: JxlProcessor = DEFAULT_JXL_PROCESSOR): ReadResult<T> {
         return readSimpleExcelForDataRow(workbook, headerRowIndex, dataRowOffset) { sheet, rowIndex, existHeader, headerIndexMap ->
             createRowInstance(sheet, rowIndex, kClass, existHeader, headerIndexMap, jxlMappingBean, jxlProcessor)
         }
@@ -84,10 +84,10 @@ object JxlUtil {
      * @param workbook
      * @param headerRowIndex
      * @param dataRowOffset
-     * @return List<T>
+     * @return ReadResult<Map<String, String>>
     </T></T> */
     @Throws(Exception::class)
-    fun readSimpleExcel(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0): List<Map<String, String>> {
+    fun readSimpleExcel(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0): ReadResult<Map<String, String>> {
         return readSimpleExcelForDataRow(workbook, headerRowIndex, dataRowOffset) { sheet, rowIndex, existHeader, headerIndexMap ->
             createRowData(sheet, rowIndex, existHeader, headerIndexMap, { _, cell, _, _ -> cell.contents.nullToBlank() }) { it }
         }
@@ -100,10 +100,10 @@ object JxlUtil {
      * @param headerRowIndex
      * @param dataRowOffset
      * @param valueTransform
-     * @return List<T>
+     * @return ReadResult<Map<String, V>>
     </T></T> */
     @Throws(Exception::class)
-    fun <V : Any> readSimpleExcel(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0, valueTransform: (header: String, cell: Cell, rowIndex: Int, columnIndex: Int) -> V): List<Map<String, V>> {
+    fun <V : Any> readSimpleExcel(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0, valueTransform: (header: String, cell: Cell, rowIndex: Int, columnIndex: Int) -> V): ReadResult<Map<String, V>> {
         return readSimpleExcelForDataRow(workbook, headerRowIndex, dataRowOffset) { sheet, rowIndex, existHeader, headerIndexMap ->
             createRowData(sheet, rowIndex, existHeader, headerIndexMap, valueTransform) { it }
         }
@@ -117,10 +117,10 @@ object JxlUtil {
      * @param dataRowOffset
      * @param valueTransform
      * @param rowDataTransform
-     * @return List<T>
+     * @return ReadResult<T>
     </T></T> */
     @Throws(Exception::class)
-    fun <V : Any, T : Any> readSimpleExcel(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0, valueTransform: (header: String, cell: Cell, rowIndex: Int, columnIndex: Int) -> V, rowDataTransform: (dataMap: Map<String, V>) -> T): List<T> {
+    fun <V : Any, T : Any> readSimpleExcel(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0, valueTransform: (header: String, cell: Cell, rowIndex: Int, columnIndex: Int) -> V, rowDataTransform: (dataMap: Map<String, V>) -> T): ReadResult<T> {
         return readSimpleExcelForDataRow(workbook, headerRowIndex, dataRowOffset) { sheet, rowIndex, existHeader, headerIndexMap ->
             createRowData(sheet, rowIndex, existHeader, headerIndexMap, valueTransform, rowDataTransform)
         }
@@ -133,15 +133,15 @@ object JxlUtil {
      * @param headerRowIndex
      * @param dataRowOffset
      * @param readDataRow
-     * @return List<T>
+     * @return ReadResult<T>
     </T></T> */
-    fun <T : Any> readSimpleExcelForDataRow(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0, readDataRow: (sheet: Sheet, rowIndex: Int, existHeader: Boolean, headerIndexMap: Map<String, Int>) -> T): List<T> {
+    fun <T : Any> readSimpleExcelForDataRow(workbook: Workbook, headerRowIndex: Int = -1, dataRowOffset: Int = 0, readDataRow: (sheet: Sheet, rowIndex: Int, existHeader: Boolean, headerIndexMap: Map<String, Int>) -> T): ReadResult<T> {
         val list = mutableListOf<T>()
         val sheets = workbook.sheets
-        val sheet = (if (sheets.isNotEmpty()) sheets[0] else null) ?: return list
+        val sheet = (if (sheets.isNotEmpty()) sheets[0] else null) ?: return ReadResult(dataList = list)
         val rows = sheet.rows
         if (rows < headerRowIndex + 1) {
-            return list
+            return ReadResult(dataList = list)
         }
 
         //find header maybe has no header
@@ -157,7 +157,7 @@ object JxlUtil {
             val instance = readDataRow(sheet, i, existHeader, headerIndexMap)
             list += instance
         }
-        return list
+        return ReadResult(headerIndexMap, list)
     }
 
     /**
@@ -424,6 +424,8 @@ object JxlUtil {
         }
         return sheet ?: writableWorkbook.createSheet(sheetName, index)
     }
+
+    class ReadResult<T>(val headerIndexMap: Map<String, Int> = emptyMap(), val dataList: List<T> = emptyList())
 
     interface JxlProcessor {
 
