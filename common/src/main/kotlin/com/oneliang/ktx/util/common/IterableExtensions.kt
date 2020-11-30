@@ -7,6 +7,17 @@ inline fun <T, K, V> Iterable<T>.toMap(destinationMap: MutableMap<K, V>, transfo
 
 inline fun <T, K, V> Iterable<T>.toMap(transform: (t: T) -> Pair<K, V>): Map<K, V> = this.toMap(mutableMapOf(), transform)
 
+inline fun <T, K, V> Iterable<T>.toMapWithFilter(destinationMap: MutableMap<K, V>, filter: (t: T) -> Boolean, transform: (t: T) -> Pair<K, V>): Map<K, V> {
+    for (element in this) {
+        if (filter(element)) {
+            destinationMap += transform(element)
+        }
+    }
+    return destinationMap
+}
+
+inline fun <T, K, V> Iterable<T>.toMapWithFilter(filter: (t: T) -> Boolean, transform: (t: T) -> Pair<K, V>): Map<K, V> = this.toMapWithFilter(mutableMapOf(), filter, transform)
+
 inline fun <T, K, V> Iterable<T>.toMapWithIndex(transform: (index: Int, t: T) -> Pair<K, V>): Map<K, V> {
     val map = mutableMapOf<K, V>()
     this.forEachIndexed { index, t ->
@@ -116,7 +127,7 @@ inline fun <T, R> Iterable<T>.toHashSet(transform: (t: T) -> R): Set<R> {
     return hashSet
 }
 
-inline fun <T, R : Any> Iterable<T>.filterAndMap(filter: (t: T) -> Boolean, transform: (t: T) -> R): List<R> {
+inline fun <T, R : Any> Iterable<T>.mapWithFilter(filter: (t: T) -> Boolean, transform: (t: T) -> R): List<R> {
     return this.mapNotNull {
         if (!filter(it)) {
             null
