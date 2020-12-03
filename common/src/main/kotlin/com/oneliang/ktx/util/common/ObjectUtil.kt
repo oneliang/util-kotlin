@@ -235,7 +235,7 @@ object ObjectUtil {
         try {
             value = method.invoke(instance)
         } catch (e: Exception) {
-            throw ObjectUtilException("Invoke method exception, method:$methodName, field:$fieldName", e)
+            throw ObjectUtilException("Invoke method exception, instance:${instance}, method:$methodName, field:$fieldName", e)
         }
         return value
     }

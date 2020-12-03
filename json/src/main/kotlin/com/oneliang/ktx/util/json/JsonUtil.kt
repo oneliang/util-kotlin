@@ -5,6 +5,7 @@ import com.oneliang.ktx.exception.MethodInvokeException
 import com.oneliang.ktx.util.common.KotlinClassUtil
 import com.oneliang.ktx.util.common.ObjectUtil
 import com.oneliang.ktx.util.common.joinToString
+import java.util.*
 import kotlin.reflect.KClass
 
 object JsonUtil {
@@ -222,38 +223,28 @@ object JsonUtil {
     fun <T : Any> objectToJson(instance: T, fields: Array<String> = emptyArray(), jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
         val objectJson = StringBuilder()
         val kClass = instance.javaClass.kotlin
+        val fieldTreeSet: SortedSet<String>
         objectJson.append(Constants.Symbol.BIG_BRACKET_LEFT)
         if (fields.isNotEmpty()) {
-            val length = fields.size
-            for (i in 0 until length) {
-                val fieldName = fields[i]
-                var methodReturnValue = ObjectUtil.getterOrIsMethodInvoke(instance, fieldName, ignoreFirstLetterCase)
-                methodReturnValue = jsonProcessor.process(kClass, fieldName, methodReturnValue, ignoreFirstLetterCase)
-                objectJson.append(Constants.Symbol.DOUBLE_QUOTE + fieldName + Constants.Symbol.DOUBLE_QUOTE + Constants.Symbol.COLON + methodReturnValue.toString())
-                if (i < length - 1) {
-                    objectJson.append(Constants.Symbol.COMMA)
-                }
-            }
+            fieldTreeSet = fields.toSortedSet()
         } else {
-            val subString = StringBuilder()
+            fieldTreeSet = TreeSet<String>()
             val methods = instance.javaClass.methods
             for (method in methods) {
                 val methodName = method.name
                 val fieldName = ObjectUtil.methodNameToFieldName(methodName, ignoreFirstLetterCase)
                 if (fieldName.isNotBlank()) {
-                    var value: Any?
-                    try {
-                        value = method.invoke(instance)
-                    } catch (e: Exception) {
-                        throw MethodInvokeException(e)
-                    }
-                    value = jsonProcessor.process(kClass, fieldName, value, ignoreFirstLetterCase)
-                    subString.append(Constants.Symbol.DOUBLE_QUOTE + fieldName + Constants.Symbol.DOUBLE_QUOTE + Constants.Symbol.COLON + value.toString() + Constants.Symbol.COMMA)
+                    fieldTreeSet += fieldName
                 }
             }
-            if (subString.isNotEmpty()) {
-                subString.delete(subString.length - 1, subString.length)
-                objectJson.append(subString.toString())
+        }
+        val length = fieldTreeSet.size
+        fieldTreeSet.forEachIndexed { index, fieldName ->
+            var methodReturnValue = ObjectUtil.getterOrIsMethodInvoke(instance, fieldName, ignoreFirstLetterCase)
+            methodReturnValue = jsonProcessor.process(kClass, fieldName, methodReturnValue, ignoreFirstLetterCase)
+            objectJson.append(Constants.Symbol.DOUBLE_QUOTE + fieldName + Constants.Symbol.DOUBLE_QUOTE + Constants.Symbol.COLON + methodReturnValue.toString())
+            if (index < length - 1) {
+                objectJson.append(Constants.Symbol.COMMA)
             }
         }
         objectJson.append(Constants.Symbol.BIG_BRACKET_RIGHT)
