@@ -7,6 +7,7 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.OutputStream
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.reflect.KClass
 
@@ -22,7 +23,6 @@ object ObjectUtil {
 
     /**
      * field name to method name
-     *
      * @param methodPrefix
      * @param fieldName
      * @param ignoreFirstLetterCase
@@ -42,7 +42,6 @@ object ObjectUtil {
 
     /**
      * method name to field name
-     *
      * @param methodPrefix
      * @param methodName
      * @param ignoreFirstLetterCase
@@ -64,7 +63,6 @@ object ObjectUtil {
     /**
      * get field with method name,which start with method prefix get or is,not
      * not include method getClass()
-     *
      * @param methodName
      * get or is method
      * @param ignoreFirstLetterCase
@@ -82,7 +80,6 @@ object ObjectUtil {
 
     /**
      * get field with method name,which start with method prefix set
-     *
      * @param methodName
      * set method
      * @param ignoreFirstLetterCase
@@ -98,7 +95,6 @@ object ObjectUtil {
 
     /**
      * get class all interface set
-     *
      * @param <T>
      * @param clazz
      * @return Set<Class></Class>>
@@ -109,7 +105,6 @@ object ObjectUtil {
 
     /**
      * get class all superclass and all interface list include self class.
-     *
      * @param <T>
      * @param isIncludeSelfClass
      * @param isAllSuperclass
@@ -153,7 +148,6 @@ object ObjectUtil {
 
     /**
      * getClassAllInterfaces
-     *
      * @param <T>
      * @param clazz
      * @return Class[]
@@ -165,7 +159,6 @@ object ObjectUtil {
 
     /**
      * is interface implement
-     *
      * @param implement
      * @param interfaceClass
      * @return boolean
@@ -177,7 +170,6 @@ object ObjectUtil {
 
     /**
      * just objectClass is it the inheritance or interface implement of clazz
-     *
      * @param objectClass
      * @param clazz
      * @return boolean
@@ -189,7 +181,6 @@ object ObjectUtil {
 
     /**
      * judge the object is it the entity of class or interface
-     *
      * @param instance
      * @param clazz
      * @return boolean
@@ -200,7 +191,6 @@ object ObjectUtil {
 
     /**
      * judge the object is it the entity of class or interface
-     *
      * @param instance
      * @param kClass
      * @return boolean
@@ -211,7 +201,6 @@ object ObjectUtil {
 
     /**
      * invoke getter or is method for field
-     *
      * @param instance
      * @param fieldName
      * @param ignoreFirstLetterCase
@@ -221,6 +210,10 @@ object ObjectUtil {
         val value: Any?
         var methodName = fieldNameToMethodName(Constants.Method.PREFIX_GET, fieldName, ignoreFirstLetterCase)
         var method: Method
+        val instanceClass = instance.javaClass
+        if ((instanceClass.modifiers and Modifier.PUBLIC) != Modifier.PUBLIC || instanceClass == Class::class.java) {
+            return null
+        }
         try {
             method = instance.javaClass.getMethod(methodName)
         } catch (e: Exception) {
@@ -242,7 +235,6 @@ object ObjectUtil {
 
     /**
      * read object
-     *
      * @param inputStream
      * @return Object
      */
@@ -269,7 +261,6 @@ object ObjectUtil {
 
     /**
      * write object
-     *
      * @param outputStream
      * @param instance
      */
@@ -296,7 +287,6 @@ object ObjectUtil {
 
     /**
      * new instance
-     *
      * @param clazz
      * @param parameterTypes
      * @param parameterValues
@@ -310,13 +300,11 @@ object ObjectUtil {
         } catch (e: Exception) {
             throw ObjectUtilException(e)
         }
-
         return value
     }
 
     /**
      * method invoke
-     *
      * @param instance
      * @param methodName
      * @param parameterTypes
