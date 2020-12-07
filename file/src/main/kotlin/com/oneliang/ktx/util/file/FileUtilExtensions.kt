@@ -3,6 +3,7 @@ package com.oneliang.ktx.util.file
 import com.oneliang.ktx.Constants
 import java.io.BufferedWriter
 import java.io.File
+import java.util.*
 
 fun File.readContentIgnoreLine(encoding: String = Constants.Encoding.UTF8, append: String = Constants.String.BLANK) = FileUtil.readFileContentIgnoreLine(this.absolutePath, encoding, append)
 
@@ -25,3 +26,15 @@ fun File.hasFile(fileSuffix: String = Constants.String.BLANK): Boolean = FileUti
 fun File.write(byteArray: ByteArray, append: Boolean = false) = FileUtil.writeFile(this, byteArray, append)
 
 fun File.writeContent(charsetName: String = Constants.Encoding.UTF8, append: Boolean = false, writeFileContentProcessor: ((bufferedWriter: BufferedWriter) -> Unit)? = null) = FileUtil.writeFileContent(this, charsetName, append, writeFileContentProcessor)
+
+fun String.toProperties(): Properties = FileUtil.getProperties(this)
+
+fun String.toPropertiesAutoCreate(): Properties = FileUtil.getPropertiesAutoCreate(this)
+
+fun File.toProperties(): Properties = FileUtil.getProperties(this)
+
+fun File.toPropertiesAutoCreate(): Properties = FileUtil.getPropertiesAutoCreate(this)
+
+fun File.saveProperties(properties: Properties) = FileUtil.saveProperties(properties, this)
+
+fun Properties.saveTo(file: File) = FileUtil.saveProperties(this, file)

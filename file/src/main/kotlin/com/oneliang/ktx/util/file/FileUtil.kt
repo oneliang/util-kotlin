@@ -584,7 +584,6 @@ object FileUtil {
 
     /**
      * get properties,if is not exist will auto create
-     *
      * @param propertiesFullFilename
      * @return Properties
      */
@@ -596,28 +595,28 @@ object FileUtil {
     }
 
     /**
+     * get properties,if is not exist will auto create
+     * @param file
+     * @return Properties
+     */
+    fun getPropertiesAutoCreate(file: File): Properties {
+        if (!file.exists()) {
+            createFileIncludeDirectory(file)
+        }
+        return getProperties(file)
+    }
+
+    /**
      * get properties
-     *
      * @param propertiesFullFilename
      * @return Properties
      */
     fun getProperties(propertiesFullFilename: String): Properties {
         val properties = Properties()
         if (propertiesFullFilename.isNotBlank()) {
-            var inputStream: InputStream? = null
-            try {
-                inputStream = FileInputStream(propertiesFullFilename)
-                properties.load(inputStream)
-            } catch (e: Exception) {
-                throw FileUtilException(e)
-            } finally {
-                if (inputStream != null) {
-                    try {
-                        inputStream.close()
-                    } catch (e: Exception) {
-                        throw FileUtilException(e)
-                    }
-                }
+            val inputStream = FileInputStream(propertiesFullFilename)
+            inputStream.use {
+                properties.load(it)
             }
         }
         return properties
@@ -636,26 +635,25 @@ object FileUtil {
 
     /**
      * save properties
-     *
      * @param properties
      * @param outputFullFilename
      */
     fun saveProperties(properties: Properties, outputFullFilename: String) {
-        var outputStream: OutputStream? = null
-        try {
-            outputStream = FileOutputStream(outputFullFilename)
-            properties.store(outputStream, null)
-        } catch (e: Exception) {
-            throw FileUtilException(e)
-        } finally {
-            if (outputStream != null) {
-                try {
-                    outputStream.flush()
-                    outputStream.close()
-                } catch (e: Exception) {
-                    throw FileUtilException(e)
-                }
-            }
+        val outputStream = FileOutputStream(outputFullFilename)
+        outputStream.use {
+            properties.store(it, null)
+        }
+    }
+
+    /**
+     * save properties
+     * @param properties
+     * @param outputFile
+     */
+    fun saveProperties(properties: Properties, outputFile: File) {
+        val outputStream = FileOutputStream(outputFile)
+        outputStream.use {
+            properties.store(it, null)
         }
     }
 
