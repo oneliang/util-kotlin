@@ -2,6 +2,7 @@ package com.oneliang.ktx.util.common
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.MethodInvokeException
+import java.math.BigDecimal
 import kotlin.reflect.KClass
 
 fun <T : Any> Map<String, Array<String>>.toObject(instance: T, classProcessor: KotlinClassUtil.KotlinClassProcessor = KotlinClassUtil.DEFAULT_KOTLIN_CLASS_PROCESSOR) {
@@ -235,4 +236,20 @@ fun <K, V, NV> Map<K, V>.mergeToNewValue(mergeMap: Map<K, V>, existBlock: (key: 
         }
     }
     return mutableMap
+}
+
+inline fun <K, V> Map<K, V>.sumByLong(selector: (key: K, value: V) -> Long): Long {
+    var sum = 0L
+    for ((key, value) in this) {
+        sum += selector(key, value)
+    }
+    return sum
+}
+
+inline fun <K, V> Map<K, V>.sumByBigDecimal(selector: (key: K, value: V) -> BigDecimal): BigDecimal {
+    var sum = BigDecimal(Constants.String.ZERO)
+    for ((key, value) in this) {
+        sum += selector(key, value)
+    }
+    return sum
 }

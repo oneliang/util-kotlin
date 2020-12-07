@@ -1,6 +1,8 @@
 package com.oneliang.ktx.util.common
 
+import com.oneliang.ktx.Constants
 import java.io.ByteArrayOutputStream
+import java.math.BigDecimal
 import java.nio.charset.Charset
 
 inline fun <T, K, V> Iterable<T>.toMap(destinationMap: MutableMap<K, V>, transform: (t: T) -> Pair<K, V>): Map<K, V> = this.associateTo(destinationMap, transform)
@@ -139,6 +141,14 @@ inline fun <T, R : Any> Iterable<T>.mapWithFilter(filter: (t: T) -> Boolean, tra
 
 inline fun <T> Iterable<T>.sumByLong(selector: (T) -> Long): Long {
     var sum = 0L
+    for (element in this) {
+        sum += selector(element)
+    }
+    return sum
+}
+
+inline fun <T> Iterable<T>.sumByBigDecimal(selector: (T) -> BigDecimal): BigDecimal {
+    var sum = BigDecimal(Constants.String.ZERO)
     for (element in this) {
         sum += selector(element)
     }
