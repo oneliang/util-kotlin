@@ -15,7 +15,7 @@ abstract class LoopThread : Runnable {
             try {
                 looping()
             } catch (e: InterruptedException) {
-                logger.verbose("server need to interrupt:" + e.message)
+                logger.verbose("server need to interrupt, message:%s, instance:%s", e.message, this)
                 Thread.currentThread().interrupt()
                 break
             } catch (e: Throwable) {
