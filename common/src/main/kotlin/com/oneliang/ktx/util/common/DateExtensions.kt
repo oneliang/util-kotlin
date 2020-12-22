@@ -93,3 +93,9 @@ fun Date.getHourZeroTimePrevious(offset: Int = 1): Long {
 fun Date.getMinuteZeroTimePrevious(offset: Int = 1): Long {
     return this.getMinuteZeroTime() - offset * Constants.Time.MILLISECONDS_OF_MINUTE
 }
+
+fun Date.getDayOfMonth(): Int {
+    val calendar = Calendar.getInstance()
+    calendar.time = this
+    return calendar.get(Calendar.DAY_OF_MONTH)
+}
