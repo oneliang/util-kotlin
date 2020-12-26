@@ -30,9 +30,11 @@ fun String.jsonToArrayDouble(): Array<Double> = JsonUtil.jsonToArrayDouble(this)
 
 fun String.jsonToArrayString(): Array<String> = JsonUtil.jsonToArrayString(this)
 
-fun <T : Any> String.jsonToObject(kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = JsonUtil.DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, ignoreFirstLetterCase: Boolean = false): T = JsonUtil.jsonToObject(this, kClass, classProcessor, ignoreFirstLetterCase)
+fun <T : Any> String.jsonToObject(kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = JsonUtil.DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, ignoreFirstLetterCase: Boolean = false, ignoreFieldNameArray: Array<String> = emptyArray()): T =
+    JsonUtil.jsonToObject(this, kClass, classProcessor, ignoreFirstLetterCase, ignoreFieldNameArray)
 
-fun <T : Any> String.jsonToObjectList(kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = JsonUtil.DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, ignoreFirstLetterCase: Boolean = false): List<T> = JsonUtil.jsonToObjectList(this, kClass, classProcessor, ignoreFirstLetterCase)
+fun <T : Any> String.jsonToObjectList(kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = JsonUtil.DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, ignoreFirstLetterCase: Boolean = false, ignoreFieldNameArray: Array<String> = emptyArray()): List<T> =
+    JsonUtil.jsonToObjectList(this, kClass, classProcessor, ignoreFirstLetterCase, ignoreFieldNameArray)
 
 fun JsonArray.toArrayBoolean(): Array<Boolean> = JsonUtil.jsonArrayToArrayBoolean(this)
 
