@@ -35,7 +35,7 @@ object Template {
             val invocable = scriptEngine as Invocable
             logger.verbose("template content:%s", templateContent)
             var functionResult = invocable.invokeFunction(JavaScriptFunctionGenerator.FUNCTION_TEMPLATE, templateContent)
-            logger.debug(JavaScriptFunctionGenerator.getResult(functionResult.toString()))
+            logger.verbose(JavaScriptFunctionGenerator.getResult(functionResult.toString()))
             scriptEngine.eval(JavaScriptFunctionGenerator.getResult(functionResult.toString()))
             functionResult = invocable.invokeFunction(JavaScriptFunctionGenerator.FUNCTION_GET_RESULT)
             return if (functionResult != null && functionResult.toString().isNotBlank()) {
