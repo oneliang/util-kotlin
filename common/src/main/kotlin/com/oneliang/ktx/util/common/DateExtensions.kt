@@ -59,39 +59,79 @@ fun Date.getZeroTime(modulusTime: Long): Long {
 }
 
 fun Date.getDayZeroTime(): Long {
-    return this.getZeroTime(Constants.Time.MILLISECONDS_OF_DAY)
+    return this.time.getDayZeroTime()
 }
 
 fun Date.getHourZeroTime(): Long {
-    return this.getZeroTime(Constants.Time.MILLISECONDS_OF_HOUR)
+    return this.time.getHourZeroTime()
 }
 
 fun Date.getMinuteZeroTime(): Long {
-    return this.getZeroTime(Constants.Time.MILLISECONDS_OF_MINUTE)
+    return this.time.getMinuteZeroTime()
 }
 
 fun Date.getDayZeroTimeNext(offset: Int = 1): Long {
-    return this.getDayZeroTime() + offset * Constants.Time.MILLISECONDS_OF_DAY
+    return this.time.getDayZeroTimeNext(offset)
 }
 
 fun Date.getHourZeroTimeNext(offset: Int = 1): Long {
-    return this.getHourZeroTime() + offset * Constants.Time.MILLISECONDS_OF_HOUR
+    return this.time.getHourZeroTimeNext(offset)
 }
 
 fun Date.getMinuteZeroTimeNext(offset: Int = 1): Long {
-    return this.getMinuteZeroTime() + offset * Constants.Time.MILLISECONDS_OF_MINUTE
+    return this.time.getMinuteZeroTimeNext(offset)
 }
 
 fun Date.getDayZeroTimePrevious(offset: Int = 1): Long {
-    return this.getDayZeroTime() - offset * Constants.Time.MILLISECONDS_OF_DAY
+    return this.time.getDayZeroTimePrevious(offset)
 }
 
 fun Date.getHourZeroTimePrevious(offset: Int = 1): Long {
-    return this.getHourZeroTime() - offset * Constants.Time.MILLISECONDS_OF_HOUR
+    return this.time.getHourZeroTimePrevious(offset)
 }
 
 fun Date.getMinuteZeroTimePrevious(offset: Int = 1): Long {
-    return this.getMinuteZeroTime() - offset * Constants.Time.MILLISECONDS_OF_MINUTE
+    return this.time.getMinuteZeroTimePrevious(offset)
+}
+
+fun Date.getZeroTimeDate(modulusTime: Long): Date {
+    return this.getZeroTime(modulusTime).toUtilDate()
+}
+
+fun Date.getDayZeroTimeDate(): Date {
+    return this.getZeroTimeDate(Constants.Time.MILLISECONDS_OF_DAY)
+}
+
+fun Date.getHourZeroTimeDate(): Date {
+    return this.getZeroTimeDate(Constants.Time.MILLISECONDS_OF_HOUR)
+}
+
+fun Date.getMinuteZeroTimeDate(): Date {
+    return this.getZeroTimeDate(Constants.Time.MILLISECONDS_OF_MINUTE)
+}
+
+fun Date.getDayZeroTimeDateNext(offset: Int = 1): Date {
+    return this.getDayZeroTimeNext(offset).toUtilDate()
+}
+
+fun Date.getHourZeroTimeDateNext(offset: Int = 1): Date {
+    return this.getHourZeroTimeNext(offset).toUtilDate()
+}
+
+fun Date.getMinuteZeroTimeDateNext(offset: Int = 1): Date {
+    return this.getMinuteZeroTimeNext(offset).toUtilDate()
+}
+
+fun Date.getDayZeroTimeDatePrevious(offset: Int = 1): Date {
+    return this.getDayZeroTimePrevious(offset).toUtilDate()
+}
+
+fun Date.getHourZeroTimeDatePrevious(offset: Int = 1): Date {
+    return this.getHourZeroTimePrevious(offset).toUtilDate()
+}
+
+fun Date.getMinuteZeroTimeDatePrevious(offset: Int = 1): Date {
+    return this.getMinuteZeroTimePrevious(offset).toUtilDate()
 }
 
 fun Date.getCurrentDayOfMonth(): Int {
