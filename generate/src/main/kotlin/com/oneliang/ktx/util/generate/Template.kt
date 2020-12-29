@@ -29,11 +29,11 @@ object Template {
                     json = option.json
                 }
             }
-            logger.debug("data object json:$json")
+            logger.verbose("data object json:$json")
             scriptEngine.eval(JavaScriptFunctionGenerator.getObject(json))
             scriptEngine.eval(JavaScriptFunctionGenerator.template())
             val invocable = scriptEngine as Invocable
-            logger.debug("template content:%s", templateContent)
+            logger.verbose("template content:%s", templateContent)
             var functionResult = invocable.invokeFunction(JavaScriptFunctionGenerator.FUNCTION_TEMPLATE, templateContent)
             logger.debug(JavaScriptFunctionGenerator.getResult(functionResult.toString()))
             scriptEngine.eval(JavaScriptFunctionGenerator.getResult(functionResult.toString()))
