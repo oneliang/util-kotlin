@@ -76,7 +76,7 @@ inline fun <T, K, R, M : MutableMap<in K, MutableList<R>>> Iterable<T>.groupByTo
     this.forEachIndexed { index: Int, element: T ->
         val key = keySelector(element)
         val list = destination.getOrPut(key) { mutableListOf() }
-        list.add(valueTransform(index, element))
+        list += valueTransform(index, element)
     }
     return destination
 }
@@ -159,4 +159,16 @@ fun <V, K, RV, RK, T> Iterable<V>.relateBy(keySelector: (V) -> K, slaveIterable:
     val mainMap = this.toMap { keySelector(it) to it }
     val relationMap = slaveIterable.toMap { slaveKeySelector(it) to it }
     return mainMap.relateBy(relationMap, relationList, relationDataKeySelector, relationDataSlaveKeySelector)
+}
+
+fun <T, K> Iterable<T>.groupByMultiKeySelector(keySelectorArray: Array<(T) -> K>): Array<Map<K, List<T>>> {
+    val mapArray = Array<MutableMap<K, MutableList<T>>>(keySelectorArray.size) { mutableMapOf() }
+    this.forEach { element: T ->
+        mapArray.forEachIndexed { index, mutableMap ->
+            val key = keySelectorArray[index](element)
+            val list = mutableMap.getOrPut(key) { mutableListOf() }
+            list += element
+        }
+    }
+    return mapArray.toNewArray { it }
 }
