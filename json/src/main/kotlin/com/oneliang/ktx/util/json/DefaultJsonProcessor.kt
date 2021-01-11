@@ -5,6 +5,7 @@ import com.oneliang.ktx.util.common.KotlinClassUtil
 import com.oneliang.ktx.util.common.toFormatString
 import com.oneliang.ktx.util.common.transformLines
 import com.oneliang.ktx.util.common.transformQuotes
+import java.math.BigDecimal
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -27,17 +28,20 @@ open class DefaultJsonProcessor : JsonUtil.JsonProcessor {
                 else -> JsonUtil.objectArrayToJson(value as Array<Any>)
             }
         } else if (valueKClazz == Boolean::class
-                || valueKClazz == Short::class
-                || valueKClazz == Int::class
-                || valueKClazz == Long::class
-                || valueKClazz == Float::class
-                || valueKClazz == Double::class
-                || valueKClazz == Byte::class) {
+            || valueKClazz == Short::class
+            || valueKClazz == Int::class
+            || valueKClazz == Long::class
+            || valueKClazz == Float::class
+            || valueKClazz == Double::class
+            || valueKClazz == Byte::class
+        ) {
             result = value.toString()
         } else if (valueKClazz == String::class || valueKClazz == Char::class || valueKClazz == CharSequence::class) {
             result = Constants.Symbol.DOUBLE_QUOTE + value.toString().transformQuotes().transformLines() + Constants.Symbol.DOUBLE_QUOTE
         } else if (valueKClazz == Date::class) {
             result = Constants.Symbol.DOUBLE_QUOTE + (value as Date).toFormatString() + Constants.Symbol.DOUBLE_QUOTE
+        } else if (valueKClazz == BigDecimal::class) {
+            result = Constants.Symbol.DOUBLE_QUOTE + (value as BigDecimal).toString() + Constants.Symbol.DOUBLE_QUOTE
         } else {
             result = when (value) {
                 is Iterable<*> -> JsonUtil.iterableToJson(value as Iterable<Any>, this, ignoreFirstLetterCase)
