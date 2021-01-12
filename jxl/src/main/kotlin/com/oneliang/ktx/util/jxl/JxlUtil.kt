@@ -154,6 +154,9 @@ object JxlUtil {
         }
         val existHeader = headerIndexMap.isNotEmpty()
         for (i in dataRowOffset until rows) {
+            if (i == headerRowIndex) {//header index
+                continue
+            }
             val instance = readDataRow(sheet, i, existHeader, headerIndexMap)
             list += instance
         }
