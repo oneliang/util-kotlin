@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  *
  * @param <T>
  */
-class ResourceQueueThread<T : Any>(private val resourceProcessor: ResourceProcessor<T>) : LoopThread() {
+class ResourceQueueThread<T>(private val resourceProcessor: ResourceProcessor<T>) : LoopThread() {
     companion object {
         private val logger = LoggerManager.getLogger(ResourceQueueThread::class)
     }
@@ -18,6 +18,7 @@ class ResourceQueueThread<T : Any>(private val resourceProcessor: ResourceProces
     // addResource() may do before the start(),so must initialize it in self
 // instance initializing
     private val resourceQueue = ConcurrentLinkedQueue<T>()
+
     // always binding in self instance(ResourceQueueThread),finalize self
 // instance will set null(release the resourceProcessor)
     @Volatile
@@ -88,7 +89,7 @@ class ResourceQueueThread<T : Any>(private val resourceProcessor: ResourceProces
         this.interrupt()
     }
 
-    interface ResourceProcessor<T : Any> {
+    interface ResourceProcessor<T> {
         /**
          * process the resource
          *
