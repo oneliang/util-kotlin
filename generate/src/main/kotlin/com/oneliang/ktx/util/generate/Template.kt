@@ -38,14 +38,17 @@ object Template {
             logger.verbose("template content:%s", templateContent)
             var functionResult = invocable.invokeFunction(JavaScriptFunctionGenerator.FUNCTION_TEMPLATE, templateContent)
             val getResultFunction = JavaScriptFunctionGenerator.getResult(functionResult.toString())
-            logger.verbose(getResultFunction)
+            logger.verbose("get result content:%s", getResultFunction)
             scriptEngine.eval(getResultFunction)
             functionResult = invocable.invokeFunction(JavaScriptFunctionGenerator.FUNCTION_GET_RESULT, json)
-            return if (functionResult != null && functionResult.toString().isNotBlank()) {
+
+            val result = if (functionResult != null && functionResult.toString().isNotBlank()) {
                 functionResult.toString()
             } else {
                 templateContent
             }
+            logger.debug("template engine map size:%s, result:%s", templateEngineMap.size, result)
+            return result
         } catch (e: Exception) {
             logger.error(Constants.Base.EXCEPTION, e)
             return templateContent
@@ -68,6 +71,10 @@ object Template {
         } catch (e: Exception) {
             logger.error(Constants.Base.EXCEPTION, e)
         }
+    }
+
+    fun removeTemplateEngine(templateContent: String) {
+        this.templateEngineMap.remove(templateContent.MD5String())
     }
 
     class Option {
