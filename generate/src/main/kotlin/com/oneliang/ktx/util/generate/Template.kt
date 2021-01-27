@@ -30,14 +30,14 @@ object Template {
                 }
             }
             logger.verbose("data object json:$json")
-            scriptEngine.eval(JavaScriptFunctionGenerator.getObject(json))
             scriptEngine.eval(JavaScriptFunctionGenerator.template())
             val invocable = scriptEngine as Invocable
             logger.verbose("template content:%s", templateContent)
             var functionResult = invocable.invokeFunction(JavaScriptFunctionGenerator.FUNCTION_TEMPLATE, templateContent)
-            logger.verbose(JavaScriptFunctionGenerator.getResult(functionResult.toString()))
-            scriptEngine.eval(JavaScriptFunctionGenerator.getResult(functionResult.toString()))
-            functionResult = invocable.invokeFunction(JavaScriptFunctionGenerator.FUNCTION_GET_RESULT)
+            val getResultFunction = JavaScriptFunctionGenerator.getResult(functionResult.toString())
+            logger.verbose(getResultFunction)
+            scriptEngine.eval(getResultFunction)
+            functionResult = invocable.invokeFunction(JavaScriptFunctionGenerator.FUNCTION_GET_RESULT, json)
             return if (functionResult != null && functionResult.toString().isNotBlank()) {
                 functionResult.toString()
             } else {
@@ -92,26 +92,13 @@ object Template {
             stringBuilder.append("string=string.split(\"$startKey\").join(\"');\");")
             stringBuilder.append("string=string.split(\"%>\").join(\"p.push('\");")
             stringBuilder.append("string=string.split(\"$endKey\").join(\"\\'\");")
-            stringBuilder.append("return \"var p=[];var object=$FUNCTION_GET_OBJECT();if(object!==null){with(object){p.push('\" +string+ \"');}}return p.join('');\"")
-            stringBuilder.append("}")
-            return stringBuilder.toString()
-        }
-
-        fun getObject(json: String): String {
-            val stringBuilder = StringBuilder()
-            stringBuilder.append("function $FUNCTION_GET_OBJECT(){")
-            stringBuilder.append("var object=$json;")
-            stringBuilder.append("return object;")
+            stringBuilder.append("return string;")
             stringBuilder.append("}")
             return stringBuilder.toString()
         }
 
         fun getResult(string: String): String {
-            val stringBuilder = StringBuilder()
-            stringBuilder.append("function $FUNCTION_GET_RESULT(){")
-            stringBuilder.append(string)
-            stringBuilder.append("}")
-            return stringBuilder.toString()
+            return "function $FUNCTION_GET_RESULT(json){var p=[];var object=eval('('+json+')');if(object!==null){with(object){p.push('$string');}}return p.join('');}"
         }
     }
 }
