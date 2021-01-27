@@ -1,10 +1,12 @@
 package com.oneliang.ktx.util.generate
 
 import com.oneliang.ktx.Constants
+import com.oneliang.ktx.util.common.MD5String
 import com.oneliang.ktx.util.file.FileUtil
 import com.oneliang.ktx.util.json.JsonUtil
 import com.oneliang.ktx.util.json.toJson
 import com.oneliang.ktx.util.logging.LoggerManager
+import java.util.concurrent.ConcurrentHashMap
 import javax.script.Invocable
 import javax.script.ScriptContext
 import javax.script.ScriptEngine
@@ -14,12 +16,13 @@ object Template {
     private val logger = LoggerManager.getLogger(Template::class)
 
     private val scriptEngineManager = ScriptEngineManager()
-    private val scriptEngine: ScriptEngine = scriptEngineManager.getEngineByExtension("js")
+    private val templateEngineMap = ConcurrentHashMap<String, ScriptEngine>()
 
     fun generate(templateContent: String, option: Option): String {
         try {
-            val bindings = scriptEngine.createBindings()
-            scriptEngine.setBindings(bindings, ScriptContext.GLOBAL_SCOPE)
+            val scriptEngine: ScriptEngine = templateEngineMap.getOrPut(templateContent.MD5String()) {
+                scriptEngineManager.getEngineByExtension("js")
+            }
             var json: String = Constants.String.BLANK
             val instance = option.instance
             if (instance != null) {
@@ -75,7 +78,6 @@ object Template {
 
     private object JavaScriptFunctionGenerator {
         const val FUNCTION_TEMPLATE = "template"
-        const val FUNCTION_GET_OBJECT = "getObject"
         const val FUNCTION_GET_RESULT = "getResult"
         fun template(): String {
             val stringBuilder = StringBuilder()
