@@ -8,6 +8,7 @@ import java.net.URLDecoder
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.ceil
 
 fun String?.toIntSafely(defaultValue: Int = 0): Int = perform({ this?.toInt() ?: defaultValue }, failure = { defaultValue })
 
@@ -203,3 +204,28 @@ fun String.isHourMinute(): Boolean {
 fun String.urlEncode(encoding: String = Constants.Encoding.UTF8) = URLEncoder.encode(this, encoding).nullToBlank()
 
 fun String.urlDecode(encoding: String = Constants.Encoding.UTF8) = URLDecoder.decode(this, encoding).nullToBlank()
+
+fun String.splitPiece(pieceSize: Int, defaultArraySize: Int = 0): Array<String> {
+    val pieceCount = ceil(this.length.toDouble() / pieceSize).toInt()
+    val arraySize = if (defaultArraySize == 0) {
+        pieceCount
+    } else {
+        if (defaultArraySize <= pieceCount) {
+            pieceCount
+        } else {
+            defaultArraySize
+        }
+    }
+    val stringArray = Array(arraySize) { Constants.String.BLANK }
+    for (index in 0 until pieceCount) {
+        var pieceIndex = index
+        val (begin, end) = if (pieceIndex < pieceCount - 1) {
+            (pieceIndex * pieceSize) to ((pieceIndex + 1) * pieceSize)
+        } else {//last piece
+            pieceIndex = pieceCount - 1
+            (pieceIndex * pieceSize) to this.length
+        }
+        stringArray[index] = this.substring(begin, end)
+    }
+    return stringArray
+}
