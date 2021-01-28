@@ -161,6 +161,15 @@ inline fun <V, K, RV, RK, T> Iterable<V>.relateBy(keySelector: (V) -> K, slaveIt
     return mainMap.relateBy(relationMap, relationList, relationDataKeySelector, relationDataSlaveKeySelector)
 }
 
+inline fun <T, K, ST> Iterable<T>.fillWithSlaveIterable(keySelector: (T) -> K, slaveIterable: Iterable<ST>, slaveIterableMasterKeySelector: (ST) -> K, block: (T, Iterable<ST>) -> Unit) {
+    val masterIdSlaveListMap = slaveIterable.groupBy { slaveIterableMasterKeySelector(it) }
+    this.forEach {
+        val key = keySelector(it)
+        val slaveList = masterIdSlaveListMap[key] ?: return@forEach//condition
+        block(it, slaveList)
+    }
+}
+
 fun <T, K> Iterable<T>.groupByMultiKeySelector(keySelectorArray: Array<(T) -> K>): Array<Map<K, List<T>>> {
     val mapArray = Array<MutableMap<K, MutableList<T>>>(keySelectorArray.size) { mutableMapOf() }
     this.forEach { element: T ->
