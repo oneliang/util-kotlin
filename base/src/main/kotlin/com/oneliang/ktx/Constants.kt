@@ -75,110 +75,137 @@ object Constants {
          */
         const val DOT = "."
         const val DOT_CHAR = '.'
+
         /**
          * comma ","
          */
         const val COMMA = ","
+
         /**
          * colon ":"
          */
         const val COLON = ":"
+
         /**
          * semicolon ";"
          */
         const val SEMICOLON = ";"
+
         /**
          * equal "="
          */
         const val EQUAL = "="
+
         /**
          * and "&"
          */
         const val AND = "&"
+
         /**
          * question mark "?"
          */
         const val QUESTION_MARK = "?"
+
         /**
          * wildcard "*"
          */
         const val WILDCARD = "*"
+
         /**
          * underline "_"
          */
         const val UNDERLINE = "_"
+
         /**
          * at "@"
          */
         const val AT = "@"
+
         /**
          * plus "+"
          */
         const val PLUS = "+"
+
         /**
          * minus "-"
          */
         const val MINUS = "-"
+
         /**
          * logic and "&&"
          */
         const val LOGIC_AND = "&&"
+
         /**
          * logic or "||"
          */
         const val LOGIC_OR = "||"
+
         /**
          * brackets begin "("
          */
         const val BRACKET_LEFT = "("
+
         /**
          * brackets end ")"
          */
         const val BRACKET_RIGHT = ")"
+
         /**
          * middle bracket left "["
          */
         const val MIDDLE_BRACKET_LEFT = "["
+
         /**
          * middle bracket right "]"
          */
         const val MIDDLE_BRACKET_RIGHT = "]"
+
         /**
          * big bracket "{"
          */
         const val BIG_BRACKET_LEFT = "{"
+
         /**
          * big bracket "}"
          */
         const val BIG_BRACKET_RIGHT = "}"
+
         /**
          * slash "/"
          */
         const val SLASH_LEFT = "/"
+
         /**
          * slash "\"
          */
         const val SLASH_RIGHT = "\\"
+
         /**
          * xor or regex begin "^"
          */
         const val XOR = "^"
+
         /**
          * dollar or regex end "$"
          */
         const val DOLLAR = "$"
+
         /**
          * single quote "'"
          */
         const val SINGLE_QUOTE = "'"
+
         /**
          * double quote "\""
          */
         const val DOUBLE_QUOTE = "\""
+
         /**
          * less then "<"
          */
         const val LESS_THEN = "<"
+
         /**
          * greater then ">"
          */
@@ -188,14 +215,17 @@ object Constants {
          * tilde "~"
          */
         const val TILDE = "~"
+
         /**
          * accent "`"
          */
         const val ACCENT = "`"
+
         /**
          * percent "%"
          */
         const val PERCENT = "%"
+
         /**
          * pound key "#"
          */
@@ -337,6 +367,7 @@ object Constants {
          * bytes per kilobytes
          */
         const val BYTES_PER_KB = 1024
+
         /**
          * bytes per millionbytes
          */
@@ -380,8 +411,11 @@ object Constants {
     }
 
     object Language {
-        const val ZH_CN = "zh_CN"
-        const val ENGLISH = "en"
+        const val zh_CN = "zh_CN"
+        const val zh_HK = "zh_HK"
+        const val zh_MO = "zh_MO"
+        const val zh_TW = "zh_TW"
+        const val en = "en"
     }
 
     object CompressType {
