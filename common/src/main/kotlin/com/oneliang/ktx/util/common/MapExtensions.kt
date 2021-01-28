@@ -146,7 +146,7 @@ inline fun <K, V, reified R> Map<K, V>.toArray(arrayMaxSize: Int, indexMapping: 
     return array
 }
 
-fun <K, V, NK, NV> Map<K, V>.toMap(transform: (key: K, value: V) -> Pair<NK, NV>): Map<NK, NV> {
+inline fun <K, V, NK, NV> Map<K, V>.toMap(transform: (key: K, value: V) -> Pair<NK, NV>): Map<NK, NV> {
     val mutableMap = mutableMapOf<NK, NV>()
     this.forEach { (key, value) ->
         mutableMap += transform(key, value)
@@ -154,11 +154,11 @@ fun <K, V, NK, NV> Map<K, V>.toMap(transform: (key: K, value: V) -> Pair<NK, NV>
     return mutableMap
 }
 
-fun <K, V, NK> Map<K, V>.toMapWithNewKey(transformKey: (key: K) -> NK): Map<NK, V> = this.toMap { key, value -> transformKey(key) to value }
+inline fun <K, V, NK> Map<K, V>.toMapWithNewKey(transformKey: (key: K) -> NK): Map<NK, V> = this.toMap { key, value -> transformKey(key) to value }
 
-fun <K, V, NV> Map<K, V>.toMapWithNewValue(transformValue: (value: V) -> NV): Map<K, NV> = this.toMap { key, value -> key to transformValue(value) }
+inline fun <K, V, NV> Map<K, V>.toMapWithNewValue(transformValue: (value: V) -> NV): Map<K, NV> = this.toMap { key, value -> key to transformValue(value) }
 
-fun <K, V, RK, RV, T> Map<K, V>.relateBy(slaveMap: Map<RK, RV>, relationList: List<T>, relationDataKeySelector: (T) -> K, relationDataSlaveKeySelector: (T) -> RK): Map<V, List<RV>> {
+inline fun <K, V, RK, RV, T> Map<K, V>.relateBy(slaveMap: Map<RK, RV>, relationList: List<T>, relationDataKeySelector: (T) -> K, relationDataSlaveKeySelector: (T) -> RK): Map<V, List<RV>> {
     val map = mutableMapOf<V, MutableList<RV>>()
     relationList.forEach {
         val key = relationDataKeySelector(it)
