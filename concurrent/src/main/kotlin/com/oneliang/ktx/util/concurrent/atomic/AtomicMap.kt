@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 
-class AtomicMap<K, V> constructor() : AbstractMap<K, V>() {
+class AtomicMap<K : Any, V> constructor() : AbstractMap<K, V>() {
     private val lock = ReentrantLock()
     private val map = ConcurrentHashMap<K, AtomicReference<V>>()
 
@@ -30,9 +30,18 @@ class AtomicMap<K, V> constructor() : AbstractMap<K, V>() {
                     this.map[key] = AtomicReference(create())
                 }
             }, finally = {
-                lock.unlock()
+                this.lock.unlock()
             })
         }
+    }
+
+    fun remove(key: K) {
+        perform({
+            this.lock.lock()
+            this.map.remove(key)
+        }, finally = {
+            this.lock.unlock()
+        })
     }
 
     private fun atomicUpdate(key: K, update: (V) -> V) {
