@@ -242,7 +242,7 @@ object JxlUtil {
      */
     @Throws(Exception::class)
     fun writeSimpleExcel(writableWorkbook: WritableWorkbook, writeOptionArray: Array<WriteOption>) {
-        writeOptionArray.forEach { it ->
+        writeOptionArray.forEach {
             val writableSheet = getOrCreateSheet(writableWorkbook, it.sheetName, it.sheetIndex)
             var row = it.startRow
             if (it.headerArray.isNotEmpty()) {
@@ -320,8 +320,8 @@ object JxlUtil {
      */
     @Throws(Exception::class)
     fun <T> writeSimpleExcelForArray(writableWorkbook: WritableWorkbook, writeOptionForArrayArray: Array<WriteOptionForArray<T>>) {
-        writeOptionForArrayArray.forEachIndexed { index, it ->
-            writeSimpleExcel(writableWorkbook, it.sheetName, index, it.startRow, it.headerArray) { writableSheet, currentRow ->
+        writeOptionForArrayArray.forEach {
+            writeSimpleExcel(writableWorkbook, it.sheetName, it.sheetIndex, it.startRow, it.headerArray) { writableSheet, currentRow ->
                 var row = currentRow
                 for (array in it.iterable) {
                     array.forEachIndexed { index, value ->
@@ -482,8 +482,8 @@ object JxlUtil {
      */
     @Throws(Exception::class)
     fun <T> writeSimpleExcelForIterable(writableWorkbook: WritableWorkbook, writeOptionForIterableArray: Array<WriteOptionForIterable<T>>) {
-        writeOptionForIterableArray.forEachIndexed { index, it ->
-            writeSimpleExcel(writableWorkbook, it.sheetName, index, it.startRow, it.headerArray) { writableSheet, currentRow ->
+        writeOptionForIterableArray.forEach {
+            writeSimpleExcel(writableWorkbook, it.sheetName, it.sheetIndex, it.startRow, it.headerArray) { writableSheet, currentRow ->
                 var row = currentRow
                 for (innerIterable in it.iterable) {
                     innerIterable.forEachIndexed { index, value ->
@@ -682,7 +682,11 @@ object JxlUtil {
      * get or create sheet, only use index to get
      */
     private fun getOrCreateSheet(writableWorkbook: WritableWorkbook, sheetName: String, sheetIndex: Int): WritableSheet {
-        val sheet: WritableSheet? = writableWorkbook.getSheet(sheetIndex)
+        val sheet: WritableSheet? = if (sheetIndex < writableWorkbook.numberOfSheets) {
+            writableWorkbook.getSheet(sheetIndex)//will throw exception
+        } else {
+            null
+        }
         if (sheet != null) {
             return sheet
         }
@@ -709,27 +713,27 @@ object JxlUtil {
     )
 
     class WriteOption(
-        sheetName: String,
+        sheetName: String = Constants.String.BLANK,
         sheetIndex: Int,
-        startRow: Int,
-        headerArray: Array<String>,
+        startRow: Int = 0,
+        headerArray: Array<String> = emptyArray(),
         val writeDataRows: (writableSheet: WritableSheet, currentRow: Int) -> Unit
     ) : AbstractWriteOption(sheetName, sheetIndex, startRow, headerArray)
 
     class WriteOptionForArray<T>(
-        sheetName: String,
+        sheetName: String = Constants.String.BLANK,
         sheetIndex: Int,
-        startRow: Int,
-        headerArray: Array<String>,
+        startRow: Int = 0,
+        headerArray: Array<String> = emptyArray(),
         val iterable: Iterable<Array<T>>,
         val transform: (column: Int, row: Int, value: T) -> Any? = { _: Int, _: Int, value: T -> value }
     ) : AbstractWriteOption(sheetName, sheetIndex, startRow, headerArray)
 
     class WriteOptionForIterable<T>(
-        sheetName: String,
+        sheetName: String = Constants.String.BLANK,
         sheetIndex: Int,
-        startRow: Int,
-        headerArray: Array<String>,
+        startRow: Int = 0,
+        headerArray: Array<String> = emptyArray(),
         val iterable: Iterable<Iterable<T>>,
         val transform: (column: Int, row: Int, value: T) -> Any? = { _: Int, _: Int, value: T -> value }
     ) : AbstractWriteOption(sheetName, sheetIndex, startRow, headerArray)

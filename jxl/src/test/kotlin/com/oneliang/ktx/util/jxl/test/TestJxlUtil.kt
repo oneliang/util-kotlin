@@ -4,6 +4,7 @@ import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.toArray
 import com.oneliang.ktx.util.jxl.JxlUtil
 import com.oneliang.ktx.util.jxl.readSimpleExcel
+import com.oneliang.ktx.util.jxl.writeOrUpdateSimpleExcelForArray
 import com.oneliang.ktx.util.jxl.writeSimpleExcel
 import jxl.Workbook
 import java.io.File
@@ -29,5 +30,21 @@ fun main() {
             println("$row:$key:$value")
         }
     }
-    File(writeFullFilename).writeSimpleExcel(headerArray = headers, iterable = newList)
+//    File(writeFullFilename).writeSimpleExcel(headerArray = headers, iterable = newList)
+    File(writeFullFilename).writeOrUpdateSimpleExcelForArray(
+        arrayOf(
+            JxlUtil.WriteOptionForArray(
+                sheetName = "a",
+                sheetIndex = 0,
+                headerArray = headers,
+                iterable = newList
+            ),
+            JxlUtil.WriteOptionForArray(
+                sheetName = "b",
+                sheetIndex = 1,
+                headerArray = headers,
+                iterable = newList
+            )
+        )
+    )
 }
