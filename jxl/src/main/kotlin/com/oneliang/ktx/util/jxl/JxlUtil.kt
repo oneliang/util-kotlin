@@ -3,6 +3,7 @@ package com.oneliang.ktx.util.jxl
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.ObjectUtil
 import com.oneliang.ktx.util.common.nullToBlank
+import com.oneliang.ktx.util.common.perform
 import com.oneliang.ktx.util.common.toMapWithIndex
 import com.oneliang.ktx.util.file.createFileIncludeDirectory
 import jxl.Cell
@@ -14,6 +15,15 @@ import jxl.write.WritableSheet
 import jxl.write.WritableWorkbook
 import java.io.File
 import kotlin.reflect.KClass
+
+inline fun WritableWorkbook.use(block: (WritableWorkbook) -> Unit) {
+    perform({
+        block(this)
+    }, finally = {
+        this.write()
+        this.close()
+    })
+}
 
 object JxlUtil {
 
@@ -30,18 +40,18 @@ object JxlUtil {
     fun <T : Any> copyExcel(excelFile: String, newExcelFile: String, instance: T, jxlProcessor: JxlProcessor = DEFAULT_JXL_PROCESSOR) {
         val workbook = Workbook.getWorkbook(File(excelFile))
         val writableWorkbook = Workbook.createWorkbook(File(newExcelFile), workbook)
-        val sheets = writableWorkbook.sheets
-        for (sheet in sheets) {
-            val columns = sheet.columns
-            for (i in 0 until columns) {
-                val cells = sheet.getColumn(i)
-                for (cell in cells) {
-                    jxlProcessor.copyProcess(cell, instance)
+        writableWorkbook.use {
+            val sheets = writableWorkbook.sheets
+            for (sheet in sheets) {
+                val columns = sheet.columns
+                for (i in 0 until columns) {
+                    val cells = sheet.getColumn(i)
+                    for (cell in cells) {
+                        jxlProcessor.copyProcess(cell, instance)
+                    }
                 }
             }
         }
-        writableWorkbook.write()
-        writableWorkbook.close()
     }
 
     /**
@@ -184,6 +194,9 @@ object JxlUtil {
         return rowDataTransform(map)
     }
 
+    /**
+     * create row instance
+     */
     private fun <T : Any> createRowInstance(sheet: Sheet, rowIndex: Int, kClass: KClass<T>, existHeader: Boolean, headerIndexMap: Map<String, Int>, jxlMappingBean: JxlMappingBean, jxlProcessor: JxlProcessor = DEFAULT_JXL_PROCESSOR): T {
         val instance = kClass.java.newInstance()
         val methods = kClass.java.methods
@@ -213,9 +226,73 @@ object JxlUtil {
         return instance
     }
 
+    /**
+     * write simple excel for multi sheet
+     */
+    @Throws(Exception::class)
+    fun writeSimpleExcel(fullFilename: String, writeOptionArray: Array<WriteOption>) {
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
+        writableWorkbook.use {
+            writeSimpleExcel(it, writeOptionArray)
+        }
+    }
+
+    /**
+     * write simple excel for multi sheet
+     */
+    @Throws(Exception::class)
+    fun writeSimpleExcel(writableWorkbook: WritableWorkbook, writeOptionArray: Array<WriteOption>) {
+        writeOptionArray.forEach { it ->
+            val writableSheet = getOrCreateSheet(writableWorkbook, it.sheetName, it.sheetIndex)
+            var row = it.startRow
+            if (it.headerArray.isNotEmpty()) {
+                for ((column, header) in it.headerArray.withIndex()) {
+                    val cell = Label(column, row, header)
+                    writableSheet.addCell(cell)
+                }
+                row++
+            }
+            it.writeDataRows(writableSheet, row)
+        }
+    }
+
+
+    /**
+     * write simple excel for default sheet
+     */
+    @Throws(Exception::class)
+    fun writeSimpleExcel(fullFilename: String, startRow: Int = 0, headerArray: Array<String> = emptyArray(), writeDataRows: (writableSheet: WritableSheet, currentRow: Int) -> Unit) {
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
+        writableWorkbook.use {
+            writeSimpleExcel(writableWorkbook, "sheet", 0, startRow, headerArray, writeDataRows)
+        }
+    }
+
+    /**
+     * write simple excel for default sheet
+     */
     @Throws(Exception::class)
     fun writeSimpleExcel(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), writeDataRows: (writableSheet: WritableSheet, currentRow: Int) -> Unit) {
-        val writableSheet = getOrCreateSheet(writableWorkbook, "sheet", 0)
+        writeSimpleExcel(writableWorkbook, "sheet", 0, startRow, headerArray, writeDataRows)
+    }
+
+    /**
+     * write simple excel for one sheet
+     */
+    @Throws(Exception::class)
+    fun writeSimpleExcel(fullFilename: String, sheetName: String = Constants.String.BLANK, sheetIndex: Int, startRow: Int = 0, headerArray: Array<String> = emptyArray(), writeDataRows: (writableSheet: WritableSheet, currentRow: Int) -> Unit) {
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
+        writableWorkbook.use {
+            writeSimpleExcel(it, sheetName, sheetIndex, startRow, headerArray, writeDataRows)
+        }
+    }
+
+    /**
+     * write simple excel for one sheet
+     */
+    @Throws(Exception::class)
+    fun writeSimpleExcel(writableWorkbook: WritableWorkbook, sheetName: String = Constants.String.BLANK, sheetIndex: Int, startRow: Int = 0, headerArray: Array<String> = emptyArray(), writeDataRows: (writableSheet: WritableSheet, currentRow: Int) -> Unit) {
+        val writableSheet = getOrCreateSheet(writableWorkbook, sheetName, sheetIndex)
         var row = startRow
         if (headerArray.isNotEmpty()) {
             for ((column, header) in headerArray.withIndex()) {
@@ -225,12 +302,41 @@ object JxlUtil {
             row++
         }
         writeDataRows(writableSheet, row)
-        writableWorkbook.write()
-        writableWorkbook.close()
     }
 
     /**
-     * write simple excel for array
+     * write simple excel for multi sheet
+     */
+    @Throws(Exception::class)
+    fun <T> writeSimpleExcelForArray(fullFilename: String, writeOptionForArrayArray: Array<WriteOptionForArray<T>>) {
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
+        writableWorkbook.use {
+            writeSimpleExcelForArray(it, writeOptionForArrayArray)
+        }
+    }
+
+    /**
+     * write simple excel for multi sheet
+     */
+    @Throws(Exception::class)
+    fun <T> writeSimpleExcelForArray(writableWorkbook: WritableWorkbook, writeOptionForArrayArray: Array<WriteOptionForArray<T>>) {
+        writeOptionForArrayArray.forEachIndexed { index, it ->
+            writeSimpleExcel(writableWorkbook, it.sheetName, index, it.startRow, it.headerArray) { writableSheet, currentRow ->
+                var row = currentRow
+                for (array in it.iterable) {
+                    array.forEachIndexed { index, value ->
+                        val transformValue = it.transform(index, row, value)
+                        val writableCell = DEFAULT_JXL_PROCESSOR.writeProcess(index, row, Constants.String.BLANK, transformValue)
+                        writableSheet.addCell(writableCell)
+                    }
+                    row++
+                }
+            }
+        }
+    }
+
+    /**
+     * write simple excel for array, for default sheet
      * @param <T>
      * @param fullFilename
      * @param startRow
@@ -240,11 +346,26 @@ object JxlUtil {
     @Throws(Exception::class)
     fun <T> writeSimpleExcelForArray(fullFilename: String, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>) {
         val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
-        writeSimpleExcelForArray(writableWorkbook, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }
+        writableWorkbook.use {
+            writeSimpleExcelForArray(writableWorkbook, arrayOf(WriteOptionForArray("sheet", 0, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }))
+        }
     }
 
     /**
-     * write simple excel for array
+     * write simple excel for array, for default sheet
+     * @param <T>
+     * @param writableWorkbook
+     * @param startRow
+     * @param headerArray
+     * @param iterable
+    </T> */
+    @Throws(Exception::class)
+    fun <T> writeSimpleExcelForArray(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>) {
+        writeSimpleExcelForArray(writableWorkbook, arrayOf(WriteOptionForArray("sheet", 0, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }))
+    }
+
+    /**
+     * write simple excel for array, for default sheet
      * @param <T>
      * @param fullFilename
      * @param startRow
@@ -255,24 +376,13 @@ object JxlUtil {
     @Throws(Exception::class)
     fun <T, R> writeSimpleExcelForArray(fullFilename: String, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (column: Int, row: Int, value: T) -> R) {
         val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
-        writeSimpleExcelForArray(writableWorkbook, startRow, headerArray, iterable, transform)
+        writableWorkbook.use {
+            writeSimpleExcelForArray(writableWorkbook, arrayOf(WriteOptionForArray("sheet", 0, startRow, headerArray, iterable, transform)))
+        }
     }
 
     /**
-     * write simple excel for array
-     * @param <T>
-     * @param writableWorkbook
-     * @param startRow
-     * @param headerArray
-     * @param iterable
-    </T> */
-    @Throws(Exception::class)
-    fun <T> writeSimpleExcelForArray(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>) {
-        writeSimpleExcelForArray(writableWorkbook, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }
-    }
-
-    /**
-     * write simple excel for array
+     * write simple excel for array, for default sheet
      * @param <T>
      * @param writableWorkbook
      * @param startRow
@@ -282,21 +392,113 @@ object JxlUtil {
     </T> */
     @Throws(Exception::class)
     fun <T, R> writeSimpleExcelForArray(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (column: Int, row: Int, value: T) -> R) {
-        writeSimpleExcel(writableWorkbook, startRow, headerArray) { writableSheet, currentRow ->
-            var row = currentRow
-            for (array in iterable) {
-                array.forEachIndexed { index, value ->
-                    val transformValue = transform(index, row, value)
-                    val writableCell = DEFAULT_JXL_PROCESSOR.writeProcess(index, row, Constants.String.BLANK, transformValue)
-                    writableSheet.addCell(writableCell)
+        writeSimpleExcelForArray(writableWorkbook, arrayOf(WriteOptionForArray("sheet", 0, startRow, headerArray, iterable, transform)))
+    }
+
+    /**
+     * write simple excel for array, for one sheet
+     * @param <T>
+     * @param fullFilename
+     * @param sheetName
+     * @param sheetIndex
+     * @param startRow
+     * @param headerArray
+     * @param iterable
+    </T> */
+    @Throws(Exception::class)
+    fun <T> writeSimpleExcelForArray(fullFilename: String, sheetName: String = Constants.String.BLANK, sheetIndex: Int, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>) {
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
+        writableWorkbook.use {
+            writeSimpleExcelForArray(it, arrayOf(WriteOptionForArray(sheetName, sheetIndex, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }))
+        }
+    }
+
+    /**
+     * write simple excel for array, for one sheet
+     * @param <T>
+     * @param writableWorkbook
+     * @param sheetName
+     * @param sheetIndex
+     * @param startRow
+     * @param headerArray
+     * @param iterable
+    </T> */
+    @Throws(Exception::class)
+    fun <T> writeSimpleExcelForArray(writableWorkbook: WritableWorkbook, sheetName: String, sheetIndex: Int, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>) {
+        writeSimpleExcelForArray(writableWorkbook, arrayOf(WriteOptionForArray(sheetName, sheetIndex, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }))
+    }
+
+    /**
+     * write simple excel for array, for one sheet
+     * @param <T>
+     * @param fullFilename
+     * @param sheetName
+     * @param sheetIndex
+     * @param startRow
+     * @param headerArray
+     * @param iterable
+     * @param transform
+    </T> */
+    @Throws(Exception::class)
+    fun <T, R> writeSimpleExcelForArray(fullFilename: String, sheetName: String = Constants.String.BLANK, sheetIndex: Int, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (column: Int, row: Int, value: T) -> R) {
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
+        writableWorkbook.use {
+            writeSimpleExcelForArray(it, arrayOf(WriteOptionForArray(sheetName, sheetIndex, startRow, headerArray, iterable, transform)))
+        }
+    }
+
+    /**
+     * write simple excel for array, for one sheet
+     * @param <T>
+     * @param writableWorkbook
+     * @param sheetName
+     * @param sheetIndex
+     * @param startRow
+     * @param headerArray
+     * @param iterable
+     * @param transform
+    </T> */
+    @Throws(Exception::class)
+    fun <T, R> writeSimpleExcelForArray(writableWorkbook: WritableWorkbook, sheetName: String, sheetIndex: Int, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (column: Int, row: Int, value: T) -> R) {
+        writeSimpleExcelForArray(writableWorkbook, arrayOf(WriteOptionForArray(sheetName, sheetIndex, startRow, headerArray, iterable, transform)))
+    }
+
+    /**
+     * write simple excel for multi sheet
+     * @param fullFilename
+     * @param writeOptionForIterableArray
+     */
+    fun <T> writeSimpleExcelForIterable(fullFilename: String, writeOptionForIterableArray: Array<WriteOptionForIterable<T>>) {
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
+        writableWorkbook.use {
+            writeSimpleExcelForIterable(it, writeOptionForIterableArray)
+        }
+    }
+
+    /**
+     * write simple excel for multi sheet
+     * @param writableWorkbook
+     * @param writeOptionForIterableArray
+     */
+    @Throws(Exception::class)
+    fun <T> writeSimpleExcelForIterable(writableWorkbook: WritableWorkbook, writeOptionForIterableArray: Array<WriteOptionForIterable<T>>) {
+        writeOptionForIterableArray.forEachIndexed { index, it ->
+            writeSimpleExcel(writableWorkbook, it.sheetName, index, it.startRow, it.headerArray) { writableSheet, currentRow ->
+                var row = currentRow
+                for (innerIterable in it.iterable) {
+                    innerIterable.forEachIndexed { index, value ->
+                        val transformValue = it.transform(index, row, value)
+                        val writableCell = DEFAULT_JXL_PROCESSOR.writeProcess(index, row, Constants.String.BLANK, transformValue)
+                        writableSheet.addCell(writableCell)
+                    }
+                    row++
                 }
-                row++
             }
         }
     }
 
     /**
-     * write simple excel for iterable
+     * write simple excel for iterable, default sheet
      * @param <T>
      * @param fullFilename
      * @param startRow
@@ -306,11 +508,25 @@ object JxlUtil {
     @Throws(Exception::class)
     fun <T> writeSimpleExcelForIterable(fullFilename: String, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>) {
         val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
-        writeSimpleExcelForIterable(writableWorkbook, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }
+        writableWorkbook.use {
+            writeSimpleExcelForIterable(writableWorkbook, arrayOf(WriteOptionForIterable("sheet", 0, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }))
+        }
     }
 
     /**
-     * write simple excel for iterable
+     * write simple excel for iterable, default sheet
+     * @param <T>
+     * @param writableWorkbook
+     * @param startRow
+     * @param headerArray
+     * @param iterable
+    </T> */
+    fun <T> writeSimpleExcelForIterable(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>) {
+        writeSimpleExcelForIterable(writableWorkbook, arrayOf(WriteOptionForIterable("sheet", 0, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }))
+    }
+
+    /**
+     * write simple excel for iterable, default sheet
      * @param <T>
      * @param fullFilename
      * @param startRow
@@ -321,24 +537,13 @@ object JxlUtil {
     @Throws(Exception::class)
     fun <T, R> writeSimpleExcelForIterable(fullFilename: String, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>, transform: (column: Int, row: Int, value: T) -> R) {
         val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
-        writeSimpleExcelForIterable(writableWorkbook, startRow, headerArray, iterable, transform)
+        writableWorkbook.use {
+            writeSimpleExcelForIterable(writableWorkbook, arrayOf(WriteOptionForIterable("sheet", 0, startRow, headerArray, iterable, transform)))
+        }
     }
 
     /**
-     * write simple excel for iterable
-     * @param <T>
-     * @param writableWorkbook
-     * @param startRow
-     * @param headerArray
-     * @param iterable
-    </T> */
-    @Throws(Exception::class)
-    fun <T> writeSimpleExcelForIterable(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>) {
-        writeSimpleExcelForIterable(writableWorkbook, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }
-    }
-
-    /**
-     * write simple excel for iterable
+     * write simple excel for iterable, default sheet
      * @param <T>
      * @param writableWorkbook
      * @param startRow
@@ -346,19 +551,74 @@ object JxlUtil {
      * @param iterable
      * @param transform
     </T> */
-    @Throws(Exception::class)
     fun <T, R> writeSimpleExcelForIterable(writableWorkbook: WritableWorkbook, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>, transform: (column: Int, row: Int, value: T) -> R) {
-        writeSimpleExcel(writableWorkbook, startRow, headerArray) { writableSheet, currentRow ->
-            var row = currentRow
-            for (innerIterable in iterable) {
-                innerIterable.forEachIndexed { index, value ->
-                    val transformValue = transform(index, row, value)
-                    val writableCell = DEFAULT_JXL_PROCESSOR.writeProcess(index, row, Constants.String.BLANK, transformValue)
-                    writableSheet.addCell(writableCell)
-                }
-                row++
-            }
+        writeSimpleExcelForIterable(writableWorkbook, arrayOf(WriteOptionForIterable("sheet", 0, startRow, headerArray, iterable, transform)))
+    }
+
+    /**
+     * write simple excel for iterable, for one sheet
+     * @param <T>
+     * @param fullFilename
+     * @param sheetName
+     * @param sheetIndex
+     * @param startRow
+     * @param headerArray
+     * @param iterable
+    </T> */
+    @Throws(Exception::class)
+    fun <T> writeSimpleExcelForIterable(fullFilename: String, sheetName: String = Constants.String.BLANK, sheetIndex: Int, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>) {
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
+        writableWorkbook.use {
+            writeSimpleExcelForIterable(writableWorkbook, arrayOf(WriteOptionForIterable(sheetName, sheetIndex, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }))
         }
+    }
+
+    /**
+     * write simple excel for iterable, for one sheet
+     * @param <T>
+     * @param writableWorkbook
+     * @param sheetName
+     * @param sheetIndex
+     * @param startRow
+     * @param headerArray
+     * @param iterable
+    </T> */
+    fun <T> writeSimpleExcelForIterable(writableWorkbook: WritableWorkbook, sheetName: String = Constants.String.BLANK, sheetIndex: Int, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>) {
+        writeSimpleExcelForIterable(writableWorkbook, arrayOf(WriteOptionForIterable(sheetName, sheetIndex, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }))
+    }
+
+    /**
+     * write simple excel for iterable, for one sheet
+     * @param <T>
+     * @param fullFilename
+     * @param sheetName
+     * @param sheetIndex
+     * @param startRow
+     * @param headerArray
+     * @param iterable
+     * @param transform
+    </T> */
+    @Throws(Exception::class)
+    fun <T, R> writeSimpleExcelForIterable(fullFilename: String, sheetName: String = Constants.String.BLANK, sheetIndex: Int, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>, transform: (column: Int, row: Int, value: T) -> R) {
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
+        writableWorkbook.use {
+            writeSimpleExcelForIterable(writableWorkbook, arrayOf(WriteOptionForIterable(sheetName, sheetIndex, startRow, headerArray, iterable, transform)))
+        }
+    }
+
+    /**
+     * write simple excel for iterable, for one sheet
+     * @param <T>
+     * @param writableWorkbook
+     * @param sheetName
+     * @param sheetIndex
+     * @param startRow
+     * @param headerArray
+     * @param iterable
+     * @param transform
+    </T> */
+    fun <T, R> writeSimpleExcelForIterable(writableWorkbook: WritableWorkbook, sheetName: String = Constants.String.BLANK, sheetIndex: Int, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>, transform: (column: Int, row: Int, value: T) -> R) {
+        writeSimpleExcelForIterable(writableWorkbook, arrayOf(WriteOptionForIterable(sheetName, sheetIndex, startRow, headerArray, iterable, transform)))
     }
 
     /**
@@ -385,18 +645,20 @@ object JxlUtil {
             return
         }
         val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
-        writeSimpleExcel(writableWorkbook, headerArray = newHeaders.toTypedArray()) { sheet, currentRow ->
-            val jxlMappingColumnBeanList = jxlMappingBean.jxlMappingColumnBeanList
-            var row = currentRow
-            for (instance in iterable) {
-                for (jxlMappingColumnBean in jxlMappingColumnBeanList) {
-                    val fieldName = jxlMappingColumnBean.field
-                    val columnIndex = jxlMappingColumnBean.index
-                    val methodReturnValue = ObjectUtil.getterOrIsMethodInvoke(instance, fieldName)
-                    val writableCell = jxlProcessor.writeProcess(columnIndex, row, fieldName, methodReturnValue)
-                    sheet.addCell(writableCell)
+        writableWorkbook.use {
+            writeSimpleExcel(it, headerArray = newHeaders.toTypedArray()) { sheet, currentRow ->
+                val jxlMappingColumnBeanList = jxlMappingBean.jxlMappingColumnBeanList
+                var row = currentRow
+                for (instance in iterable) {
+                    for (jxlMappingColumnBean in jxlMappingColumnBeanList) {
+                        val fieldName = jxlMappingColumnBean.field
+                        val columnIndex = jxlMappingColumnBean.index
+                        val methodReturnValue = ObjectUtil.getterOrIsMethodInvoke(instance, fieldName)
+                        val writableCell = jxlProcessor.writeProcess(columnIndex, row, fieldName, methodReturnValue)
+                        sheet.addCell(writableCell)
+                    }
+                    row++
                 }
-                row++
             }
         }
     }
@@ -417,18 +679,60 @@ object JxlUtil {
     }
 
     /**
-     * get or create sheet
+     * get or create sheet, only use index to get
      */
-    private fun getOrCreateSheet(writableWorkbook: WritableWorkbook, sheetName: String, index: Int = 0): WritableSheet {
-        val sheet = if (sheetName.isNotBlank()) {
-            writableWorkbook.getSheet(sheetName)
-        } else {
-            writableWorkbook.getSheet(index)
+    private fun getOrCreateSheet(writableWorkbook: WritableWorkbook, sheetName: String, sheetIndex: Int): WritableSheet {
+        val sheet: WritableSheet? = writableWorkbook.getSheet(sheetIndex)
+        if (sheet != null) {
+            return sheet
         }
-        return sheet ?: writableWorkbook.createSheet(sheetName, index)
+        var fixSheetName = sheetName
+        if (fixSheetName.isBlank()) {
+            fixSheetName = "sheet$sheetIndex"
+        }
+        return writableWorkbook.createSheet(fixSheetName, sheetIndex)
     }
 
+    /**
+     * class read result
+     */
     class ReadResult<T>(val headerIndexMap: Map<String, Int> = emptyMap(), val dataList: List<T> = emptyList())
+
+    /**
+     * class write option
+     */
+    abstract class AbstractWriteOption(
+        val sheetName: String = Constants.String.BLANK,
+        val sheetIndex: Int,
+        val startRow: Int = 0,
+        val headerArray: Array<String> = emptyArray()
+    )
+
+    class WriteOption(
+        sheetName: String,
+        sheetIndex: Int,
+        startRow: Int,
+        headerArray: Array<String>,
+        val writeDataRows: (writableSheet: WritableSheet, currentRow: Int) -> Unit
+    ) : AbstractWriteOption(sheetName, sheetIndex, startRow, headerArray)
+
+    class WriteOptionForArray<T>(
+        sheetName: String,
+        sheetIndex: Int,
+        startRow: Int,
+        headerArray: Array<String>,
+        val iterable: Iterable<Array<T>>,
+        val transform: (column: Int, row: Int, value: T) -> Any? = { _: Int, _: Int, value: T -> value }
+    ) : AbstractWriteOption(sheetName, sheetIndex, startRow, headerArray)
+
+    class WriteOptionForIterable<T>(
+        sheetName: String,
+        sheetIndex: Int,
+        startRow: Int,
+        headerArray: Array<String>,
+        val iterable: Iterable<Iterable<T>>,
+        val transform: (column: Int, row: Int, value: T) -> Any? = { _: Int, _: Int, value: T -> value }
+    ) : AbstractWriteOption(sheetName, sheetIndex, startRow, headerArray)
 
     interface JxlProcessor {
 
