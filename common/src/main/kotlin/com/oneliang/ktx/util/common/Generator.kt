@@ -140,7 +140,7 @@ object Generator {
             val yl = random.nextInt(12)
             graphics.drawLine(x, y, x + xl, y + yl)
         }
-        for (i in 0 until string.length) {
+        for (i in string.indices) {
             graphics.color = Color(20 + random.nextInt(110), 20 + random.nextInt(110), 20 + random.nextInt(110))
             graphics.drawString(string.get(i).toString(), 14 * i + 6, 16)
         }
