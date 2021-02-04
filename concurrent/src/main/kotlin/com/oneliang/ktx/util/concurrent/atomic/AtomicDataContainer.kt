@@ -1,10 +1,10 @@
-package com.oneliang.ktx.util.concurrent
+package com.oneliang.ktx.util.concurrent.atomic
 
 import com.oneliang.ktx.util.common.perform
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
 
-class ReentrantLockDataContainer<K : Any, V : Any> {
+class AtomicDataContainer<K : Any, V> {
 
     private val lock = ReentrantLock()
     private val map = ConcurrentHashMap<K, V>()
