@@ -178,10 +178,10 @@ fun <K, V> Map<K, V>.groupByKey(): Map<K, Map<K, V>> {
 }
 
 fun <K, V, NK> Map<K, V>.groupByKey(keySelector: (K) -> NK): Map<NK, Map<K, V>> {
-    return this.groupByKeyTo(keySelector = keySelector)
+    return this.groupByKeyTo(mutableMapOf(), keySelector = keySelector)
 }
 
-fun <K, V, NK> Map<K, V>.groupByKeyTo(destinationMap: MutableMap<NK, MutableMap<K, V>> = mutableMapOf(), keySelector: (K) -> NK): Map<NK, Map<K, V>> {
+fun <K, V, NK, M : MutableMap<NK, MutableMap<K, V>>> Map<K, V>.groupByKeyTo(destinationMap: M, keySelector: (K) -> NK): M {
     this.forEach { (key, value) ->
         val newKey = keySelector(key)
         val valueMap = destinationMap.getOrPut(newKey) { mutableMapOf() }
@@ -195,10 +195,10 @@ fun <K, V> Map<K, V>.groupByValue(): Map<V, List<K>> {
 }
 
 fun <K, V, NV> Map<K, V>.groupByValue(valueSelector: (V) -> NV): Map<NV, List<K>> {
-    return this.groupByValueTo(valueSelector = valueSelector)
+    return this.groupByValueTo(mutableMapOf(), valueSelector = valueSelector)
 }
 
-fun <K, V, NV> Map<K, V>.groupByValueTo(destinationMap: MutableMap<NV, MutableList<K>> = mutableMapOf(), valueSelector: (V) -> NV): Map<NV, List<K>> {
+fun <K, V, NV, M : MutableMap<NV, MutableList<K>>> Map<K, V>.groupByValueTo(destinationMap: M, valueSelector: (V) -> NV): M {
     this.forEach { (key, value) ->
         val newValue = valueSelector(value)
         val keyList = destinationMap.getOrPut(newValue) { mutableListOf() }
@@ -211,7 +211,15 @@ fun <K, V> Map<out K, V>.joinToString(separator: CharSequence = Constants.Symbol
     return joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
 }
 
-fun <K, V, A : Appendable> Map<out K, V>.joinTo(buffer: A, separator: CharSequence = Constants.Symbol.COMMA, prefix: CharSequence = Constants.String.BLANK, postfix: CharSequence = Constants.String.BLANK, limit: Int = -1, truncated: CharSequence = "...", transform: ((K, V) -> CharSequence)? = null): A {
+fun <K, V, A : Appendable> Map<out K, V>.joinTo(
+    buffer: A,
+    separator: CharSequence = Constants.Symbol.COMMA,
+    prefix: CharSequence = Constants.String.BLANK,
+    postfix: CharSequence = Constants.String.BLANK,
+    limit: Int = -1,
+    truncated: CharSequence = "...",
+    transform: ((K, V) -> CharSequence)? = null
+): A {
     buffer.append(prefix)
     var count = 0
     for (element in this) {
@@ -228,15 +236,19 @@ fun <K, V, A : Appendable> Map<out K, V>.joinTo(buffer: A, separator: CharSequen
     return buffer
 }
 
-fun <K, V> Map<K, V>.merge(mergeMap: Map<K, V>, existBlock: (key: K, value: V, mergeValue: V) -> V = { _, value, _ -> value },
-                           mergeNotExistBlock: (key: K, value: V) -> V = { _, value -> value },
-                           notExistBlock: (key: K, mergeValue: V) -> V = { _, mergeValue -> mergeValue }): Map<K, V> {
+fun <K, V> Map<K, V>.merge(
+    mergeMap: Map<K, V>, existBlock: (key: K, value: V, mergeValue: V) -> V = { _, value, _ -> value },
+    mergeNotExistBlock: (key: K, value: V) -> V = { _, value -> value },
+    notExistBlock: (key: K, mergeValue: V) -> V = { _, mergeValue -> mergeValue }
+): Map<K, V> {
     return this.mergeToNewValue(mergeMap, existBlock, mergeNotExistBlock, notExistBlock)
 }
 
-fun <K, V, NV> Map<K, V>.mergeToNewValue(mergeMap: Map<K, V>, existBlock: (key: K, value: V, mergeValue: V) -> NV,
-                                         mergeNotExistBlock: (key: K, value: V) -> NV,
-                                         notExistBlock: (key: K, mergeValue: V) -> NV): Map<K, NV> {
+fun <K, V, NV> Map<K, V>.mergeToNewValue(
+    mergeMap: Map<K, V>, existBlock: (key: K, value: V, mergeValue: V) -> NV,
+    mergeNotExistBlock: (key: K, value: V) -> NV,
+    notExistBlock: (key: K, mergeValue: V) -> NV
+): Map<K, NV> {
     val mutableMap = mutableMapOf<K, NV>()
     this.forEach { (key, value) ->
         val mergeValue = mergeMap[key]

@@ -51,7 +51,11 @@ fun String.jsonMatches(map: Map<String, String>): Boolean {
     return true
 }
 
-fun String.jsonToMap(destinationMap: MutableMap<String, String> = mutableMapOf()): Map<String, String> {
+fun String.jsonToMap(): Map<String, String> {
+    return this.jsonToMap(mutableMapOf()) { _, value -> value }
+}
+
+fun <M : MutableMap<String, String>> String.jsonToMap(destinationMap: M): M {
     return this.jsonToMap(destinationMap) { _, value -> value }
 }
 
@@ -62,7 +66,7 @@ inline fun <R> String.jsonToMap(transform: (key: String, value: String) -> R): M
     return this.jsonToJsonObject().toMap(transform)
 }
 
-inline fun <R> String.jsonToMap(destinationMap: MutableMap<String, R>, transform: (key: String, value: String) -> R): Map<String, R> {
+inline fun <R, M : MutableMap<String, R>> String.jsonToMap(destinationMap: M, transform: (key: String, value: String) -> R): M {
     return this.jsonToJsonObject().toMap(destinationMap, transform)
 }
 
@@ -80,7 +84,11 @@ fun String.jsonToJsonArray(): JsonArray {
     return JsonArray(this)
 }
 
-fun JsonObject.toMap(destinationMap: MutableMap<String, String> = mutableMapOf()): Map<String, String> {
+fun JsonObject.toMap(): Map<String, String> {
+    return this.toMap(mutableMapOf())
+}
+
+fun <M : MutableMap<String, String>> JsonObject.toMap(destinationMap: M): M {
     return this.toMap(destinationMap) { _, value -> value }
 }
 
@@ -88,7 +96,7 @@ inline fun <R> JsonObject.toMap(transform: (key: String, value: String) -> R): M
     return this.toMap(mutableMapOf(), transform)
 }
 
-inline fun <R> JsonObject.toMap(destinationMap: MutableMap<String, R>, transform: (key: String, value: String) -> R): Map<String, R> {
+inline fun <R, M : MutableMap<String, in R>> JsonObject.toMap(destinationMap: M, transform: (key: String, value: String) -> R): M {
     this.forEach { key, value ->
         destinationMap[key] = transform(key, value.toString())
     }

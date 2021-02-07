@@ -5,11 +5,11 @@ import java.io.ByteArrayOutputStream
 import java.math.BigDecimal
 import java.nio.charset.Charset
 
-inline fun <T, K, V> Iterable<T>.toMap(destinationMap: MutableMap<K, V>, transform: (t: T) -> Pair<K, V>): Map<K, V> = this.associateTo(destinationMap, transform)
+inline fun <T, K, V, M : MutableMap<in K, in V>> Iterable<T>.toMap(destinationMap: M, transform: (t: T) -> Pair<K, V>): M = this.associateTo(destinationMap, transform)
 
 inline fun <T, K, V> Iterable<T>.toMap(transform: (t: T) -> Pair<K, V>): Map<K, V> = this.toMap(mutableMapOf(), transform)
 
-inline fun <T, K, V> Iterable<T>.toMapWithFilter(destinationMap: MutableMap<K, V>, filter: (t: T) -> Boolean, transform: (t: T) -> Pair<K, V>): Map<K, V> {
+inline fun <T, K, V, M : MutableMap<in K, in V>> Iterable<T>.toMapWithFilter(destinationMap: M, filter: (t: T) -> Boolean, transform: (t: T) -> Pair<K, V>): M {
     for (element in this) {
         if (filter(element)) {
             destinationMap += transform(element)
