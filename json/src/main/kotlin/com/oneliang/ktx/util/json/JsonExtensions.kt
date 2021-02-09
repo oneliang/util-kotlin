@@ -55,10 +55,6 @@ fun String.jsonToMap(): Map<String, String> {
     return this.jsonToMap(mutableMapOf()) { _, value -> value }
 }
 
-fun <M : MutableMap<String, String>> String.jsonToMap(destinationMap: M): M {
-    return this.jsonToMap(destinationMap) { _, value -> value }
-}
-
 inline fun <R> String.jsonToMap(transform: (key: String, value: String) -> R): Map<String, R> {
     if (this.isBlank()) {
         return emptyMap()
@@ -85,11 +81,7 @@ fun String.jsonToJsonArray(): JsonArray {
 }
 
 fun JsonObject.toMap(): Map<String, String> {
-    return this.toMap(mutableMapOf())
-}
-
-fun <M : MutableMap<String, String>> JsonObject.toMap(destinationMap: M): M {
-    return this.toMap(destinationMap) { _, value -> value }
+    return this.toMap(mutableMapOf()){ _, value -> value }
 }
 
 inline fun <R> JsonObject.toMap(transform: (key: String, value: String) -> R): Map<String, R> {

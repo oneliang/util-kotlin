@@ -178,7 +178,7 @@ fun <K, V> Map<K, V>.groupByKey(): Map<K, Map<K, V>> {
 }
 
 fun <K, V, NK> Map<K, V>.groupByKey(keySelector: (K) -> NK): Map<NK, Map<K, V>> {
-    return this.groupByKeyTo(mutableMapOf(), keySelector = keySelector)
+    return this.groupByKeyTo(mutableMapOf(), keySelector)
 }
 
 fun <K, V, NK, M : MutableMap<NK, MutableMap<K, V>>> Map<K, V>.groupByKeyTo(destinationMap: M, keySelector: (K) -> NK): M {
