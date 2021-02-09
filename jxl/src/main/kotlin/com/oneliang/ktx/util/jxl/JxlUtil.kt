@@ -231,7 +231,7 @@ object JxlUtil {
      */
     @Throws(Exception::class)
     fun writeSimpleExcel(fullFilename: String, writeOptionArray: Array<WriteOption>) {
-        val writableWorkbook = Workbook.createWorkbook(File(fullFilename).apply { this.createFileIncludeDirectory() })
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
         writableWorkbook.use {
             writeSimpleExcel(it, writeOptionArray)
         }
@@ -262,7 +262,7 @@ object JxlUtil {
      */
     @Throws(Exception::class)
     fun writeSimpleExcel(fullFilename: String, startRow: Int = 0, headerArray: Array<String> = emptyArray(), writeDataRows: (writableSheet: WritableSheet, currentRow: Int) -> Unit) {
-        val writableWorkbook = Workbook.createWorkbook(File(fullFilename).apply { this.createFileIncludeDirectory() })
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
         writableWorkbook.use {
             writeSimpleExcel(writableWorkbook, "sheet", 0, startRow, headerArray, writeDataRows)
         }
@@ -281,7 +281,7 @@ object JxlUtil {
      */
     @Throws(Exception::class)
     fun writeSimpleExcel(fullFilename: String, sheetName: String = Constants.String.BLANK, sheetIndex: Int, startRow: Int = 0, headerArray: Array<String> = emptyArray(), writeDataRows: (writableSheet: WritableSheet, currentRow: Int) -> Unit) {
-        val writableWorkbook = Workbook.createWorkbook(File(fullFilename).apply { this.createFileIncludeDirectory() })
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
         writableWorkbook.use {
             writeSimpleExcel(it, sheetName, sheetIndex, startRow, headerArray, writeDataRows)
         }
@@ -309,7 +309,7 @@ object JxlUtil {
      */
     @Throws(Exception::class)
     fun <T> writeSimpleExcelForArray(fullFilename: String, writeOptionForArrayArray: Array<WriteOptionForArray<T>>) {
-        val writableWorkbook = Workbook.createWorkbook(File(fullFilename).apply { this.createFileIncludeDirectory() })
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
         writableWorkbook.use {
             writeSimpleExcelForArray(it, writeOptionForArrayArray)
         }
@@ -345,7 +345,7 @@ object JxlUtil {
     </T> */
     @Throws(Exception::class)
     fun <T> writeSimpleExcelForArray(fullFilename: String, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>) {
-        val writableWorkbook = Workbook.createWorkbook(File(fullFilename).apply { this.createFileIncludeDirectory() })
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
         writableWorkbook.use {
             writeSimpleExcelForArray(writableWorkbook, arrayOf(WriteOptionForArray("sheet", 0, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }))
         }
@@ -375,7 +375,7 @@ object JxlUtil {
     </T> */
     @Throws(Exception::class)
     fun <T, R> writeSimpleExcelForArray(fullFilename: String, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (column: Int, row: Int, value: T) -> R) {
-        val writableWorkbook = Workbook.createWorkbook(File(fullFilename).apply { this.createFileIncludeDirectory() })
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
         writableWorkbook.use {
             writeSimpleExcelForArray(writableWorkbook, arrayOf(WriteOptionForArray("sheet", 0, startRow, headerArray, iterable, transform)))
         }
@@ -407,7 +407,7 @@ object JxlUtil {
     </T> */
     @Throws(Exception::class)
     fun <T> writeSimpleExcelForArray(fullFilename: String, sheetName: String = Constants.String.BLANK, sheetIndex: Int, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>) {
-        val writableWorkbook = Workbook.createWorkbook(File(fullFilename).apply { this.createFileIncludeDirectory() })
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
         writableWorkbook.use {
             writeSimpleExcelForArray(it, arrayOf(WriteOptionForArray(sheetName, sheetIndex, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }))
         }
@@ -441,7 +441,7 @@ object JxlUtil {
     </T> */
     @Throws(Exception::class)
     fun <T, R> writeSimpleExcelForArray(fullFilename: String, sheetName: String = Constants.String.BLANK, sheetIndex: Int, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (column: Int, row: Int, value: T) -> R) {
-        val writableWorkbook = Workbook.createWorkbook(File(fullFilename).apply { this.createFileIncludeDirectory() })
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
         writableWorkbook.use {
             writeSimpleExcelForArray(it, arrayOf(WriteOptionForArray(sheetName, sheetIndex, startRow, headerArray, iterable, transform)))
         }
@@ -469,7 +469,7 @@ object JxlUtil {
      * @param writeOptionForIterableArray
      */
     fun <T> writeSimpleExcelForIterable(fullFilename: String, writeOptionForIterableArray: Array<WriteOptionForIterable<T>>) {
-        val writableWorkbook = Workbook.createWorkbook(File(fullFilename).apply { this.createFileIncludeDirectory() })
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
         writableWorkbook.use {
             writeSimpleExcelForIterable(it, writeOptionForIterableArray)
         }
@@ -507,7 +507,7 @@ object JxlUtil {
     </T> */
     @Throws(Exception::class)
     fun <T> writeSimpleExcelForIterable(fullFilename: String, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>) {
-        val writableWorkbook = Workbook.createWorkbook(File(fullFilename).apply { this.createFileIncludeDirectory() })
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
         writableWorkbook.use {
             writeSimpleExcelForIterable(writableWorkbook, arrayOf(WriteOptionForIterable("sheet", 0, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }))
         }
@@ -536,7 +536,7 @@ object JxlUtil {
     </T> */
     @Throws(Exception::class)
     fun <T, R> writeSimpleExcelForIterable(fullFilename: String, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>, transform: (column: Int, row: Int, value: T) -> R) {
-        val writableWorkbook = Workbook.createWorkbook(File(fullFilename).apply { this.createFileIncludeDirectory() })
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
         writableWorkbook.use {
             writeSimpleExcelForIterable(writableWorkbook, arrayOf(WriteOptionForIterable("sheet", 0, startRow, headerArray, iterable, transform)))
         }
@@ -567,7 +567,7 @@ object JxlUtil {
     </T> */
     @Throws(Exception::class)
     fun <T> writeSimpleExcelForIterable(fullFilename: String, sheetName: String = Constants.String.BLANK, sheetIndex: Int, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>) {
-        val writableWorkbook = Workbook.createWorkbook(File(fullFilename).apply { this.createFileIncludeDirectory() })
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
         writableWorkbook.use {
             writeSimpleExcelForIterable(writableWorkbook, arrayOf(WriteOptionForIterable(sheetName, sheetIndex, startRow, headerArray, iterable) { _: Int, _: Int, value: T -> value }))
         }
@@ -600,7 +600,7 @@ object JxlUtil {
     </T> */
     @Throws(Exception::class)
     fun <T, R> writeSimpleExcelForIterable(fullFilename: String, sheetName: String = Constants.String.BLANK, sheetIndex: Int, startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>, transform: (column: Int, row: Int, value: T) -> R) {
-        val writableWorkbook = Workbook.createWorkbook(File(fullFilename).apply { this.createFileIncludeDirectory() })
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
         writableWorkbook.use {
             writeSimpleExcelForIterable(writableWorkbook, arrayOf(WriteOptionForIterable(sheetName, sheetIndex, startRow, headerArray, iterable, transform)))
         }
@@ -644,7 +644,7 @@ object JxlUtil {
         if (jxlMappingBean == null) {
             return
         }
-        val writableWorkbook = Workbook.createWorkbook(File(fullFilename).apply { this.createFileIncludeDirectory() })
+        val writableWorkbook = Workbook.createWorkbook(File(fullFilename))
         writableWorkbook.use {
             writeSimpleExcel(it, headerArray = newHeaders.toTypedArray()) { sheet, currentRow ->
                 val jxlMappingColumnBeanList = jxlMappingBean.jxlMappingColumnBeanList

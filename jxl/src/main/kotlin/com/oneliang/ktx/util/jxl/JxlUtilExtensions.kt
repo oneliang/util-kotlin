@@ -2,6 +2,7 @@ package com.oneliang.ktx.util.jxl
 
 import com.oneliang.ktx.util.common.nullToBlank
 import com.oneliang.ktx.util.common.perform
+import com.oneliang.ktx.util.file.createFileIncludeDirectory
 import jxl.Cell
 import jxl.Sheet
 import jxl.Workbook
@@ -85,7 +86,7 @@ fun <T, R> OutputStream.writeSimpleExcel(startRow: Int = 0, headerArray: Array<S
 }
 
 fun <T> File.writeOrUpdateSimpleExcelForArray(writeOptionForArrayArray: Array<JxlUtil.WriteOptionForArray<T>>) {
-    val writableWorkbook = Workbook.createWorkbook(this)
+    val writableWorkbook = JxlUtil.getOrCreateWorkbook(this)
     writableWorkbook.use {
         JxlUtil.writeSimpleExcelForArray(it, writeOptionForArrayArray)
     }
@@ -106,7 +107,7 @@ fun <T, R> File.writeOrUpdateSimpleExcelForArray(startRow: Int = 0, headerArray:
 }
 
 fun <T> File.writeOrUpdateSimpleExcelForIterable(writeOptionForIterableArray: Array<JxlUtil.WriteOptionForIterable<T>>) {
-    val writableWorkbook = Workbook.createWorkbook(this)
+    val writableWorkbook = JxlUtil.getOrCreateWorkbook(this)
     writableWorkbook.use {
         JxlUtil.writeSimpleExcelForIterable(it, writeOptionForIterableArray)
     }
