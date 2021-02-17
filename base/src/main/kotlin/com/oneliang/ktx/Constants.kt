@@ -67,6 +67,7 @@ object Constants {
             }
         }
         val NEW_LINE = System.lineSeparator() ?: CRLF_STRING
+        val ELLIPSIS = "..."
     }
 
     object Symbol {

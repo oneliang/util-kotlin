@@ -229,3 +229,15 @@ fun String.splitPiece(pieceSize: Int, defaultArraySize: Int = 0): Array<String> 
     }
     return stringArray
 }
+
+fun String.toBriefString(retainLength: Int = this.length): String {
+    if (retainLength < 0) {
+        error("retain length can not be less than 0")
+    }
+    val totalLength = this.length
+    return if (totalLength > retainLength) {
+        this.substring(0, retainLength) + Constants.String.ELLIPSIS + totalLength
+    } else {
+        this
+    }
+}
