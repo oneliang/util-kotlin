@@ -5,7 +5,7 @@ import java.io.StringWriter
 import java.io.Writer
 import java.lang.reflect.Array
 
-class JsonArray() {
+class JsonArray(private val supportDuplicateKey: Boolean = false) {
     /**
      * The arrayList where the JsonArray's properties are kept.
      */
@@ -21,10 +21,11 @@ class JsonArray() {
     /**
      * Construct a JsonArray from a JsonTokener.
      * @param x A JsonTokener
+     * @param supportDuplicateKey
      * @throws JsonException If there is a syntax error.
      */
     @Throws(JsonException::class)
-    constructor(x: JsonTokener) : this() {
+    constructor(x: JsonTokener, supportDuplicateKey: Boolean = false) : this(supportDuplicateKey) {
         if (x.nextClean() != '[') {
             throw x.syntaxError("A JsonArray text must start with '['")
         }
@@ -36,7 +37,7 @@ class JsonArray() {
                     this.myArrayList.add(JsonObject.NULL)
                 } else {
                     x.back()
-                    this.myArrayList.add(x.nextValue())
+                    this.myArrayList.add(x.nextValue(this.supportDuplicateKey))
                 }
                 when (x.nextClean()) {
                     ';', ',' -> {
@@ -57,39 +58,44 @@ class JsonArray() {
      * @param source A string that begins with
      * <code>[</code>&nbsp;<small>(left bracket)</small>
      * and ends with <code>]</code>&nbsp;<small>(right bracket)</small>.
+     * @param supportDuplicateKey
      * @throws JsonException If there is a syntax error.
      */
     @Throws(JsonException::class)
-    constructor(source: String) : this(JsonTokener(source)) {
+    constructor(source: String, supportDuplicateKey: Boolean = false) : this(JsonTokener(source), supportDuplicateKey) {
     }
 
     /**
      * Construct a JsonArray from a Collection.
      * @param collection A Collection.
+     * @param supportDuplicateKey
      */
-    constructor(collection: Collection<Any>) : this() {
+    constructor(collection: Collection<Any>, supportDuplicateKey: Boolean = false) : this(supportDuplicateKey) {
         val iter = collection.iterator()
         while (iter.hasNext()) {
-            this.myArrayList.add(JsonObject.wrap(iter.next()))
+            this.myArrayList.add(JsonObject.wrap(iter.next(), this.supportDuplicateKey))
         }
     }
 
     /**
      * Construct a JsonArray from an array
+     * @param array
+     * @param supportDuplicateKey
      * @throws JsonException If not an array.
      */
     @Throws(JsonException::class)
-    constructor(array: Any) : this() {
-        if (array::class.java.isArray()) {
+    constructor(array: Any, supportDuplicateKey: Boolean = false) : this(supportDuplicateKey) {
+        if (array::class.java.isArray) {
             val length = Array.getLength(array)
             var i = 0
             while (i < length) {
-                this.put(JsonObject.wrap(Array.get(array, i)))
+                this.put(JsonObject.wrap(Array.get(array, i), this.supportDuplicateKey))
                 i += 1
             }
         } else {
             throw JsonException(
-                    "JsonArray initial value should be a string or collection or array.")
+                "JsonArray initial value should be a string or collection or array."
+            )
         }
     }
 
@@ -104,7 +110,7 @@ class JsonArray() {
     fun get(index: Int): Any {
         val value = this.opt(index)
         if (value == JsonObject.NULL) {
-            throw JsonException("JsonArray[" + index + "] not found.")
+            throw JsonException("JsonArray[$index] not found.")
         }
         return value
     }
@@ -126,7 +132,7 @@ class JsonArray() {
         } else if ((value is Boolean && value.equals(true) || ((value is String && value.equals("true", true))))) {
             return true
         }
-        throw JsonException("JsonArray[" + index + "] is not a boolean.")
+        throw JsonException("JsonArray[$index] is not a boolean.")
     }
 
     /**
@@ -146,8 +152,10 @@ class JsonArray() {
             else
                 value.toString().toDouble()
         } catch (e: Exception) {
-            throw JsonException(("JsonArray[" + index +
-                    "] is not a number."))
+            throw JsonException(
+                ("JsonArray[" + index +
+                        "] is not a number.")
+            )
         }
     }
 
@@ -167,8 +175,10 @@ class JsonArray() {
             else
                 value.toString().toInt()
         } catch (e: Exception) {
-            throw JsonException(("JsonArray[" + index +
-                    "] is not a number."))
+            throw JsonException(
+                ("JsonArray[" + index +
+                        "] is not a number.")
+            )
         }
     }
 
@@ -185,8 +195,10 @@ class JsonArray() {
         if (value is JsonArray) {
             return value
         }
-        throw JsonException(("JsonArray[" + index +
-                "] is not a JsonArray."))
+        throw JsonException(
+            ("JsonArray[" + index +
+                    "] is not a JsonArray.")
+        )
     }
 
     /**
@@ -202,8 +214,10 @@ class JsonArray() {
         if (value is JsonObject) {
             return value
         }
-        throw JsonException(("JsonArray[" + index +
-                "] is not a JsonObject."))
+        throw JsonException(
+            ("JsonArray[" + index +
+                    "] is not a JsonObject.")
+        )
     }
 
     /**
@@ -223,8 +237,10 @@ class JsonArray() {
             else
                 value.toString().toLong()
         } catch (e: Exception) {
-            throw JsonException(("JsonArray[" + index +
-                    "] is not a number."))
+            throw JsonException(
+                ("JsonArray[" + index +
+                        "] is not a number.")
+            )
         }
     }
 
@@ -269,7 +285,7 @@ class JsonArray() {
             if (i > 0) {
                 sb.append(separator)
             }
-            sb.append(JsonObject.valueToString(this.myArrayList.get(i)))
+            sb.append(JsonObject.valueToString(this.myArrayList[i], this.supportDuplicateKey))
             i += 1
         }
         return sb.toString()
@@ -294,7 +310,7 @@ class JsonArray() {
         return if ((index < 0 || index >= this.length()))
             JsonObject.NULL
         else
-            this.myArrayList.get(index)
+            this.myArrayList[index]
     }
 
     /**
@@ -391,7 +407,7 @@ class JsonArray() {
      */
     fun optJsonArray(index: Int): JsonArray {
         val o = this.opt(index)
-        return if (o is JsonArray) o else JsonArray()
+        return if (o is JsonArray) o else JsonArray(this.supportDuplicateKey)
     }
 
     /**
@@ -404,7 +420,7 @@ class JsonArray() {
      */
     fun optJsonObject(index: Int): JsonObject {
         val o = this.opt(index)
-        return if (o is JsonObject) o else JsonObject()
+        return if (o is JsonObject) o else JsonObject(this.supportDuplicateKey)
     }
 
     /**
@@ -481,7 +497,7 @@ class JsonArray() {
      * @return this.
      */
     fun put(value: Collection<Any>): JsonArray {
-        this.put(JsonArray(value))
+        this.put(JsonArray(value, this.supportDuplicateKey))
         return this
     }
 
@@ -529,7 +545,7 @@ class JsonArray() {
      * @return this.
      */
     fun put(value: Map<String, Any>): JsonArray {
-        this.put(JsonObject(value))
+        this.put(JsonObject(value, this.supportDuplicateKey))
         return this
     }
 
@@ -571,7 +587,7 @@ class JsonArray() {
      */
     @Throws(JsonException::class)
     fun put(index: Int, value: Collection<Any>): JsonArray {
-        this.put(index, JsonArray(value))
+        this.put(index, JsonArray(value, this.supportDuplicateKey))
         return this
     }
 
@@ -632,7 +648,7 @@ class JsonArray() {
      */
     @Throws(JsonException::class)
     fun put(index: Int, value: Map<String, Any>): JsonArray {
-        this.put(index, JsonObject(value))
+        this.put(index, JsonObject(value, this.supportDuplicateKey))
         return this
     }
 
@@ -652,10 +668,10 @@ class JsonArray() {
     fun put(index: Int, value: Any): JsonArray {
         JsonObject.testValidity(value)
         if (index < 0) {
-            throw JsonException("JsonArray[" + index + "] not found.")
+            throw JsonException("JsonArray[$index] not found.")
         }
         if (index < this.length()) {
-            this.myArrayList.set(index, value)
+            this.myArrayList[index] = value
         } else {
             while (index != this.length()) {
                 this.put(JsonObject.NULL)
@@ -687,11 +703,11 @@ class JsonArray() {
      * @throws JsonException If any of the names are null.
      */
     @Throws(JsonException::class)
-    fun toJsonObject(names: JsonArray): JsonObject {
+    fun toJsonObject(names: JsonArray, supportDuplicateKey: Boolean = false): JsonObject {
         if (names.length() == 0 || this.length() == 0) {
-            return JsonObject()
+            return JsonObject(supportDuplicateKey)
         }
-        val jo = JsonObject()
+        val jo = JsonObject(supportDuplicateKey)
         var i = 0
         while (i < names.length()) {
             jo.put(names.getString(i), this.opt(i))
@@ -733,7 +749,7 @@ class JsonArray() {
     @Throws(JsonException::class)
     fun toString(indentFactor: Int): String {
         val sw = StringWriter()
-        synchronized(sw.getBuffer()) {
+        synchronized(sw.buffer) {
             return this.write(sw, indentFactor, 0).toString()
         }
     }
@@ -772,8 +788,11 @@ class JsonArray() {
             val length = this.length()
             writer.write('['.toInt())
             if (length == 1) {
-                JsonObject.writeValue(writer, this.myArrayList.get(0),
-                        indentFactor, indent)
+                JsonObject.writeValue(
+                    writer, this.myArrayList[0],
+                    indentFactor, indent,
+                    this.supportDuplicateKey
+                )
             } else if (length != 0) {
                 val newindent = indent + indentFactor
                 var i = 0
@@ -785,8 +804,11 @@ class JsonArray() {
                         writer.write('\n'.toInt())
                     }
                     JsonObject.indent(writer, newindent)
-                    JsonObject.writeValue(writer, this.myArrayList.get(i),
-                            indentFactor, newindent)
+                    JsonObject.writeValue(
+                        writer, this.myArrayList[i],
+                        indentFactor, newindent,
+                        this.supportDuplicateKey
+                    )
                     commanate = true
                     i += 1
                 }

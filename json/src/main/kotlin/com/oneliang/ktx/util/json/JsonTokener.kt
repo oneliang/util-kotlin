@@ -13,7 +13,10 @@ class JsonTokener(reader: Reader) {
     private var index: Long = 0
     private var line: Long = 0
     private var previous: Char = ' '
-    private val reader: Reader
+    private val reader: Reader = if (reader.markSupported())
+        reader
+    else
+        BufferedReader(reader)
     private var usePrevious: Boolean = false
 
     /**
@@ -22,10 +25,6 @@ class JsonTokener(reader: Reader) {
      * @param reader A reader.
      */
     init {
-        this.reader = if (reader.markSupported())
-            reader
-        else
-            BufferedReader(reader)
         this.eof = false
         this.usePrevious = false
         this.previous = 0.toChar()
@@ -38,7 +37,7 @@ class JsonTokener(reader: Reader) {
      * Construct a JSONTokener from an InputStream.
      */
     @Throws(JsonException::class)
-    constructor(inputStream: InputStream?) : this(InputStreamReader(inputStream)) {
+    constructor(inputStream: InputStream) : this(InputStreamReader(inputStream)) {
     }
 
     /**
@@ -46,7 +45,7 @@ class JsonTokener(reader: Reader) {
      *
      * @param s A source string.
      */
-    constructor(s: String?) : this(StringReader(s)) {}
+    constructor(s: String) : this(StringReader(s)) {}
 
     /**
      * Back up one character. This provides a sort of lookahead capability,
@@ -130,8 +129,10 @@ class JsonTokener(reader: Reader) {
     fun next(c: Char): Char {
         val n = this.next()
         if (n != c) {
-            throw this.syntaxError(("Expected '" + c + "' and instead saw '" +
-                    n + "'"))
+            throw this.syntaxError(
+                ("Expected '" + c + "' and instead saw '" +
+                        n + "'")
+            )
         }
         return n
     }
@@ -253,7 +254,8 @@ class JsonTokener(reader: Reader) {
         while (true) {
             c = this.next()
             if ((delimiters.indexOf(c) >= 0 || c.toInt() == 0 ||
-                            c == '\n' || c == '\r')) {
+                        c == '\n' || c == '\r')
+            ) {
                 if (c.toInt() != 0) {
                     this.back()
                 }
@@ -266,23 +268,24 @@ class JsonTokener(reader: Reader) {
     /**
      * Get the next value. The value can be a Boolean, Double, Integer,
      * JSONArray, JSONObject, Long, or String, or the JSONObject.NULL object.
+     * @param supportDuplicateKey
      * @throws JsonException If syntax error.
      *
      * @return An object.
      */
     @Throws(JsonException::class)
-    fun nextValue(): Any {
+    fun nextValue(supportDuplicateKey: Boolean): Any {
         var c = this.nextClean()
         val string: String?
         when (c) {
             '"', '\'' -> return this.nextString(c)
             '{' -> {
                 this.back()
-                return JsonObject(this)
+                return JsonObject(this, supportDuplicateKey)
             }
             '[' -> {
                 this.back()
-                return JsonArray(this)
+                return JsonArray(this, supportDuplicateKey)
             }
         }
 /*
@@ -300,7 +303,7 @@ class JsonTokener(reader: Reader) {
         }
         this.back()
         string = sb.toString().trim()
-        if ("".equals(string)) {
+        if ("" == string) {
             throw this.syntaxError("Missing value")
         }
         return JsonObject.stringToValue(string)

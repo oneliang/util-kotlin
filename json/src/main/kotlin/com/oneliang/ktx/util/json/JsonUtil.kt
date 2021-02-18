@@ -56,8 +56,8 @@ object JsonUtil {
         }
     }
 
-    fun jsonToArrayBoolean(json: String): Array<Boolean> {
-        val jsonArray = JsonArray(json)
+    fun jsonToArrayBoolean(json: String, supportDuplicateKey: Boolean = false): Array<Boolean> {
+        val jsonArray = JsonArray(json, supportDuplicateKey)
         return jsonArrayToArrayBoolean(jsonArray)
     }
 
@@ -67,8 +67,8 @@ object JsonUtil {
         }
     }
 
-    fun jsonToArrayInt(json: String): Array<Int> {
-        val jsonArray = JsonArray(json)
+    fun jsonToArrayInt(json: String, supportDuplicateKey: Boolean = false): Array<Int> {
+        val jsonArray = JsonArray(json, supportDuplicateKey)
         return jsonArrayToArrayInt(jsonArray)
     }
 
@@ -78,8 +78,8 @@ object JsonUtil {
         }
     }
 
-    fun jsonToArrayLong(json: String): Array<Long> {
-        val jsonArray = JsonArray(json)
+    fun jsonToArrayLong(json: String, supportDuplicateKey: Boolean = false): Array<Long> {
+        val jsonArray = JsonArray(json, supportDuplicateKey)
         return jsonArrayToArrayLong(jsonArray)
     }
 
@@ -89,8 +89,8 @@ object JsonUtil {
         }
     }
 
-    fun jsonToArrayDouble(json: String): Array<Double> {
-        val jsonArray = JsonArray(json)
+    fun jsonToArrayDouble(json: String, supportDuplicateKey: Boolean = false): Array<Double> {
+        val jsonArray = JsonArray(json, supportDuplicateKey)
         return jsonArrayToArrayDouble(jsonArray)
     }
 
@@ -100,8 +100,8 @@ object JsonUtil {
         }
     }
 
-    fun jsonToArrayString(json: String): Array<String> {
-        val jsonArray = JsonArray(json)
+    fun jsonToArrayString(json: String, supportDuplicateKey: Boolean = false): Array<String> {
+        val jsonArray = JsonArray(json, supportDuplicateKey)
         return jsonArrayToArrayString(jsonArray)
     }
 

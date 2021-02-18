@@ -20,15 +20,15 @@ fun <T> Iterable<T>.toJson(jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFA
 
 fun <K, V> Map<K, V>.toJson(jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR) = JsonUtil.mapToJson(this, jsonProcessor)
 
-fun String.jsonToArrayBoolean(): Array<Boolean> = JsonUtil.jsonToArrayBoolean(this)
+fun String.jsonToArrayBoolean(supportDuplicateKey: Boolean = false): Array<Boolean> = JsonUtil.jsonToArrayBoolean(this, supportDuplicateKey)
 
-fun String.jsonToArrayInt(): Array<Int> = JsonUtil.jsonToArrayInt(this)
+fun String.jsonToArrayInt(supportDuplicateKey: Boolean = false): Array<Int> = JsonUtil.jsonToArrayInt(this, supportDuplicateKey)
 
-fun String.jsonToArrayLong(): Array<Long> = JsonUtil.jsonToArrayLong(this)
+fun String.jsonToArrayLong(supportDuplicateKey: Boolean = false): Array<Long> = JsonUtil.jsonToArrayLong(this, supportDuplicateKey)
 
-fun String.jsonToArrayDouble(): Array<Double> = JsonUtil.jsonToArrayDouble(this)
+fun String.jsonToArrayDouble(supportDuplicateKey: Boolean = false): Array<Double> = JsonUtil.jsonToArrayDouble(this, supportDuplicateKey)
 
-fun String.jsonToArrayString(): Array<String> = JsonUtil.jsonToArrayString(this)
+fun String.jsonToArrayString(supportDuplicateKey: Boolean = false): Array<String> = JsonUtil.jsonToArrayString(this, supportDuplicateKey)
 
 fun <T : Any> String.jsonToObject(kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = JsonUtil.DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, ignoreFirstLetterCase: Boolean = false, ignoreFieldNameArray: Array<String> = emptyArray()): T =
     JsonUtil.jsonToObject(this, kClass, classProcessor, ignoreFirstLetterCase, ignoreFieldNameArray)

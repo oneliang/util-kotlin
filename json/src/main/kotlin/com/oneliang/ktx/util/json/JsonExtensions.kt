@@ -70,18 +70,18 @@ fun <M : MutableMap<String, String>> String.jsonToNewMap(destinationMap: M): M {
     return this.jsonToMap(destinationMap) { _, value -> value }
 }
 
-fun String.jsonToJsonObject(): JsonObject {
+fun String.jsonToJsonObject(supportDuplicateKey: Boolean = false): JsonObject {
     if (this.isBlank()) {
         return JsonObject()
     }
-    return JsonObject(this)
+    return JsonObject(this, supportDuplicateKey)
 }
 
-fun String.jsonToJsonArray(): JsonArray {
+fun String.jsonToJsonArray(supportDuplicateKey: Boolean = false): JsonArray {
     if (this.isBlank()) {
         return JsonArray()
     }
-    return JsonArray(this)
+    return JsonArray(this, supportDuplicateKey)
 }
 
 fun JsonObject.toMap(): Map<String, String> {

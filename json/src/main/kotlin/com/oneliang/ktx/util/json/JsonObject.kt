@@ -6,7 +6,7 @@ import java.io.Writer
 import java.lang.reflect.Modifier
 import java.util.*
 
-class JsonObject() {
+class JsonObject(private val supportDuplicateKey: Boolean = false) {
     /**
      * The map where the JsonObject's properties are kept.
      */
@@ -50,20 +50,21 @@ class JsonObject() {
      * strings is used to identify the keys that should be copied. Missing keys
      * are ignored.
      *
-     * @param jo
+     * @param jsonObject
      * A JsonObject.
      * @param names
      * An array of strings.
+     * @param supportDuplicateKey
      * @throws JsonException
      * @exception JsonException
      * If a value is a non-finite number or if a name is
      * duplicated.
      */
-    constructor(jo: JsonObject, names: Array<String>) : this() {
+    constructor(jsonObject: JsonObject, names: Array<String>, supportDuplicateKey: Boolean = false) : this(supportDuplicateKey) {
         var i = 0
         while (i < names.size) {
             try {
-                this.putOnce(names[i], jo.opt(names[i]))
+                this.tryToPutOnce(names[i], jsonObject.opt(names[i]))
             } catch (ignore: Exception) {
             }
             i += 1
@@ -75,12 +76,13 @@ class JsonObject() {
      *
      * @param x
      * A JsonTokener object containing the source string.
+     * @param supportDuplicateKey
      * @throws JsonException
      * If there is a syntax error in the source string or a
      * duplicated key.
      */
     @Throws(JsonException::class)
-    constructor(x: JsonTokener) : this() {
+    constructor(x: JsonTokener, supportDuplicateKey: Boolean = false) : this(supportDuplicateKey) {
         var c: Char
         var key: String
         if (x.nextClean() != '{') {
@@ -93,7 +95,7 @@ class JsonObject() {
                 '}' -> return
                 else -> {
                     x.back()
-                    key = x.nextValue().toString()
+                    key = x.nextValue(this.supportDuplicateKey).toString()
                 }
             }
 // The key is followed by ':'. We will also tolerate '=' or '=>'.
@@ -105,7 +107,7 @@ class JsonObject() {
             } else if (c != ':') {
                 throw x.syntaxError("Expected a ':' after a key")
             }
-            this.putOnce(key, x.nextValue())
+            this.tryToPutOnce(key, x.nextValue(this.supportDuplicateKey))
 // Pairs are separated by ','. We will also tolerate ';'.
             when (x.nextClean()) {
                 ';', ',' -> {
@@ -126,14 +128,15 @@ class JsonObject() {
      * @param map
      * A map object that can be used to initialize the contents of
      * the JsonObject.
+     * @param supportDuplicateKey
      * @throws JsonException
      */
-    constructor(map: Map<String, Any>) : this() {
+    constructor(map: Map<String, Any>, supportDuplicateKey: Boolean = false) : this(supportDuplicateKey) {
         val i = map.iterator()
         while (i.hasNext()) {
             val e = i.next()
             val value = e.value
-            this.map.put(e.key, wrap(value))
+            this.map[e.key] = wrap(value, this.supportDuplicateKey)
         }
     }
 
@@ -157,8 +160,9 @@ class JsonObject() {
      * @param bean
      * An object that has getter methods that should be used to make
      * a JsonObject.
+     * @param supportDuplicateKey
      */
-    constructor(bean: Any) : this() {
+    constructor(bean: Any, supportDuplicateKey: Boolean = false) : this(supportDuplicateKey) {
         this.populateMap(bean)
     }
 
@@ -169,14 +173,15 @@ class JsonObject() {
      * those keys in the object. If a key is not found or not visible, then it
      * will not be copied into the new JsonObject.
      *
-     * @param object
+     * @param value
      * An object that has fields that should be used to make a
      * JsonObject.
      * @param names
      * An array of strings, the names of the fields to be obtained
      * from the object.
+     * @param supportDuplicateKey
      */
-    constructor(value: Any, names: Array<String>) : this() {
+    constructor(value: Any, names: Array<String>, supportDuplicateKey: Boolean = false) : this(supportDuplicateKey) {
         val c = value::class.java
         var i = 0
         while (i < names.size) {
@@ -197,12 +202,13 @@ class JsonObject() {
      * A string beginning with <code>{</code>&nbsp;<small>(left
      * brace)</small> and ending with <code>}</code>
      * &nbsp;<small>(right brace)</small>.
+     * @param supportDuplicateKey
      * @exception JsonException
      * If there is a syntax error in the source string or a
      * duplicated key.
      */
     @Throws(JsonException::class)
-    constructor(source: String) : this(JsonTokener(source)) {
+    constructor(source: String, supportDuplicateKey: Boolean = false) : this(JsonTokener(source), supportDuplicateKey) {
     }
 
     /**
@@ -212,12 +218,13 @@ class JsonObject() {
      * The ResourceBundle base name.
      * @param locale
      * The Locale to load the ResourceBundle for.
+     * @param supportDuplicateKey
      * @throws JsonException
      * If any JsonExceptions are detected.
      */
     @Throws(JsonException::class)
-    constructor(baseName: String, locale: Locale) : this() {
-        val bundle = ResourceBundle.getBundle(baseName, locale, Thread.currentThread().getContextClassLoader())
+    constructor(baseName: String, locale: Locale, supportDuplicateKey: Boolean = false) : this(supportDuplicateKey) {
+        val bundle = ResourceBundle.getBundle(baseName, locale, Thread.currentThread().contextClassLoader)
 // Iterate through the keys in the bundle.
         val keys = bundle.getKeys()
         while (keys.hasMoreElements()) {
@@ -234,7 +241,7 @@ class JsonObject() {
                 var i = 0
                 while (i < last) {
                     val segment = path[i]
-                    var nextTarget = target.optJsonObject(segment)
+                    val nextTarget = target.optJsonObject(segment)
                     target.put(segment, nextTarget)
                     target = nextTarget
                     i += 1
@@ -268,11 +275,11 @@ class JsonObject() {
         testValidity(value)
         val objectValue = this.opt(key)
         if (objectValue == NULL) {
-            this.put(key, if (value is JsonArray) JsonArray().put(value) else value)
+            this.put(key, if (value is JsonArray) JsonArray(this.supportDuplicateKey).put(value) else value)
         } else if (objectValue is JsonArray) {
             objectValue.put(value)
         } else {
-            this.put(key, JsonArray().put(objectValue).put(value))
+            this.put(key, JsonArray(this.supportDuplicateKey).put(objectValue).put(value))
         }
         return this
     }
@@ -297,11 +304,11 @@ class JsonObject() {
         testValidity(value)
         val objectValue = this.opt(key)
         if (objectValue == NULL) {
-            this.put(key, JsonArray().put(value))
+            this.put(key, JsonArray(this.supportDuplicateKey).put(value))
         } else if (objectValue is JsonArray) {
             this.put(key, objectValue.put(value))
         } else {
-            throw JsonException("JsonObject[" + key + "] is not a JsonArray.")
+            throw JsonException("JsonObject[$key] is not a JsonArray.")
         }
         return this
     }
@@ -337,7 +344,7 @@ class JsonObject() {
     @Throws(JsonException::class)
     fun getBoolean(key: String): Boolean {
         val value = this.get(key)
-        if ((value is Boolean && value.equals(false) || ((value is String && value.equals("false", true))))) {
+        if ((value is Boolean && value == false || ((value is String && value.equals("false", true))))) {
             return false
         } else if ((value is Boolean && value.equals(true) || ((value is String && value.equals("true", true))))) {
             return true
@@ -511,7 +518,7 @@ class JsonObject() {
      * is the JsonObject.NULL object.
      */
     fun isNull(key: String): Boolean {
-        return JsonObject.NULL.equals(this.opt(key))
+        return NULL == this.opt(key)
     }
 
     /**
@@ -540,12 +547,12 @@ class JsonObject() {
      * is empty.
      */
     fun names(): JsonArray {
-        val ja = JsonArray()
+        val ja = JsonArray(this.supportDuplicateKey)
         val keys = this.keys()
         while (keys.hasNext()) {
             ja.put(keys.next())
         }
-        return if (ja.length() == 0) JsonArray() else ja
+        return if (ja.length() == 0) JsonArray(this.supportDuplicateKey) else ja
     }
 
     /**
@@ -556,7 +563,7 @@ class JsonObject() {
      * @return An object which is the value, or null if there is no value.
      */
     fun opt(key: String): Any {
-        return this.map.get(key) ?: NULL
+        return this.map[key] ?: NULL
     }
 
     /**
@@ -664,7 +671,7 @@ class JsonObject() {
      */
     fun optJsonArray(key: String): JsonArray {
         val o = this.opt(key)
-        return if (o is JsonArray) o else JsonArray()
+        return if (o is JsonArray) o else JsonArray(this.supportDuplicateKey)
     }
 
     /**
@@ -677,7 +684,7 @@ class JsonObject() {
      */
     fun optJsonObject(key: String): JsonObject {
         val value = this.opt(key)
-        return if (value is JsonObject) value else JsonObject()
+        return if (value is JsonObject) value else JsonObject(this.supportDuplicateKey)
     }
 
     /**
@@ -743,17 +750,17 @@ class JsonObject() {
     private fun populateMap(bean: Any) {
         val klass = bean::class.java
 // If klass is a System class then set includeSuperClass to false.
-        val includeSuperClass = klass.getClassLoader() != null
-        val methods = if (includeSuperClass) klass.getMethods() else klass.getDeclaredMethods()
+        val includeSuperClass = klass.classLoader != null
+        val methods = if (includeSuperClass) klass.methods else klass.getDeclaredMethods()
         var i = 0
         while (i < methods.size) {
             try {
                 val method = methods[i]
-                if (Modifier.isPublic(method.getModifiers())) {
-                    val name = method.getName()
+                if (Modifier.isPublic(method.modifiers)) {
+                    val name = method.name
                     var key = ""
                     if (name.startsWith("get")) {
-                        if ("getClass".equals(name) || "getDeclaringClass".equals(name)) {
+                        if ("getClass" == name || "getDeclaringClass" == name) {
                             key = ""
                         } else {
                             key = name.substring(3)
@@ -761,7 +768,7 @@ class JsonObject() {
                     } else if (name.startsWith("is")) {
                         key = name.substring(2)
                     }
-                    if (key.length > 0 && Character.isUpperCase(key.get(0)) && method.getParameterTypes().size == 0) {
+                    if (key.isNotEmpty() && Character.isUpperCase(key[0]) && method.parameterTypes.isEmpty()) {
                         if (key.length == 1) {
                             key = key.toLowerCase()
                         } else if (!Character.isUpperCase(key.get(1))) {
@@ -769,7 +776,7 @@ class JsonObject() {
                         }
                         val result = method.invoke(bean, null)
                         if (result != null) {
-                            this.map.put(key, wrap(result))
+                            this.map[key] = wrap(result, this.supportDuplicateKey)
                         }
                     }
                 }
@@ -809,7 +816,7 @@ class JsonObject() {
      */
     @Throws(JsonException::class)
     fun put(key: String, value: Collection<Any>): JsonObject {
-        this.put(key, JsonArray(value))
+        this.put(key, JsonArray(value, this.supportDuplicateKey))
         return this
     }
 
@@ -877,7 +884,7 @@ class JsonObject() {
      */
     @Throws(JsonException::class)
     fun put(key: String, value: Map<String, Any>): JsonObject {
-        this.put(key, JsonObject(value))
+        this.put(key, JsonObject(value, this.supportDuplicateKey))
         return this
     }
 
@@ -911,6 +918,7 @@ class JsonObject() {
      * are both non-null, and only if there is not already a member with that
      * name.
      *
+     * try to put once, when support duplicate key will put more times
      * @param key
      * @param value
      * @return his.
@@ -918,9 +926,9 @@ class JsonObject() {
      * if the key is a duplicate
      */
     @Throws(JsonException::class)
-    fun putOnce(key: String, value: Any): JsonObject {
-        if (this.opt(key) != NULL) {
-            throw JsonException("Duplicate key \"" + key + "\"")
+    fun tryToPutOnce(key: String, value: Any): JsonObject {
+        if (this.opt(key) != NULL && !this.supportDuplicateKey) {
+            throw JsonException("Duplicate key \"$key\"")
         }
         this.put(key, value)
         return this
@@ -972,9 +980,9 @@ class JsonObject() {
     @Throws(JsonException::class)
     fun toJsonArray(names: JsonArray): JsonArray {
         if (names.length() == 0) {
-            return JsonArray()
+            return JsonArray(this.supportDuplicateKey)
         }
-        val ja = JsonArray()
+        val ja = JsonArray(this.supportDuplicateKey)
         var i = 0
         while (i < names.length()) {
             ja.put(this.opt(names.getString(i)))
@@ -996,10 +1004,10 @@ class JsonObject() {
      * brace)</small>.
      */
     override fun toString(): String {
-        try {
-            return this.toString(0)
+        return try {
+            this.toString(0)
         } catch (e: Exception) {
-            return super.toString()
+            super.toString()
         }
     }
 
@@ -1062,7 +1070,7 @@ class JsonObject() {
                 if (indentFactor > 0) {
                     writer.write(' '.toInt())
                 }
-                writeValue(writer, this.map.get(key) ?: NULL, indentFactor, indent)
+                writeValue(writer, this.map[key] ?: NULL, indentFactor, indent, this.supportDuplicateKey)
             } else if (length != 0) {
                 val newindent = indent + indentFactor
                 while (keys.hasNext()) {
@@ -1074,12 +1082,12 @@ class JsonObject() {
                         writer.write('\n'.toInt())
                     }
                     indent(writer, newindent)
-                    writer.write(quote(key.toString()))
+                    writer.write(quote(key))
                     writer.write(':'.toInt())
                     if (indentFactor > 0) {
                         writer.write(' '.toInt())
                     }
-                    writeValue(writer, this.map.get(key) ?: NULL, indentFactor, newindent)
+                    writeValue(writer, this.map[key] ?: NULL, indentFactor, newindent, this.supportDuplicateKey)
                     commanate = true
                 }
                 if (indentFactor > 0) {
@@ -1160,7 +1168,7 @@ class JsonObject() {
             if (length == 0) {
                 return emptyArray<String>()
             }
-            val names = Array<String>(length, { _ -> "" })
+            val names = Array<String>(length) { _ -> "" }
             var i = 0
             while (i < length) {
                 names[i] = fields[i].getName()
@@ -1206,12 +1214,12 @@ class JsonObject() {
          */
         fun quote(string: String): String {
             val sw = StringWriter()
-            synchronized(sw.getBuffer()) {
-                try {
-                    return quote(string, sw).toString()
+            synchronized(sw.buffer) {
+                return try {
+                    quote(string, sw).toString()
                 } catch (ignored: IOException) {
-// will never happen - we are writing to a string writer
-                    return ""
+                    // will never happen - we are writing to a string writer
+                    ""
                 }
             }
         }
@@ -1270,8 +1278,8 @@ class JsonObject() {
          * @return A simple JSON value.
          */
         fun stringToValue(string: String): Any {
-            var d: Double
-            if (string.equals("")) {
+            val d: Double
+            if (string == "") {
                 return string
             }
             if (string.equals("true", true)) {
@@ -1281,7 +1289,7 @@ class JsonObject() {
                 return false
             }
             if (string.equals("null", true)) {
-                return JsonObject.NULL
+                return NULL
             }
 /*
 * If it might be a number, try converting it. If a number cannot be
@@ -1349,6 +1357,7 @@ class JsonObject() {
          *
          * @param value
          * The value to be serialized.
+         * @param supportDuplicateKey
          * @return a printable, displayable, transmittable representation of the
          * object, beginning with <code>{</code>&nbsp;<small>(left
          * brace)</small> and ending with <code>}</code>&nbsp;<small>(right
@@ -1358,7 +1367,7 @@ class JsonObject() {
          */
         @SuppressWarnings("unchecked")
         @Throws(JsonException::class)
-        fun valueToString(value: Any): String {
+        fun valueToString(value: Any, supportDuplicateKey: Boolean): String {
             if (value is JsonString) {
                 val objectValue: Any
                 try {
@@ -1375,13 +1384,13 @@ class JsonObject() {
                 return value.toString()
             }
             if (value is Map<*, *>) {
-                return JsonObject(value).toString()
+                return JsonObject(value, supportDuplicateKey).toString()
             }
             if (value is Collection<*>) {
-                return JsonArray(value).toString()
+                return JsonArray(value, supportDuplicateKey).toString()
             }
-            if (value::class.java.isArray()) {
-                return JsonArray(value).toString()
+            if (value::class.java.isArray) {
+                return JsonArray(value, supportDuplicateKey).toString()
             }
             return quote(value.toString())
         }
@@ -1396,31 +1405,33 @@ class JsonObject() {
          *
          * @param value
          * The object to wrap
+         * @param supportDuplicateKey
          * @return The wrapped value
          */
         @SuppressWarnings("unchecked")
-        fun wrap(value: Any): Any {
+        fun wrap(value: Any, supportDuplicateKey: Boolean): Any {
             try {
-                if ((value is JsonObject || value is JsonArray || NULL.equals(value) || value is JsonString || value is Byte || value is Char
-                                || value is Short || value is Int || value is Long || value is Boolean || value is Float || value is Double
-                                || value is String)) {
+                if ((value is JsonObject || value is JsonArray || NULL == value || value is JsonString || value is Byte || value is Char
+                            || value is Short || value is Int || value is Long || value is Boolean || value is Float || value is Double
+                            || value is String)
+                ) {
                     return value
                 }
                 if (value is Collection<*>) {
-                    return JsonArray(value)
+                    return JsonArray(value, supportDuplicateKey)
                 }
-                if (value::class.java.isArray()) {
-                    return JsonArray(value)
+                if (value::class.java.isArray) {
+                    return JsonArray(value, supportDuplicateKey)
                 }
                 if (value is Map<*, *>) {
-                    return JsonObject(value)
+                    return JsonObject(value, supportDuplicateKey)
                 }
                 val objectPackage = value::class.java.getPackage()
                 val objectPackageName = if (objectPackage != null) objectPackage.getName() else ""
                 if (objectPackageName.startsWith("java.") || objectPackageName.startsWith("javax.") || value::class.java.getClassLoader() == null) {
                     return value.toString()
                 }
-                return JsonObject(value)
+                return JsonObject(value, supportDuplicateKey)
             } catch (exception: Exception) {
                 return NULL
             }
@@ -1428,17 +1439,17 @@ class JsonObject() {
 
         @SuppressWarnings("unchecked")
         @Throws(JsonException::class, IOException::class)
-        internal fun writeValue(writer: Writer, value: Any, indentFactor: Int, indent: Int): Writer {
+        internal fun writeValue(writer: Writer, value: Any, indentFactor: Int, indent: Int, supportDuplicateKey: Boolean): Writer {
             if (value is JsonObject) {
                 value.write(writer, indentFactor, indent)
             } else if (value is JsonArray) {
                 value.write(writer, indentFactor, indent)
             } else if (value is Map<*, *>) {
-                JsonObject(value).write(writer, indentFactor, indent)
+                JsonObject(value, supportDuplicateKey).write(writer, indentFactor, indent)
             } else if (value is Collection<*>) {
-                JsonArray(value).write(writer, indentFactor, indent)
-            } else if (value::class.java.isArray()) {
-                JsonArray(value).write(writer, indentFactor, indent)
+                JsonArray(value, supportDuplicateKey).write(writer, indentFactor, indent)
+            } else if (value::class.java.isArray) {
+                JsonArray(value, supportDuplicateKey).write(writer, indentFactor, indent)
             } else if (value is Number) {
                 writer.write(numberToString(value))
             } else if (value is Boolean) {
