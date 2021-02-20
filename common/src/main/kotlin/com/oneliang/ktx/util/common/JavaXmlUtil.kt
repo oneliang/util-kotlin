@@ -270,12 +270,12 @@ object JavaXmlUtil {
             node.textContent.nullToBlank()
         } else {
             val nodeString = StringBuilder()
-            nodeString.append(Constants.Symbol.LESS_THEN + node.nodeName + Constants.Symbol.GREATER_THEN)
+            nodeString.append(Constants.Symbol.LESS_THAN + node.nodeName + Constants.Symbol.GREATER_THAN)
             for (index in 0 until childNodeList.length) {
                 val childNode = childNodeList.item(index) ?: continue
                 nodeString.append(nodeToString(childNode))
             }
-            nodeString.append(Constants.Symbol.LESS_THEN + Constants.Symbol.SLASH_LEFT + node.nodeName + Constants.Symbol.GREATER_THEN)
+            nodeString.append(Constants.Symbol.LESS_THAN + Constants.Symbol.SLASH_LEFT + node.nodeName + Constants.Symbol.GREATER_THAN)
             nodeString.toString()
         }
     }

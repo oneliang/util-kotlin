@@ -203,14 +203,14 @@ object Constants {
         const val DOUBLE_QUOTE = "\""
 
         /**
-         * less then "<"
+         * less than "<"
          */
-        const val LESS_THEN = "<"
+        const val LESS_THAN = "<"
 
         /**
-         * greater then ">"
+         * greater than ">"
          */
-        const val GREATER_THEN = ">"
+        const val GREATER_THAN = ">"
 
         /**
          * tilde "~"
