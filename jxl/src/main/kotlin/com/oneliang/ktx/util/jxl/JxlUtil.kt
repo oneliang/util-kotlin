@@ -18,7 +18,7 @@ import kotlin.reflect.KClass
 inline fun WritableWorkbook.use(block: (WritableWorkbook) -> Unit) {
     try {
         block(this)
-    } catch (e: Throwable) {
+    } finally {
         this.write()
         this.close()
     }
