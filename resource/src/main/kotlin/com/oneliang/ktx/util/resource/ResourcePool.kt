@@ -1,7 +1,6 @@
 package com.oneliang.ktx.util.resource
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.util.common.perform
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
@@ -157,20 +156,22 @@ abstract class ResourcePool<T : Any> : Runnable {
             val stableResourceStatus = this.stableResourceStatusMap[stableResourceStatusKey]
             if (stableResourceStatus != null && stableResource == stableResourceStatus.resource) {
                 if (destroy) {
-                    perform({
+                    try {
                         this.stableResourceLock.lock()
                         realDestroyStableResource(stableResourceStatusKey, stableResource)
-                    }, failure = {
-                        logger.error(Constants.Base.EXCEPTION, it)
-                    }, finally = {
+                    } catch (e: Throwable) {
+                        logger.error(Constants.Base.EXCEPTION, e)
+                    } finally {
                         this.stableResourceLock.unlock()
-                    })
+                    }
                 } else {
                     stableResourceStatus.lastNotInUseTime = System.currentTimeMillis()
                 }
             } else {
-                logger.error("release stable resource, stable resource status is null or stable resource is not the same, stable resource status:%s, stable resource:%s", stableResourceStatus
-                        ?: Constants.String.NULL, stableResourceStatus?.resource ?: Constants.String.NULL)
+                logger.error(
+                    "release stable resource, stable resource status is null or stable resource is not the same, stable resource status:%s, stable resource:%s", stableResourceStatus
+                        ?: Constants.String.NULL, stableResourceStatus?.resource ?: Constants.String.NULL
+                )
             }
         } else {
             logger.error("release stable resource, this stable resource haven't got from method named stableResource ? Stable resource:%s", stableResource)
@@ -192,14 +193,14 @@ abstract class ResourcePool<T : Any> : Runnable {
             //find the resource and set in use false
             if (resource == resourceStatus.resource) {
                 if (destroy) {
-                    perform({
+                    try {
                         this.resourceLock.lock()
                         realDestroyResource(index, resource)
-                    }, failure = {
-                        logger.error(Constants.Base.EXCEPTION, it)
-                    }, finally = {
+                    } catch (e: Throwable) {
+                        logger.error(Constants.Base.EXCEPTION, e)
+                    } finally {
                         this.resourceLock.unlock()
-                    })
+                    }
                 } else {
                     resourceStatus.inUse = false
                     resourceStatus.lastNotInUseTime = System.currentTimeMillis()

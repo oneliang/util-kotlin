@@ -1,6 +1,5 @@
 package com.oneliang.ktx.util.concurrent.atomic
 
-import com.oneliang.ktx.util.common.perform
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
 
@@ -15,42 +14,41 @@ class AtomicDataContainer<K : Any, V> {
             val reentrantLock = this.reentrantLockMap[key] ?: error("not found ReentrantLock for key:$key, may be something error")
             doLockBlock(key, reentrantLock, block)
         } else {
-            perform({
+            try {
                 this.lock.lock()
                 if (!this.reentrantLockMap.containsKey(key)) {
                     this.reentrantLockMap[key] = ReentrantLock()
                 }
                 val reentrantLock = this.reentrantLockMap[key] ?: error("not found ReentrantLock for key:$key, may be something error")
                 doLockBlock(key, reentrantLock, block)
-            }, failure = {
+            } catch (e: Throwable) {
                 null
-            }, finally = {
+            } finally {
                 this.lock.unlock()
-            })
+            }
         }
     }
 
     operator fun get(key: K): V? {
         val reentrantLock = this.reentrantLockMap[key] ?: return null
-        perform({
+        try {
             reentrantLock.lock()
             return this.map[key]
-        }, finally = {
+        } finally {
             reentrantLock.unlock()
-        })
-        return null
+        }
     }
 
     private fun doLockBlock(key: K, reentrantLock: ReentrantLock, block: () -> V): V? {
-        var result: V? = null
-        perform({
+        val result: V?
+        try {
             reentrantLock.lock()
             val blockResult = block()
             this.map[key] = blockResult
             result = blockResult
-        }, finally = {
+        } finally {
             reentrantLock.unlock()
-        })
+        }
         return result
     }
 }

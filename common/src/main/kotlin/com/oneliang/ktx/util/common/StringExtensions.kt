@@ -10,15 +10,35 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.ceil
 
-fun String?.toIntSafely(defaultValue: Int = 0): Int = perform({ this?.toInt() ?: defaultValue }, failure = { defaultValue })
+fun String?.toIntSafely(defaultValue: Int = 0): Int = try {
+    this?.toInt() ?: defaultValue
+} catch (e: Throwable) {
+    defaultValue
+}
 
-fun String?.toLongSafely(defaultValue: Long = 0): Long = perform({ this?.toLong() ?: defaultValue }, failure = { defaultValue })
+fun String?.toLongSafely(defaultValue: Long = 0): Long = try {
+    this?.toLong() ?: defaultValue
+} catch (e: Throwable) {
+    defaultValue
+}
 
-fun String?.toFloatSafely(defaultValue: Float = 0f): Float = perform({ this?.toFloat() ?: defaultValue }, failure = { defaultValue })
+fun String?.toFloatSafely(defaultValue: Float = 0f): Float = try {
+    this?.toFloat() ?: defaultValue
+} catch (e: Throwable) {
+    defaultValue
+}
 
-fun String?.toDoubleSafely(defaultValue: Double = 0.0): Double = perform({ this?.toDouble() ?: defaultValue }, failure = { defaultValue })
+fun String?.toDoubleSafely(defaultValue: Double = 0.0): Double = try {
+    this?.toDouble() ?: defaultValue
+} catch (e: Throwable) {
+    defaultValue
+}
 
-fun String?.toBigDecimalSafely(defaultValue: BigDecimal = BigDecimal(0), mathContext: MathContext = MathContext.UNLIMITED): BigDecimal = perform({ BigDecimal(this, mathContext) }, failure = { defaultValue })
+fun String?.toBigDecimalSafely(defaultValue: BigDecimal = BigDecimal(0), mathContext: MathContext = MathContext.UNLIMITED): BigDecimal = try {
+    BigDecimal(this, mathContext)
+} catch (e: Throwable) {
+    defaultValue
+}
 
 fun String?.toBooleanSafely(defaultValue: Boolean = false): Boolean {
     this ?: return defaultValue
@@ -142,9 +162,11 @@ fun String.toUtilDate(format: String = Constants.Time.YEAR_MONTH_DAY_HOUR_MINUTE
     return simpleDateFormat.parse(this)
 }
 
-fun String?.toUtilDateSafely(format: String = Constants.Time.YEAR_MONTH_DAY_HOUR_MINUTE_SECOND, locale: Locale = Locale.getDefault()): Date = perform({
+fun String?.toUtilDateSafely(format: String = Constants.Time.YEAR_MONTH_DAY_HOUR_MINUTE_SECOND, locale: Locale = Locale.getDefault()): Date = try {
     this?.toUtilDate(format, locale) ?: Date()
-}, failure = { Date() })
+} catch (e: Throwable) {
+    Date()
+}
 
 fun String.toFile(): File = File(this)
 

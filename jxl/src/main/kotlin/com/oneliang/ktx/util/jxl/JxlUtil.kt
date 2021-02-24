@@ -3,7 +3,6 @@ package com.oneliang.ktx.util.jxl
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.ObjectUtil
 import com.oneliang.ktx.util.common.nullToBlank
-import com.oneliang.ktx.util.common.perform
 import com.oneliang.ktx.util.common.toMapWithIndex
 import com.oneliang.ktx.util.file.createFileIncludeDirectory
 import jxl.Cell
@@ -17,12 +16,12 @@ import java.io.File
 import kotlin.reflect.KClass
 
 inline fun WritableWorkbook.use(block: (WritableWorkbook) -> Unit) {
-    perform({
+    try {
         block(this)
-    }, finally = {
+    } catch (e: Throwable) {
         this.write()
         this.close()
-    })
+    }
 }
 
 object JxlUtil {

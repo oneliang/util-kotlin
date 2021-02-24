@@ -1,6 +1,5 @@
 package com.oneliang.ktx.util.concurrent.atomic
 
-import com.oneliang.ktx.util.common.perform
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
@@ -18,35 +17,37 @@ class AtomicMap<K : Any, V> constructor() : AbstractMap<K, V>() {
     override val entries: Set<Map.Entry<K, V>>
         get() = this.snapshot().entries
 
-    fun operate(key: K, create: () -> V, update: (V) -> V) {
+    fun operate(key: K, create: () -> V, update: (V) -> V): V? {
         if (this.map.containsKey(key)) {
-            atomicUpdate(key, update)
+            return atomicUpdate(key, update)
         } else {
-            perform({
+            return try {
                 this.lock.lock()
                 if (this.map.containsKey(key)) {
                     atomicUpdate(key, update)
                 } else {
-                    this.map[key] = AtomicReference(create())
+                    val value = create()
+                    this.map[key] = AtomicReference(value)
+                    value
                 }
-            }, finally = {
+            } finally {
                 this.lock.unlock()
-            })
+            }
         }
     }
 
     fun remove(key: K) {
-        perform({
+        try {
             this.lock.lock()
             this.map.remove(key)
-        }, finally = {
+        } finally {
             this.lock.unlock()
-        })
+        }
     }
 
-    private fun atomicUpdate(key: K, update: (V) -> V) {
+    private fun atomicUpdate(key: K, update: (V) -> V): V? {
         val atomicReference = this.map[key]
-        atomicReference?.getAndUpdate { old ->
+        return atomicReference?.getAndUpdate { old ->
             update(old).apply {
                 if (old.hashCode() != this.hashCode()) {
                     return@apply
