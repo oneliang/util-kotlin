@@ -68,4 +68,14 @@ object MathUtil {
             stack.pop()
         }
     }
+
+    fun calculateIndex(totalRows: Int, rowsPerPage: Int, currentPage: Int): Pair<Int, Int> {
+        val fromIndex = (currentPage - 1) * rowsPerPage
+        val toIndex = if (currentPage * rowsPerPage >= totalRows) {
+            totalRows
+        } else {
+            currentPage * rowsPerPage
+        }
+        return fromIndex to toIndex
+    }
 }

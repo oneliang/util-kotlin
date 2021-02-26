@@ -15,3 +15,5 @@ fun Long.calculatePiece(modulus: Long): Long = MathUtil.calculatePiece(this, mod
 fun Long.calculateRemainder(modulus: Long): Long = MathUtil.calculateRemainder(this, modulus)
 
 fun Long.calculatePieceAndRemainder(modulus: Long): Pair<Long, Long> = MathUtil.calculatePieceAndRemainder(this, modulus)
+
+fun Int.calculateIndex(rowsPerPage: Int, currentPage: Int): Pair<Int, Int> = MathUtil.calculateIndex(this, rowsPerPage, currentPage)
