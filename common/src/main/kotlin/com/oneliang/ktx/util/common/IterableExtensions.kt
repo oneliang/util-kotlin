@@ -5,11 +5,11 @@ import java.io.ByteArrayOutputStream
 import java.math.BigDecimal
 import java.nio.charset.Charset
 
-inline fun <T, K, V, M : MutableMap<in K, in V>> Iterable<T>.toMap(destinationMap: M, transform: (t: T) -> Pair<K, V>): M = this.associateTo(destinationMap, transform)
+inline fun <T, K, V, M : MutableMap<in K, in V>> Iterable<T>.toMap(destinationMap: M, transform: (item: T) -> Pair<K, V>): M = this.associateTo(destinationMap, transform)
 
-inline fun <T, K, V> Iterable<T>.toMap(transform: (t: T) -> Pair<K, V>): Map<K, V> = this.toMap(mutableMapOf(), transform)
+inline fun <T, K, V> Iterable<T>.toMap(transform: (item: T) -> Pair<K, V>): Map<K, V> = this.toMap(mutableMapOf(), transform)
 
-inline fun <T, K, V, M : MutableMap<in K, in V>> Iterable<T>.toMapWithFilter(destinationMap: M, filter: (t: T) -> Boolean, transform: (t: T) -> Pair<K, V>): M {
+inline fun <T, K, V, M : MutableMap<in K, in V>> Iterable<T>.toMapWithFilter(destinationMap: M, filter: (item: T) -> Boolean, transform: (item: T) -> Pair<K, V>): M {
     for (element in this) {
         if (filter(element)) {
             destinationMap += transform(element)
@@ -18,9 +18,9 @@ inline fun <T, K, V, M : MutableMap<in K, in V>> Iterable<T>.toMapWithFilter(des
     return destinationMap
 }
 
-inline fun <T, K, V> Iterable<T>.toMapWithFilter(filter: (t: T) -> Boolean, transform: (t: T) -> Pair<K, V>): Map<K, V> = this.toMapWithFilter(mutableMapOf(), filter, transform)
+inline fun <T, K, V> Iterable<T>.toMapWithFilter(filter: (item: T) -> Boolean, transform: (item: T) -> Pair<K, V>): Map<K, V> = this.toMapWithFilter(mutableMapOf(), filter, transform)
 
-inline fun <T, K, V> Iterable<T>.toMapWithIndex(transform: (index: Int, t: T) -> Pair<K, V>): Map<K, V> {
+inline fun <T, K, V> Iterable<T>.toMapWithIndex(transform: (index: Int, item: T) -> Pair<K, V>): Map<K, V> {
     val map = mutableMapOf<K, V>()
     this.forEachIndexed { index, t ->
         map += transform(index, t)
@@ -37,11 +37,11 @@ fun Iterable<String>.toByteArray(charset: Charset = Charsets.UTF_8): ByteArray {
     return byteArrayOutputStream.toByteArray()
 }
 
-inline fun <T, K> Iterable<T>.toKeyListAndMap(keySelector: (t: T) -> K): Pair<List<K>, Map<K, T>> {
+inline fun <T, K> Iterable<T>.toKeyListAndMap(keySelector: (item: T) -> K): Pair<List<K>, Map<K, T>> {
     return this.toKeyListAndMap(keySelector, keySelector)
 }
 
-inline fun <T, K, MK> Iterable<T>.toKeyListAndMap(keySelector: (t: T) -> K, mapKeySelector: (t: T) -> MK): Pair<List<K>, Map<MK, T>> {
+inline fun <T, K, MK> Iterable<T>.toKeyListAndMap(keySelector: (item: T) -> K, mapKeySelector: (item: T) -> MK): Pair<List<K>, Map<MK, T>> {
     val keyList = mutableListOf<K>()
     val map = mutableMapOf<MK, T>()
     this.forEach {
@@ -53,11 +53,11 @@ inline fun <T, K, MK> Iterable<T>.toKeyListAndMap(keySelector: (t: T) -> K, mapK
     return keyList to map
 }
 
-inline fun <T, K> Iterable<T>.toKeySetAndGroupBy(keySelector: (t: T) -> K): Pair<Set<K>, Map<K, List<T>>> {
+inline fun <T, K> Iterable<T>.toKeySetAndGroupBy(keySelector: (item: T) -> K): Pair<Set<K>, Map<K, List<T>>> {
     return this.toKeySetAndGroupBy(keySelector, keySelector)
 }
 
-inline fun <T, K, MK> Iterable<T>.toKeySetAndGroupBy(keySelector: (t: T) -> K, mapKeySelector: (t: T) -> MK): Pair<Set<K>, Map<MK, List<T>>> {
+inline fun <T, K, MK> Iterable<T>.toKeySetAndGroupBy(keySelector: (item: T) -> K, mapKeySelector: (item: T) -> MK): Pair<Set<K>, Map<MK, List<T>>> {
     val keySet = mutableSetOf<K>()
     val map = mutableMapOf<MK, MutableList<T>>()
     this.forEach {
@@ -72,7 +72,7 @@ inline fun <T, K, MK> Iterable<T>.toKeySetAndGroupBy(keySelector: (t: T) -> K, m
 
 inline fun <T, K, R> Iterable<T>.groupByWithIndex(keySelector: (T) -> K, valueTransform: (index: Int, T) -> R) = groupByToWithIndex(mutableMapOf(), keySelector, valueTransform)
 
-inline fun <T, K, R, M : MutableMap<in K, MutableList<R>>> Iterable<T>.groupByToWithIndex(destination: M, keySelector: (T) -> K, valueTransform: (index: Int, T) -> R): M {
+inline fun <T, K, R, M : MutableMap<in K, MutableList<R>>> Iterable<T>.groupByToWithIndex(destination: M, keySelector: (item: T) -> K, valueTransform: (index: Int, T) -> R): M {
     this.forEachIndexed { index: Int, element: T ->
         val key = keySelector(element)
         val list = destination.getOrPut(key) { mutableListOf() }
@@ -81,7 +81,7 @@ inline fun <T, K, R, M : MutableMap<in K, MutableList<R>>> Iterable<T>.groupByTo
     return destination
 }
 
-inline fun <T, K, V> Iterable<T>.matchInMap(matchKeySelector: (t: T) -> K, sourceMap: Map<K, V>, ifMatch: (t: T, sourceMapItem: V) -> Unit, ifNotMatch: (t: T) -> Unit = {}) {
+inline fun <T, K, V> Iterable<T>.matchInMap(matchKeySelector: (item: T) -> K, sourceMap: Map<K, V>, ifMatch: (item: T, sourceMapItem: V) -> Unit, ifNotMatch: (item: T) -> Unit = {}) {
     this.forEach {
         val key = matchKeySelector(it)
         val value = sourceMap[key]
@@ -121,7 +121,7 @@ fun <T, K> Iterable<T>.differs(compareIterable: Iterable<T>, keySelector: (value
     return valueList
 }
 
-inline fun <T, R> Iterable<T>.toHashSet(transform: (t: T) -> R): Set<R> {
+inline fun <T, R> Iterable<T>.toHashSet(transform: (item: T) -> R): Set<R> {
     val hashSet = HashSet<R>()
     this.forEach {
         hashSet += transform(it)
@@ -129,7 +129,7 @@ inline fun <T, R> Iterable<T>.toHashSet(transform: (t: T) -> R): Set<R> {
     return hashSet
 }
 
-inline fun <T, R : Any> Iterable<T>.mapWithFilter(filter: (t: T) -> Boolean, transform: (t: T) -> R): List<R> {
+inline fun <T, R : Any> Iterable<T>.mapWithFilter(filter: (item: T) -> Boolean, transform: (item: T) -> R): List<R> {
     return this.mapNotNull {
         if (!filter(it)) {
             null
@@ -170,7 +170,7 @@ inline fun <T, K, ST> Iterable<T>.fillWithSlaveIterable(keySelector: (T) -> K, s
     }
 }
 
-fun <T, K> Iterable<T>.groupByMultiKeySelector(keySelectorArray: Array<(T) -> K>): Array<Map<K, List<T>>> {
+fun <T, K> Iterable<T>.groupByMultiKeySelector(keySelectorArray: Array<(item: T) -> K>): Array<Map<K, List<T>>> {
     val mapArray = Array<MutableMap<K, MutableList<T>>>(keySelectorArray.size) { mutableMapOf() }
     this.forEach { element: T ->
         mapArray.forEachIndexed { index, mutableMap ->
