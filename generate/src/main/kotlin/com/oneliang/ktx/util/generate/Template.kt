@@ -50,7 +50,7 @@ object Template {
             logger.debug("template engine map size:%s, result:%s", templateEngineMap.size, result)
             return result
         } catch (e: Exception) {
-            logger.error(Constants.Base.EXCEPTION, e)
+            logger.error(Constants.String.EXCEPTION, e)
             return templateContent
         }
     }
@@ -69,7 +69,7 @@ object Template {
             val toFileByteArray = result.toByteArray(Charsets.UTF_8)
             FileUtil.writeFile(toFullFilename, toFileByteArray)
         } catch (e: Exception) {
-            logger.error(Constants.Base.EXCEPTION, e)
+            logger.error(Constants.String.EXCEPTION, e)
         }
     }
 

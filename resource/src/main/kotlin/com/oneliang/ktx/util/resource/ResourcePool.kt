@@ -160,7 +160,7 @@ abstract class ResourcePool<T : Any> : Runnable {
                         this.stableResourceLock.lock()
                         realDestroyStableResource(stableResourceStatusKey, stableResource)
                     } catch (e: Throwable) {
-                        logger.error(Constants.Base.EXCEPTION, e)
+                        logger.error(Constants.String.EXCEPTION, e)
                     } finally {
                         this.stableResourceLock.unlock()
                     }
@@ -194,7 +194,7 @@ abstract class ResourcePool<T : Any> : Runnable {
                         this.resourceLock.lock()
                         realDestroyResource(index, resource)
                     } catch (e: Throwable) {
-                        logger.error(Constants.Base.EXCEPTION, e)
+                        logger.error(Constants.String.EXCEPTION, e)
                     } finally {
                         this.resourceLock.unlock()
                     }
@@ -259,7 +259,7 @@ abstract class ResourcePool<T : Any> : Runnable {
         try {
             destroyResource(resource)
         } catch (e: Throwable) {
-            logger.error(Constants.Base.EXCEPTION, e)
+            logger.error(Constants.String.EXCEPTION, e)
         }
         this.resourceStatusArray[index] = null
         this.resourceCurrentSize--
@@ -272,7 +272,7 @@ abstract class ResourcePool<T : Any> : Runnable {
         try {
             destroyResource(resource)
         } catch (e: Throwable) {
-            logger.error(Constants.Base.EXCEPTION, e)
+            logger.error(Constants.String.EXCEPTION, e)
         } finally {
             this.stableResourceStatusMap.remove(stableResourceKey)
         }
@@ -292,7 +292,7 @@ abstract class ResourcePool<T : Any> : Runnable {
                 logger.debug("need to interrupt:" + e.message)
                 Thread.currentThread().interrupt()
             } catch (e: Throwable) {
-                logger.error(Constants.Base.EXCEPTION, e)
+                logger.error(Constants.String.EXCEPTION, e)
             }
         }
     }

@@ -81,7 +81,7 @@ class ThreadPool : Runnable {
                 Thread.currentThread().interrupt()
                 break
             } catch (e: Exception) {
-                logger.error(Constants.Base.EXCEPTION, e)
+                logger.error(Constants.String.EXCEPTION, e)
             }
 
         }
@@ -278,7 +278,7 @@ class ThreadPool : Runnable {
                     Thread.currentThread().interrupt()
                     break
                 } catch (t: Throwable) {
-                    logger.error(Constants.Base.EXCEPTION, t)
+                    logger.error(Constants.String.EXCEPTION, t)
                 }
             }
         }
@@ -353,7 +353,7 @@ class ThreadPool : Runnable {
                     Thread.currentThread().interrupt()
                     break
                 } catch (e: Exception) {
-                    logger.error(Constants.Base.EXCEPTION, e)
+                    logger.error(Constants.String.EXCEPTION, e)
                 }
 
             }

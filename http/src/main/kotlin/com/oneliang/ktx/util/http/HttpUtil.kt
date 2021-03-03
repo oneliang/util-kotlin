@@ -29,7 +29,7 @@ object HttpUtil {
             try {
                 result = String(byteArray, Charset.forName(returnEncoding))
             } catch (e: UnsupportedEncodingException) {
-                logger.error(Constants.Base.EXCEPTION, e)
+                logger.error(Constants.String.EXCEPTION, e)
             }
         }
         return result
@@ -54,7 +54,7 @@ object HttpUtil {
             }
 
             override fun exceptionCallback(throwable: Throwable) {
-                logger.error(Constants.Base.EXCEPTION, throwable)
+                logger.error(Constants.String.EXCEPTION, throwable)
             }
 
             @Throws(Throwable::class)
@@ -99,7 +99,7 @@ object HttpUtil {
             }
 
             override fun exceptionCallback(throwable: Throwable) {
-                logger.error(Constants.Base.EXCEPTION, throwable)
+                logger.error(Constants.String.EXCEPTION, throwable)
             }
 
             @Throws(Throwable::class)
@@ -115,7 +115,7 @@ object HttpUtil {
             try {
                 result = String(byteArray, Charset.forName(returnEncoding))
             } catch (e: UnsupportedEncodingException) {
-                logger.error(Constants.Base.EXCEPTION, e)
+                logger.error(Constants.String.EXCEPTION, e)
             }
         }
         return result
@@ -150,7 +150,7 @@ object HttpUtil {
             try {
                 result = String(tempByteArray, Charsets.UTF_8)
             } catch (e: UnsupportedEncodingException) {
-                logger.error(Constants.Base.EXCEPTION, e)
+                logger.error(Constants.String.EXCEPTION, e)
             }
         }
         return result
@@ -176,7 +176,7 @@ object HttpUtil {
             }
 
             override fun exceptionCallback(throwable: Throwable) {
-                logger.error(Constants.Base.EXCEPTION, throwable)
+                logger.error(Constants.String.EXCEPTION, throwable)
             }
 
             @Throws(Throwable::class)
@@ -247,7 +247,7 @@ object HttpUtil {
             }
 
             override fun exceptionCallback(throwable: Throwable) {
-                logger.error(Constants.Base.EXCEPTION, throwable)
+                logger.error(Constants.String.EXCEPTION, throwable)
             }
 
             @Throws(Throwable::class)
@@ -263,7 +263,7 @@ object HttpUtil {
             try {
                 result = String(byteArray, Charset.forName(returnEncoding))
             } catch (e: UnsupportedEncodingException) {
-                logger.error(Constants.Base.EXCEPTION, e)
+                logger.error(Constants.String.EXCEPTION, e)
             }
 
         }

@@ -1,9 +1,6 @@
 package com.oneliang.ktx
 
 object Constants {
-    object Base {
-        const val EXCEPTION = "exception"
-    }
 
     object Time {
         const val MILLISECONDS_OF_SECOND = 1000L
@@ -39,6 +36,7 @@ object Constants {
     }
 
     object String {
+        const val EXCEPTION = "exception"
         const val BLANK = ""
         const val SPACE = " "
         const val CRLF_STRING = "\r\n"

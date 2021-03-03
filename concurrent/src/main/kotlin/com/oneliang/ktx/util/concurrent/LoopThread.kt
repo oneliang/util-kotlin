@@ -19,7 +19,7 @@ abstract class LoopThread : Runnable {
                 Thread.currentThread().interrupt()
                 break
             } catch (e: Throwable) {
-                logger.error(Constants.Base.EXCEPTION, e)
+                logger.error(Constants.String.EXCEPTION, e)
             }
         }
     }
