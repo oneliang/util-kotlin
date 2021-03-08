@@ -1,4 +1,4 @@
-package com.oneliang.ktx.util.math
+package com.oneliang.ktx.util.math.operate
 
 import com.oneliang.ktx.util.common.parseRegexGroup
 import com.oneliang.ktx.util.common.toDoubleSafely

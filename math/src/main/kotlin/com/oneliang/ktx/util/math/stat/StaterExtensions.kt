@@ -1,4 +1,4 @@
-package com.oneliang.ktx.util.math
+package com.oneliang.ktx.util.math.stat
 
 fun <K , V > Map<K, V>.stat(functionString: String, statKeyTransform: (key: String) -> K) = Stater.stat(this, functionString, statKeyTransform)
 

@@ -1,4 +1,4 @@
-package com.oneliang.ktx.util.math
+package com.oneliang.ktx.util.math.check
 
 object Checker {
     enum class CheckType(val value: Int) {

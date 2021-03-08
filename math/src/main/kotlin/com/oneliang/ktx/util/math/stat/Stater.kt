@@ -1,4 +1,4 @@
-package com.oneliang.ktx.util.math
+package com.oneliang.ktx.util.math.stat
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.*

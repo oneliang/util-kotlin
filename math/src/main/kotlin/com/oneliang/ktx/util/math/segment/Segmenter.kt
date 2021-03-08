@@ -1,4 +1,4 @@
-package com.oneliang.ktx.util.math
+package com.oneliang.ktx.util.math.segment
 
 import com.oneliang.ktx.util.common.forEachWithIndex
 import com.oneliang.ktx.util.logging.LoggerManager

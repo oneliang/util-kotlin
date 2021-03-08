@@ -1,6 +1,6 @@
 package com.oneliang.ktx.util.test
 
-import com.oneliang.ktx.util.math.Segmenter
+import com.oneliang.ktx.util.math.segment.Segmenter
 
 fun main() {
 //    System.setOut(PrintStream(FileOutputStream(File("/D:/log.txt"))))
