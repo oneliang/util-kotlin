@@ -49,3 +49,19 @@ inline fun <T, reified R> Array<T>.toNewArrayWithIndex(transform: (index: Int, t
 inline fun <T, reified R> Array<T>.toNewArray(transform: (T) -> R): Array<R> {
     return this.toNewArrayWithIndex { _, t -> transform(t) }
 }
+
+inline fun <T> Array<T>.sumByIndexed(selector: (index: Int, item: T) -> Int): Int {
+    var sum = 0
+    this.forEachIndexed { index, item ->
+        sum += selector(index, item)
+    }
+    return sum
+}
+
+inline fun <T> Array<T>.sumByDoubleIndexed(selector: (index: Int, item: T) -> Double): Double {
+    var sum = 0.0
+    this.forEachIndexed { index, item ->
+        sum += selector(index, item)
+    }
+    return sum
+}

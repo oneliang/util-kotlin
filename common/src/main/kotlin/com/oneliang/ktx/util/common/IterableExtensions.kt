@@ -144,7 +144,15 @@ inline fun <T, R : Any> Iterable<T>.mapWithFilter(filter: (item: T) -> Boolean, 
     }
 }
 
-inline fun <T> Iterable<T>.sumByLong(selector: (T) -> Long): Long {
+inline fun <T> Iterable<T>.sumByDoubleIndexed(selector: (index: Int, item: T) -> Double): Double {
+    var sum = 0.0
+    for ((index, element) in this.withIndex()) {
+        sum += selector(index, element)
+    }
+    return sum
+}
+
+inline fun <T> Iterable<T>.sumByLong(selector: (item: T) -> Long): Long {
     var sum = 0L
     for (element in this) {
         sum += selector(element)
@@ -152,10 +160,26 @@ inline fun <T> Iterable<T>.sumByLong(selector: (T) -> Long): Long {
     return sum
 }
 
-inline fun <T> Iterable<T>.sumByBigDecimal(selector: (T) -> BigDecimal): BigDecimal {
-    var sum = BigDecimal(Constants.String.ZERO)
+inline fun <T> Iterable<T>.sumByLongIndexed(selector: (index: Int, item: T) -> Long): Long {
+    var sum = 0L
+    for ((index, element) in this.withIndex()) {
+        sum += selector(index, element)
+    }
+    return sum
+}
+
+inline fun <T> Iterable<T>.sumByBigDecimal(selector: (item: T) -> BigDecimal): BigDecimal {
+    var sum = BigDecimal(0)
     for (element in this) {
         sum += selector(element)
+    }
+    return sum
+}
+
+inline fun <T> Iterable<T>.sumByBigDecimalIndexed(selector: (index: Int, item: T) -> BigDecimal): BigDecimal {
+    var sum = BigDecimal(0)
+    for ((index, element) in this.withIndex()) {
+        sum += selector(index, element)
     }
     return sum
 }
