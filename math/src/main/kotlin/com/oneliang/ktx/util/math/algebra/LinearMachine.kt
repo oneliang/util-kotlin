@@ -5,20 +5,24 @@ import com.oneliang.ktx.util.logging.LoggerManager
 object LinearMachine {
     private val logger = LoggerManager.getLogger(LinearMachine::class)
 
-    fun study(batching: Batching, weightArray: Array<Double>, learningRate: Double, times: Int): Array<Double> {
+    fun study(batching: Batching, weightArray: Array<Double>, learningRate: Double, times: Int, printPeriod: Int = 500): Array<Double> {
+        if (weightArray.isEmpty()) {
+            error("weight array is empty")
+        }
         val newWeightArray = weightArray.copyOf()
-        for (i in 1..times) {
+        for (count in 1..times) {
             var totalDataSize = 0L
             var totalCalculateY = 0.0
             var totalY = 0.0
             val weightGrad = Array(newWeightArray.size) { 0.0 }
             var totalLoss = 0.0
             while (true) {
-                val inputDataList = batching.fetch()
-                if (inputDataList.isEmpty()) {
+                val result = batching.fetch()
+                if (result.finished) {
                     batching.reset()
                     break
                 }
+                val inputDataList = result.dataList
                 totalDataSize += inputDataList.size
                 totalLoss += inputDataList.sumByDouble { item ->
                     val (y, xArray) = item
@@ -36,7 +40,9 @@ object LinearMachine {
             newWeightArray.forEachIndexed { index, weight ->
                 newWeightArray[index] = weight - (learningRate * weightGrad[index]) / totalDataSize
             }
-            logger.debug("times:%s, total loss:%s, weight array:%s", i, totalLoss, newWeightArray.joinToString())
+            if (count % printPeriod == 0) {
+                logger.debug("times:%s, total loss:%s, weight array:%s", count, totalLoss, newWeightArray.joinToString())
+            }
         }
         logger.debug("newest weight array:%s", newWeightArray.joinToString())
         return newWeightArray
@@ -44,11 +50,12 @@ object LinearMachine {
 
     fun test(batching: Batching, weightArray: Array<Double>) {
         while (true) {
-            val inputDataList = batching.fetch()
-            if (inputDataList.isEmpty()) {
+            val result = batching.fetch()
+            if (result.finished) {
                 logger.warning("Data is empty. Batch may be finished")
                 break
             }
+            val inputDataList = result.dataList
             inputDataList.forEach { item ->
                 val (y, xArray) = item
                 val calculateY = LinearFunction.linear(xArray, weightArray)

@@ -4,5 +4,7 @@ abstract class Batching(open val batchSize: Int) {
 
     abstract fun reset()
 
-    abstract fun fetch(): List<Pair<Double, Array<Double>>>
+    abstract fun fetch(): Result
+
+    class Result(var finished: Boolean = false, var dataList: List<Pair<Double, Array<Double>>> = emptyList())
 }

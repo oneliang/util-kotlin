@@ -16,7 +16,7 @@ object LinearFunction {
                 weightArray
             }
             else -> {
-                error("x array size must be equal weight array size")
+                error("x array size must be equal weight array size, x array size:%s, weight array size:%s".format(xArray.size, weightArray.size))
             }
         }
         return xArray.sumByDoubleIndexed { index, item ->

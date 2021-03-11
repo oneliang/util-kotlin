@@ -18,11 +18,9 @@ class TestBatching(override val batchSize: Int) : Batching(batchSize) {
 
     }
 
-    private var fetchTimes = 0
     private var lineCount = 0
     override fun reset() {
-        this.fetchTimes = 0
-        lineCount = 0
+        this.lineCount = 0
         this.reader = File("/C:/Users/Administrator/Desktop/temp/data.csv").bufferedReader()
     }
 
@@ -31,7 +29,7 @@ class TestBatching(override val batchSize: Int) : Batching(batchSize) {
         return rowDataList[0].toDouble() to arrayOf(rowDataList[1].toDouble(), rowDataList[2].toDouble())
     }
 
-    override fun fetch(): List<Pair<Double, Array<Double>>> {
+    override fun fetch(): Result {
         var currentLineCount = 0
         var line = reader.readLine() ?: null
         val dataList = mutableListOf<Pair<Double, Array<Double>>>()
@@ -46,7 +44,10 @@ class TestBatching(override val batchSize: Int) : Batching(batchSize) {
             }
             line = reader.readLine() ?: null
         }
-        fetchTimes++
-        return dataList
+        return if (dataList.isEmpty()) {
+            Result(true)
+        } else {
+            Result(false, dataList)
+        }
     }
 }
