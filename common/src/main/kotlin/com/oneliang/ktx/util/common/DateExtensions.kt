@@ -15,7 +15,7 @@ fun Long.getZeroTime(modulusTime: Long): Long {
     val timeZoneMilliSecondOffset = TimeZoneUtil.getTimeZoneMilliSecondOffset()
     val currentTimeZoneTime = currentTime + timeZoneMilliSecondOffset
     val retainTime = currentTimeZoneTime % modulusTime//current time zone time
-    return currentTimeZoneTime - retainTime - timeZoneMilliSecondOffset//recovery to 0 time zone
+    return currentTime - retainTime//recovery to 0 time zone
 }
 
 fun Long.getDayZeroTime(): Long {
