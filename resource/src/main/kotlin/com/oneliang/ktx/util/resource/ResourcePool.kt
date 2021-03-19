@@ -129,7 +129,6 @@ abstract class ResourcePool<T : Any> : Runnable {
         try {
             this.initializeLock.lock()
             if (this.hasBeenInitialized) {//double check
-                this.initializeLock.unlock()
                 return//return will trigger finally, but use unlock safety
             }
             this.resourceStatusArray = arrayOfNulls<ResourceStatus<T>?>(this.maxResourceSize)
