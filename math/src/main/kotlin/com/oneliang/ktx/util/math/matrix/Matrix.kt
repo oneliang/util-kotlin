@@ -1,6 +1,7 @@
 package com.oneliang.ktx.util.math.matrix
 
 import com.oneliang.ktx.Constants
+import com.oneliang.ktx.util.common.sumByDoubleIndexed
 
 fun matrixAdd(aMatrix: Array<Array<Double>>, bMatrix: Array<Array<Double>>, negative: Boolean = false): Array<Array<Double>> {
     if (aMatrix.isEmpty() || bMatrix.isEmpty()) {
@@ -29,17 +30,6 @@ fun Array<Array<Double>>.add(bMatrix: Array<Array<Double>>): Array<Array<Double>
 
 fun Array<Array<Double>>.minus(bMatrix: Array<Array<Double>>): Array<Array<Double>> = matrixMinus(this, bMatrix)
 
-fun matrixMultiply(aMatrix: Array<Array<Double>>, bMatrix: Array<Array<Double>>): Array<Array<Double>> {
-    if (aMatrix.isEmpty() || bMatrix.isEmpty()) {
-        return emptyArray()
-    }
-    val resultMatrix = Array(aMatrix.size) { Array(bMatrix[0].size) { 0.0 } }
-    for (y in resultMatrix.indices) {
-        resultMatrix[y] = aMatrix[y].multiply(bMatrix)
-    }
-    return resultMatrix
-}
-
 fun matrixMultiply(aMatrix: Array<Double>, bMatrix: Array<Array<Double>>): Array<Double> {
     if (aMatrix.isEmpty() || bMatrix.isEmpty()) {
         return emptyArray()
@@ -54,9 +44,46 @@ fun matrixMultiply(aMatrix: Array<Double>, bMatrix: Array<Array<Double>>): Array
     return resultMatrix
 }
 
+fun matrixMultiply(aMatrix: Array<Array<Double>>, bMatrix: Array<Array<Double>>): Array<Array<Double>> {
+    if (aMatrix.isEmpty() || bMatrix.isEmpty()) {
+        return emptyArray()
+    }
+    val resultMatrix = Array(aMatrix.size) { Array(bMatrix[0].size) { 0.0 } }
+    for (y in resultMatrix.indices) {
+        resultMatrix[y] = aMatrix[y].multiply(bMatrix)
+    }
+    return resultMatrix
+}
+
 fun Array<Double>.multiply(bMatrix: Array<Array<Double>>): Array<Double> = matrixMultiply(this, bMatrix)
 
 fun Array<Array<Double>>.multiply(bMatrix: Array<Array<Double>>): Array<Array<Double>> = matrixMultiply(this, bMatrix)
+
+fun Array<Double>.innerProduct(bMatrix: Array<Double>): Double {
+    if (this.isEmpty() || bMatrix.isEmpty()) {
+        return 0.0
+    }
+    if (this.size != bMatrix.size) {
+        error("matrix size not match")
+    }
+    return this.sumByDoubleIndexed { index, item ->
+        item + bMatrix[index]
+    }
+}
+
+fun Array<Array<Double>>.innerProduct(bMatrix: Array<Array<Double>>): Double {
+    if (this.isEmpty() || bMatrix.isEmpty()) {
+        return 0.0
+    }
+    if (this.size != bMatrix.size || this[0].size != bMatrix[0].size) {
+        error("matrix size not match")
+    }
+    return this.sumByDoubleIndexed { rowIndex, row ->
+        row.sumByDoubleIndexed { columnIndex, item ->
+            item + bMatrix[rowIndex][columnIndex]
+        }
+    }
+}
 
 fun main() {
     val aMatrix = arrayOf(arrayOf(1.0, 3.0, 2.0), arrayOf(4.0, 0.0, 1.0))
