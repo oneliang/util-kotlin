@@ -67,7 +67,7 @@ fun Array<Double>.innerProduct(bMatrix: Array<Double>): Double {
         error("matrix size not match")
     }
     return this.sumByDoubleIndexed { index, item ->
-        item + bMatrix[index]
+        item * bMatrix[index]
     }
 }
 
@@ -80,7 +80,7 @@ fun Array<Array<Double>>.innerProduct(bMatrix: Array<Array<Double>>): Double {
     }
     return this.sumByDoubleIndexed { rowIndex, row ->
         row.sumByDoubleIndexed { columnIndex, item ->
-            item + bMatrix[rowIndex][columnIndex]
+            item * bMatrix[rowIndex][columnIndex]
         }
     }
 }
