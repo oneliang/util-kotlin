@@ -1,5 +1,6 @@
 package com.oneliang.ktx.util.math.matrix
 
+import com.oneliang.ktx.util.common.doubleIteration
 import com.oneliang.ktx.util.common.sumByDoubleIndexed
 
 fun matrixAdd(aMatrix: Array<Array<Double>>, bMatrix: Array<Array<Double>>, negative: Boolean = false): Array<Array<Double>> {
@@ -59,43 +60,52 @@ fun Array<Double>.multiply(bMatrix: Array<Array<Double>>, transform: (result: Do
 
 fun Array<Array<Double>>.multiply(bMatrix: Array<Array<Double>>, transform: (result: Double) -> Double = { it }): Array<Array<Double>> = matrixMultiply(this, bMatrix, transform)
 
-fun Array<Double>.innerProduct(bMatrix: Array<Double>): Double {
+fun Array<Double>.innerProduct(bMatrix: Array<Double>, columnOffset: Int = 0): Double {
     if (this.isEmpty() || bMatrix.isEmpty()) {
         return 0.0
     }
-    if (this.size != bMatrix.size) {
-        error("matrix size not match")
+    if ((this.size - columnOffset) != bMatrix.size) {
+        error("matrix size not match, this size:%s, column offset:%s, matrix size:%s".format(this.size, columnOffset, bMatrix.size))
     }
     return this.sumByDoubleIndexed { index, item ->
         item * bMatrix[index]
     }
 }
 
-fun Array<Array<Double>>.innerProduct(bMatrix: Array<Array<Double>>): Double {
+fun Array<Array<Double>>.innerProduct(bMatrix: Array<Array<Double>>, rowOffset: Int = 0, columnOffset: Int = 0): Double {
     if (this.isEmpty() || bMatrix.isEmpty()) {
         return 0.0
     }
-    if (this.size != bMatrix.size || this[0].size != bMatrix[0].size) {
-        error("matrix size not match")
+    if (this.size < bMatrix.size || this[0].size < bMatrix[0].size) {
+        error("this size is smaller than matrix size, this size:%s, matrix size:%s, this[0] size:%s, matrix[0] size:%s".format(this.size, bMatrix.size, this[0].size, bMatrix[0].size))
     }
-    return this.sumByDoubleIndexed { rowIndex, row ->
-        row.sumByDoubleIndexed { columnIndex, item ->
-            item * bMatrix[rowIndex][columnIndex]
-        }
+    if (rowOffset > (this.size - bMatrix.size)) {
+        error("row offset out of range, index:%s, this size:%s, matrix size:%s".format(rowOffset, this.size, bMatrix.size))
     }
+    if (columnOffset > (this[0].size - bMatrix[0].size)) {
+        error("row offset out of range, index:%s, this size:%s, matrix size:%s".format(rowOffset, this.size, bMatrix.size))
+    }
+    var result = 0.0
+    doubleIteration(bMatrix.size, bMatrix[0].size) { rowIndex, columnIndex ->
+        result += this[rowIndex + rowOffset][columnIndex + columnOffset] * bMatrix[rowIndex][columnIndex]
+    }
+    return result
 }
 
 fun main() {
 //    f:-0.733928,w:1.0
 //    f:9.098687,w:1.0
 //    f:1.0,w:1.0
-    val aMatrix = arrayOf(-0.733928, 9.098687, 1.0)
-    val bMatrix = arrayOf(arrayOf(1.0), arrayOf(1.0), arrayOf(1.0))
+//    val aMatrix = arrayOf(-0.733928, 9.098687, 1.0)
+    val aMatrix = arrayOf(arrayOf(1.0, 2.0, 3.0), arrayOf(1.0, 2.0, 3.0), arrayOf(1.0, 2.0, 3.0))
+    val bMatrix = arrayOf(arrayOf(1.0, 2.0), arrayOf(1.0, 2.0))
     val resultMatrix = matrixMultiply(aMatrix, bMatrix)
-    resultMatrix.forEach { row ->
+//    resultMatrix.forEach { row ->
 //        row.forEach {
 //            print(it.toString() + Constants.String.TAB_STRING)
 //        }
-        println(row)
-    }
+//        println(row)
+//    }
+    println(aMatrix.innerProduct(bMatrix,1,1))
+
 }

@@ -16,3 +16,17 @@ inline fun <R> perform(block: () -> R): R {
  * hash, use Objects.hash
  */
 fun hash(vararg values: Any?) = Objects.hash(*values)
+
+fun singleIteration(times: Int, block: (i: Int) -> Unit) {
+    for (i in 0 until times) {
+        block(i)
+    }
+}
+
+fun doubleIteration(outerTimes: Int, innerTimes: Int, block: (outer: Int, inner: Int) -> Unit) {
+    for (outer in 0 until outerTimes) {
+        for (inner in 0 until innerTimes) {
+            block(outer, inner)
+        }
+    }
+}
