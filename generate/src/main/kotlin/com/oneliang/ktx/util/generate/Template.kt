@@ -26,7 +26,7 @@ object Template {
             var json: String = Constants.String.BLANK
             val instance = option.instance
             if (instance != null) {
-                json = instance.toJson(option.jsonProcessor)
+                json = instance.toJson(jsonProcessor = option.jsonProcessor)
             } else {
                 if (option.json.isNotBlank()) {
                     json = option.json
