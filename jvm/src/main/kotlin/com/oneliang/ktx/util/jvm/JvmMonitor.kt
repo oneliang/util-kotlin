@@ -38,7 +38,7 @@ class JvmMonitor : LoopThread {
         val heapSizeM = heapSize / Constants.Capacity.BYTES_PER_MB
         val heapMaxSizeM = heapMaxSize / Constants.Capacity.BYTES_PER_MB
         //			    long heapFreeSizeM=heapFreeSize/Constant.Capacity.BYTES_PER_MB;
-        val currentPercent = (heapSizeM.toDouble() / heapMaxSizeM * 100).toShort()
+        val currentPercent = (heapSizeM.toDouble() / heapMaxSizeM * 100).toInt()
         if (currentPercent >= this.percent) {
             Runtime.getRuntime().gc()
         }
