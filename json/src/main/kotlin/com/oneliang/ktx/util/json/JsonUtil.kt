@@ -364,7 +364,7 @@ object JsonUtil {
      * jsonArray to list
      * @param <T>
      * @param jsonArray
-     * @param kClass
+     * @param kClass may be array component class
      * @param classProcessor
      * @param ignoreFirstLetterCase
      * @param ignoreFieldNameArray
@@ -379,13 +379,12 @@ object JsonUtil {
             if (jsonArrayItem is JsonObject) {
                 list.add(jsonObjectToObject(jsonArrayItem, kClass, classProcessor, ignoreFirstLetterCase, ignoreFieldNameArray))
             } else if (jsonArrayItem is JsonArray) {
-                val subArrayLength = jsonArrayItem.length()
-                val stringArray = Array(subArrayLength) { Constants.String.BLANK }
-                for (j in 0 until subArrayLength) {
-                    val subJsonArrayItem = jsonArrayItem.get(j)
-                    stringArray[j] = subJsonArrayItem.toString()
+                //last depth, so spread the data, only base array and simple array use
+                if (KotlinClassUtil.isBaseArray(kClass) || KotlinClassUtil.isSimpleArray(kClass)) {
+                    list.add(jsonArrayToArray(jsonArrayItem, kClass, Constants.String.BLANK, classProcessor) as T)
+                } else {
+                    list.add(classProcessor.changeClassProcess(kClass, arrayOf(jsonArrayItem.toString()), Constants.String.BLANK) as T)
                 }
-                list.add(classProcessor.changeClassProcess(kClass, stringArray, Constants.String.BLANK) as T)
             }
         }
         return list

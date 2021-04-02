@@ -6,19 +6,22 @@ import java.util.*
 
 
 fun main() {
-    val testJson = "{b:'',g:'',d:'{}'}"
-    val testJsonBean = testJson.jsonToObject(JsonBean::class,ignoreFieldNameArray = arrayOf("d"))
-    println(testJsonBean.toJson())
-    return
+//    val testJson = "{b:'',g:'',d:'{}'}"
+//    val testJsonBean = testJson.jsonToObject(JsonBean::class, ignoreFieldNameArray = arrayOf("d"))
+//    println(testJsonBean.toJson())
+    val jsonBean1 = JsonBean()
+    val jsonBean1Json = jsonBean1.toJson()
+    println("to json:$jsonBean1Json")
+    println("from json:" + jsonBean1Json.jsonToObject(JsonBean::class).toJson())
     val string = "{\"productTypeCode\":\"STEEL\",\"optionArray\":[{\"key\":\"STEEL_P_SURFACE_PROCESS_TYPE\",\"value\":\"SB砂\"}]}"
     val aString = "{\"count\":2,\"orderNumberSet\":[\"20200302092031074000\",\"20200302151531057000\"],\"totalPrice\":55184.28,\"totalWeight\":6.924,\"orderCount\":2}"
     val a = arrayOf(arrayOf("a"))
     val testString = JsonBean().also {
-        it.b = "{\"aa\":\"\"b\"}"
+//        it.b = "{\"aa\":\"\"b\"}"
     }
     val testStringJson = testString.toJson()
     println(testStringJson)
-    println(testStringJson.jsonToObject(JsonBean::class).b)
+//    println(testStringJson.jsonToObject(JsonBean::class).b)
     return
     println(a.toJson())
     println(string.jsonToMap())
@@ -39,7 +42,7 @@ fun main() {
     array += JsonSubBean()
     println(array.toTypedArray().javaClass)
     val json = JsonUtil.objectToJson(JsonBean().apply {
-        b = "first line\r\nsecond line"
+//        b = "first line\r\nsecond line"
     }, emptyArray())
     println("json:$json")
     val jsonBean = json.jsonToObject(JsonBean::class)
