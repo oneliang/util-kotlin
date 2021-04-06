@@ -4,36 +4,63 @@ import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.doubleIteration
 import com.oneliang.ktx.util.common.sumByDoubleIndexed
 
-fun matrixAdd(aMatrix: Array<Array<Double>>, bMatrix: Array<Array<Double>>, negative: Boolean = false, results: Array<Array<Double>>? = null): Array<Array<Double>> {
+fun matrixOperate(
+    aMatrix: Array<Array<Double>>,
+    bMatrix: Array<Array<Double>>,
+    results: Array<Array<Double>>? = null,
+    resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result },
+    operate: (aValue: Double, bValue: Double) -> Double
+): Pair<Array<Array<Double>>, Double> {
+    var result = 0.0
     if (aMatrix.isEmpty() || bMatrix.isEmpty()) {
-        return emptyArray()
+        return emptyArray<Array<Double>>() to result
     }
     if (aMatrix.size != bMatrix.size || aMatrix[0].size != bMatrix[0].size) {
-        error("matrix size not match")
+        error("this size not equal matrix size, this size:%s, matrix size:%s, this[0] size:%s, matrix[0] size:%s".format(aMatrix.size, bMatrix.size, aMatrix[0].size, bMatrix[0].size))
     }
 
     val newResults = results ?: Array(aMatrix.size) { Array(aMatrix[0].size) { 0.0 } }
     for (i in newResults.indices) {
         for (j in newResults[i].indices) {
-            if (negative) {
-                newResults[i][j] = aMatrix[i][j] - bMatrix[i][j]
-            } else {
-                newResults[i][j] = aMatrix[i][j] + bMatrix[i][j]
-            }
+            newResults[i][j] = operate(aMatrix[i][j], bMatrix[i][j])
+            result = resultOperate(result, newResults[i][j])
         }
     }
-    return newResults
+    return newResults to result
 }
 
-fun matrixMinus(aMatrix: Array<Array<Double>>, bMatrix: Array<Array<Double>>, results: Array<Array<Double>>? = null): Array<Array<Double>> = matrixAdd(aMatrix, bMatrix, true, results)
+fun Array<Array<Double>>.operate(
+    bMatrix: Array<Array<Double>>,
+    results: Array<Array<Double>>? = null,
+    resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result },
+    operate: (aValue: Double, bValue: Double) -> Double
+): Pair<Array<Array<Double>>, Double> = matrixOperate(this, bMatrix, results, resultOperate, operate)
 
-fun Array<Array<Double>>.add(bMatrix: Array<Array<Double>>, results: Array<Array<Double>>? = null): Array<Array<Double>> = matrixAdd(this, bMatrix, false, results)
+fun matrixAdd(
+    aMatrix: Array<Array<Double>>,
+    bMatrix: Array<Array<Double>>,
+    results: Array<Array<Double>>? = null
+): Array<Array<Double>> = matrixOperate(aMatrix, bMatrix, results, operate = { aValue, bValue -> aValue + bValue }).first
+
+fun matrixMinus(
+    aMatrix: Array<Array<Double>>,
+    bMatrix: Array<Array<Double>>,
+    results: Array<Array<Double>>? = null
+): Array<Array<Double>> = matrixOperate(aMatrix, bMatrix, results, operate = { aValue, bValue -> aValue - bValue }).first
+
+fun Array<Array<Double>>.add(bMatrix: Array<Array<Double>>, results: Array<Array<Double>>? = null): Array<Array<Double>> = matrixAdd(this, bMatrix, results)
 
 fun Array<Array<Double>>.minus(bMatrix: Array<Array<Double>>, results: Array<Array<Double>>? = null): Array<Array<Double>> = matrixMinus(this, bMatrix, results)
 
-fun matrixMultiply(aMatrix: Array<Double>, bMatrix: Array<Array<Double>>, transform: (result: Double) -> Double = { it }): Array<Double> {
+fun matrixMultiply(
+    aMatrix: Array<Double>,
+    bMatrix: Array<Array<Double>>,
+    transform: (result: Double) -> Double = { it },
+    resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result }
+): Pair<Array<Double>, Double> {
+    var result = 0.0
     if (aMatrix.isEmpty() || bMatrix.isEmpty()) {
-        return emptyArray()
+        return emptyArray<Double>() to result
     }
 
     val resultMatrix = Array(bMatrix[0].size) { 0.0 }
@@ -42,38 +69,74 @@ fun matrixMultiply(aMatrix: Array<Double>, bMatrix: Array<Array<Double>>, transf
             resultMatrix[column] += aMatrix[bRow] * bMatrix[bRow][column]
         }
         resultMatrix[column] = transform(resultMatrix[column])//transform result
+        result = resultOperate(result, resultMatrix[column])
     }
-    return resultMatrix
+    return resultMatrix to result
 }
 
-fun matrixMultiply(aMatrix: Array<Array<Double>>, bMatrix: Array<Array<Double>>, transform: (result: Double) -> Double = { it }): Array<Array<Double>> {
+fun matrixMultiply(
+    aMatrix: Array<Array<Double>>,
+    bMatrix: Array<Array<Double>>,
+    transform: (result: Double) -> Double = { it },
+    resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result }
+): Pair<Array<Array<Double>>, Double> {
+    var result = 0.0
     if (aMatrix.isEmpty() || bMatrix.isEmpty()) {
-        return emptyArray()
+        return emptyArray<Array<Double>>() to result
     }
     val resultMatrix = Array(aMatrix.size) { Array(bMatrix[0].size) { 0.0 } }
     for (row in resultMatrix.indices) {
-        resultMatrix[row] = aMatrix[row].multiply(bMatrix, transform)
+        val (subResultMatrix, subResult) = aMatrix[row].multiply(bMatrix, transform, resultOperate)
+        resultMatrix[row] = subResultMatrix
+        result = resultOperate(result, subResult)
     }
-    return resultMatrix
+    return resultMatrix to result
 }
 
-fun Array<Double>.multiply(bMatrix: Array<Array<Double>>, transform: (result: Double) -> Double = { it }): Array<Double> = matrixMultiply(this, bMatrix, transform)
+fun Array<Double>.multiply(
+    bMatrix: Array<Array<Double>>,
+    transform: (result: Double) -> Double = { it },
+    resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result }
+): Pair<Array<Double>, Double> = matrixMultiply(this, bMatrix, transform, resultOperate)
 
-fun Array<Array<Double>>.multiply(bMatrix: Array<Array<Double>>, transform: (result: Double) -> Double = { it }): Array<Array<Double>> = matrixMultiply(this, bMatrix, transform)
+fun Array<Double>.multiply(
+    bMatrix: Array<Array<Double>>,
+    transform: (result: Double) -> Double = { it }
+): Array<Double> = matrixMultiply(this, bMatrix, transform).first
 
-fun Array<Array<Double>>.dotMultiply(bMatrix: Array<Array<Double>>): Array<Array<Double>> {
-    if (this.isEmpty() || bMatrix.isEmpty()) {
-        return emptyArray()
-    }
-    if (this.size != bMatrix.size || this[0].size != bMatrix[0].size) {
-        error("this size not equal matrix size, this size:%s, matrix size:%s, this[0] size:%s, matrix[0] size:%s".format(this.size, bMatrix.size, this[0].size, bMatrix[0].size))
-    }
-    val results = Array(this.size) { Array(this[0].size) { 0.0 } }
-    doubleIteration(bMatrix.size, bMatrix[0].size) { rowIndex, columnIndex ->
-        results[rowIndex][columnIndex] = this[rowIndex][columnIndex] * bMatrix[rowIndex][columnIndex]
-    }
-    return results
-}
+fun Array<Double>.multiplyAndOperate(
+    bMatrix: Array<Array<Double>>,
+    transform: (result: Double) -> Double = { it },
+    resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result }
+): Double = matrixMultiply(this, bMatrix, transform, resultOperate).second
+
+fun Array<Array<Double>>.multiply(
+    bMatrix: Array<Array<Double>>,
+    transform: (result: Double) -> Double = { it },
+    resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result }
+): Pair<Array<Array<Double>>, Double> = matrixMultiply(this, bMatrix, transform, resultOperate)
+
+fun Array<Array<Double>>.multiply(
+    bMatrix: Array<Array<Double>>,
+    transform: (result: Double) -> Double = { it }
+): Array<Array<Double>> = matrixMultiply(this, bMatrix, transform).first
+
+fun Array<Array<Double>>.multiplyAndOperate(
+    bMatrix: Array<Array<Double>>,
+    transform: (result: Double) -> Double = { it },
+    resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result }
+): Double = matrixMultiply(this, bMatrix, transform, resultOperate).second
+
+fun Array<Array<Double>>.dotMultiply(
+    bMatrix: Array<Array<Double>>,
+    results: Array<Array<Double>>? = null,
+    resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result },
+): Pair<Array<Array<Double>>, Double> = matrixOperate(this, bMatrix, results, resultOperate) { aValue, bValue -> aValue * bValue }
+
+fun Array<Array<Double>>.dotMultiply(
+    bMatrix: Array<Array<Double>>,
+    results: Array<Array<Double>>? = null
+): Array<Array<Double>> = matrixOperate(this, bMatrix, results, operate = { aValue, bValue -> aValue * bValue }).first
 
 fun Array<Double>.innerProduct(bMatrix: Array<Double>, columnOffset: Int = 0): Double {
     if (this.isEmpty() || bMatrix.isEmpty()) {
@@ -87,7 +150,7 @@ fun Array<Double>.innerProduct(bMatrix: Array<Double>, columnOffset: Int = 0): D
     }
 }
 
-fun Array<Array<Double>>.innerProduct(bMatrix: Array<Array<Double>>, rowOffset: Int = 0, columnOffset: Int = 0): Double {
+fun Array<Array<Double>>.innerOperate(bMatrix: Array<Array<Double>>, rowOffset: Int = 0, columnOffset: Int = 0, operate: (aValue: Double, bValue: Double) -> Double): Double {
     if (this.isEmpty() || bMatrix.isEmpty()) {
         return 0.0
     }
@@ -102,10 +165,12 @@ fun Array<Array<Double>>.innerProduct(bMatrix: Array<Array<Double>>, rowOffset: 
     }
     var result = 0.0
     doubleIteration(bMatrix.size, bMatrix[0].size) { rowIndex, columnIndex ->
-        result += this[rowIndex + rowOffset][columnIndex + columnOffset] * bMatrix[rowIndex][columnIndex]
+        result += operate(this[rowIndex + rowOffset][columnIndex + columnOffset], bMatrix[rowIndex][columnIndex])
     }
     return result
 }
+
+fun Array<Array<Double>>.innerProduct(bMatrix: Array<Array<Double>>, rowOffset: Int = 0, columnOffset: Int = 0): Double = this.innerOperate(bMatrix, rowOffset, columnOffset) { aValue: Double, bValue: Double -> aValue * bValue }
 
 fun Array<Array<Double>>.scaleToSmall(scale: Int): Array<Array<Double>> {
     if (this.size % scale != 0 || this[0].size % scale != 0) {

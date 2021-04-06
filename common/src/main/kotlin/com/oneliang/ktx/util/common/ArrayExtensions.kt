@@ -65,3 +65,17 @@ inline fun <T> Array<T>.sumByDoubleIndexed(selector: (index: Int, item: T) -> Do
     }
     return sum
 }
+
+inline fun <T> Array<T>.reset(block: (index: Int, item: T) -> T) {
+    this.forEachIndexed { index, item ->
+        this[index] = block(index, item)
+    }
+}
+
+fun Array<Double>.reset(value: Double) = this.reset { _, _ -> value }
+
+fun Array<Array<Double>>.reset(value: Double) = this.reset { _, item -> item.reset(value);item }
+
+fun Array<Array<Array<Double>>>.reset(value: Double) = this.reset { _, item -> item.reset(value);item }
+
+fun Array<Array<Array<Array<Double>>>>.reset(value: Double) = this.reset { _, item -> item.reset(value);item }
