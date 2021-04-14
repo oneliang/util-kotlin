@@ -36,12 +36,24 @@ class AtomicMap<K : Any, V> constructor() : AbstractMap<K, V>() {
         }
     }
 
-    fun remove(key: K): V? {
-        try {
+    private fun <T> lockOperate(operate: () -> T): T {
+        return try {
             this.lock.lock()
-            return this.map.remove(key)?.get()
+            operate()
         } finally {
             this.lock.unlock()
+        }
+    }
+
+    fun remove(key: K): V? {
+        return lockOperate {
+            this.map.remove(key)?.get()
+        }
+    }
+
+    fun clear() {
+        this.lockOperate {
+            this.map.clear()
         }
     }
 
