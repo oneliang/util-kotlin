@@ -63,6 +63,10 @@ fun matrixMultiply(
         return emptyArray<Double>() to result
     }
 
+    if (aMatrix.size != bMatrix.size) {//aMatrix columns must equal b matrix rows
+        error("matrix size not match, a matrix column size:%s, b matrix row size:%s".format(aMatrix.size, bMatrix.size))
+    }
+
     val resultMatrix = Array(bMatrix[0].size) { 0.0 }
     for (column in resultMatrix.indices) {
         for (bRow in bMatrix.indices) {
@@ -84,6 +88,11 @@ fun matrixMultiply(
     if (aMatrix.isEmpty() || bMatrix.isEmpty()) {
         return emptyArray<Array<Double>>() to result
     }
+
+    if (aMatrix[0].size != bMatrix.size) {//aMatrix columns must equal b matrix rows
+        error("matrix size not match, a matrix column size:%s, b matrix row size:%s".format(aMatrix[0].size, bMatrix.size))
+    }
+
     val resultMatrix = Array(aMatrix.size) { Array(bMatrix[0].size) { 0.0 } }
     for (row in resultMatrix.indices) {
         val (subResultMatrix, subResult) = aMatrix[row].multiply(bMatrix, transform, resultOperate)
