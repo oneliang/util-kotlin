@@ -127,6 +127,20 @@ fun <K, V> Map<K, V>.differs(map: Map<K, V>, valueComparator: (key: K, value: V,
     return list
 }
 
+fun <K, V> Map<K, V>.differsAccurate(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { _, value, mapValue -> value == mapValue }): Pair<List<K>, List<K>> {
+    val list = mutableListOf<K>()
+    val valueCompareKeyList = mutableListOf<K>()
+    this.forEach { (key, value) ->
+        val mapValue = map[key]
+        if (mapValue == null) {
+            list += key
+        } else if (!valueComparator(key, value, mapValue)) {
+            valueCompareKeyList += key
+        }
+    }
+    return list to valueCompareKeyList
+}
+
 fun <K, V> Map<K, V>.sameAs(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { _, value, mapValue -> value == mapValue }): Boolean = this.size == map.size && this.differs(map, valueComparator).isEmpty()
 
 fun <K, V> Map<K, V>.includes(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { _, value, mapValue -> value == mapValue }): Boolean = map.differs(this, valueComparator).isEmpty()
