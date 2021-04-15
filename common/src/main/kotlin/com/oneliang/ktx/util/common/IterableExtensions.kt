@@ -1,6 +1,5 @@
 package com.oneliang.ktx.util.common
 
-import com.oneliang.ktx.Constants
 import java.io.ByteArrayOutputStream
 import java.math.BigDecimal
 import java.nio.charset.Charset
@@ -125,6 +124,30 @@ fun <T, K> Iterable<T>.differs(compareIterable: Iterable<T>, keySelector: (value
     }
     return valueList
 }
+
+fun <T> Iterable<T>.differsAccurate(compareIterable: Iterable<T>, valueComparator: (value: T, compareValue: T) -> Boolean = { value, compareValue -> value == compareValue }): Pair<List<T>, List<T>> {
+    return this.differsAccurate(compareIterable, { it }, valueComparator)
+}
+
+fun <T, K> Iterable<T>.differsAccurate(compareIterable: Iterable<T>, keySelector: (value: T) -> K, valueComparator: (value: T, compareValue: T) -> Boolean = { value, compareValue -> value == compareValue }): Pair<List<T>, List<T>> {
+    val map = this.toMap { keySelector(it) to it }
+    val compareMap = compareIterable.toMap { keySelector(it) to it }
+    val (addKeyList, valueNotMatchKeyList) = map.differsAccurate(compareMap) { _: K, value: T, mapValue: T ->
+        valueComparator(value, mapValue)
+    }
+    val addValueList = mutableListOf<T>()
+    val valueNotMatchValueList = mutableListOf<T>()
+    addKeyList.forEach {
+        val value = map[it] ?: return@forEach//continue, impossible null
+        addValueList += value
+    }
+    valueNotMatchKeyList.forEach {
+        val value = map[it] ?: return@forEach//continue, impossible null
+        valueNotMatchValueList += value
+    }
+    return addValueList to valueNotMatchValueList
+}
+
 
 inline fun <T, R> Iterable<T>.toHashSet(transform: (item: T) -> R): Set<R> {
     val hashSet = HashSet<R>()
