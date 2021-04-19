@@ -2,6 +2,7 @@ package com.oneliang.ktx.util.math.matrix
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.doubleIteration
+import com.oneliang.ktx.util.common.singleIteration
 import com.oneliang.ktx.util.common.sumByDoubleIndexed
 
 fun matrixOperate(
@@ -234,6 +235,24 @@ fun Array<Array<Double>>.operate(transform: Array<Array<Double>>.(row: Int, colu
     return this
 }
 
+fun Array<Array<Double>>.kroneckerProduct(bMatrix: Array<Array<Double>>): Array<Array<Double>> {
+    if (this.isEmpty() || bMatrix.isEmpty()) {
+        return emptyArray<Array<Double>>()
+    }
+    val bRows = bMatrix.size
+    val bColumns = bMatrix[0].size
+    val newRows = this.size * bRows
+    val newColumns = this[0].size * bColumns
+    val results = Array(newRows) { Array(newColumns) { 0.0 } }
+
+    doubleIteration(this.size, this[0].size) { aRow, aColumn ->
+        doubleIteration(bMatrix.size, bMatrix[0].size) { bRow, bColumn ->
+            results[aRow * bRows + bRow][aColumn * bColumns + bColumn] = this[aRow][aColumn] * bMatrix[bRow][bColumn]
+        }
+    }
+    return results
+}
+
 fun main() {
 //    f:-0.733928,w:1.0
 //    f:9.098687,w:1.0
@@ -242,7 +261,7 @@ fun main() {
     val aMatrix = arrayOf(arrayOf(2.0, 2.0), arrayOf(2.0, 2.0))
     val bMatrix = arrayOf(arrayOf(1.0, 2.0), arrayOf(1.0, 2.0))
 //    val resultMatrix = matrixMultiply(aMatrix, bMatrix)
-    val resultMatrix = aMatrix.scaleToSmall(2)
+    var resultMatrix = aMatrix.scaleToSmall(2)
     resultMatrix.forEach { row ->
         row.forEach {
             print(it.toString() + Constants.String.TAB_STRING)
@@ -250,4 +269,14 @@ fun main() {
         println(row)
     }
 //    println(aMatrix.innerProduct(bMatrix, 1, 1))
+    println("-----kronecker product-----")
+    val kaMatrix = arrayOf(arrayOf(1.0, 2.0), arrayOf(3.0, 4.0))
+    val kbMatrix = arrayOf(arrayOf(1.0, 3.0, 2.0), arrayOf(2.0, 4.0, 6.0))
+    resultMatrix = kaMatrix.kroneckerProduct(kbMatrix)
+    resultMatrix.forEach { row ->
+        row.forEach {
+            print(it.toString() + Constants.String.TAB_STRING)
+        }
+        println()
+    }
 }
