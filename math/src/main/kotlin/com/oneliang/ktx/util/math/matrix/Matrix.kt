@@ -3,7 +3,6 @@ package com.oneliang.ktx.util.math.matrix
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.doubleIteration
 import com.oneliang.ktx.util.common.singleIteration
-import com.oneliang.ktx.util.common.sumByDoubleIndexed
 
 fun matrixOperate(
     aMatrix: Array<Array<Double>>,
@@ -148,21 +147,26 @@ fun Array<Array<Double>>.dotMultiply(
     results: Array<Array<Double>>? = null
 ): Array<Array<Double>> = matrixOperate(this, bMatrix, results, operate = { aValue, bValue -> aValue * bValue }).first
 
-fun Array<Double>.innerProduct(bMatrix: Array<Double>, columnOffset: Int = 0): Double {
-    if (this.isEmpty() || bMatrix.isEmpty()) {
+fun Array<Double>.innerProduct(bArray: Array<Double>, columnOffset: Int = 0): Double {
+    if (this.isEmpty() || bArray.isEmpty()) {
         return 0.0
     }
-    if ((this.size - columnOffset) != bMatrix.size) {
-        error("matrix size not match, this size:%s, column offset:%s, matrix size:%s".format(this.size, columnOffset, bMatrix.size))
+    if (columnOffset > (this.size - bArray.size)) {
+        error("column offset out of range, index:%s, this size:%s, array size:%s".format(columnOffset, this.size, bArray.size))
     }
-    return this.sumByDoubleIndexed { index, item ->
-        item * bMatrix[index]
+    var result = 0.0
+    singleIteration(bArray.size) { columnIndex ->
+        result += this[columnIndex + columnOffset] * bArray[columnIndex]
     }
+    return result
 }
 
 fun Array<Array<Double>>.innerOperate(bMatrix: Array<Array<Double>>, rowOffset: Int = 0, columnOffset: Int = 0, operate: (aValue: Double, bValue: Double) -> Double): Double {
-    if (this.isEmpty() || bMatrix.isEmpty()) {
-        return 0.0
+    if (this.isEmpty() || this[0].isEmpty()) {
+        error("this matrix is empty")
+    }
+    if (bMatrix.isEmpty() || bMatrix[0].isEmpty()) {
+        error("b matrix is empty")
     }
     if (this.size < bMatrix.size || this[0].size < bMatrix[0].size) {
         error("this size is smaller than matrix size, this size:%s, matrix size:%s, this[0] size:%s, matrix[0] size:%s".format(this.size, bMatrix.size, this[0].size, bMatrix[0].size))
@@ -171,7 +175,7 @@ fun Array<Array<Double>>.innerOperate(bMatrix: Array<Array<Double>>, rowOffset: 
         error("row offset out of range, index:%s, this size:%s, matrix size:%s".format(rowOffset, this.size, bMatrix.size))
     }
     if (columnOffset > (this[0].size - bMatrix[0].size)) {
-        error("row offset out of range, index:%s, this size:%s, matrix size:%s".format(rowOffset, this.size, bMatrix.size))
+        error("column offset out of range, index:%s, this[0] size:%s, matrix[0] size:%s".format(columnOffset, this[0].size, bMatrix[0].size))
     }
     var result = 0.0
     doubleIteration(bMatrix.size, bMatrix[0].size) { rowIndex, columnIndex ->
