@@ -257,6 +257,25 @@ fun Array<Array<Double>>.kroneckerProduct(bMatrix: Array<Array<Double>>): Array<
     return results
 }
 
+fun Array<Double>.transpose(): Array<Array<Double>> {
+    val results = Array(this.size) { Array(1) { 0.0 } }
+    singleIteration(results.size) { row ->
+        results[row][0] = this[row]
+    }
+    return results
+}
+
+fun Array<Array<Double>>.transpose(): Array<Array<Double>> {
+    if (this.isEmpty() || this[0].isEmpty()) {
+        return this
+    }
+    val results = Array(this[0].size) { Array(this.size) { 0.0 } }
+    doubleIteration(results.size, results[0].size) { row, column ->
+        results[row][column] = this[column][row]
+    }
+    return results
+}
+
 fun main() {
 //    f:-0.733928,w:1.0
 //    f:9.098687,w:1.0
@@ -277,6 +296,14 @@ fun main() {
     val kaMatrix = arrayOf(arrayOf(1.0, 2.0), arrayOf(3.0, 4.0))
     val kbMatrix = arrayOf(arrayOf(1.0, 3.0, 2.0), arrayOf(2.0, 4.0, 6.0))
     resultMatrix = kaMatrix.kroneckerProduct(kbMatrix)
+    resultMatrix.forEach { row ->
+        row.forEach {
+            print(it.toString() + Constants.String.TAB_STRING)
+        }
+        println()
+    }
+    println("-----transpose-----")
+    resultMatrix = kbMatrix.transpose()
     resultMatrix.forEach { row ->
         row.forEach {
             print(it.toString() + Constants.String.TAB_STRING)
