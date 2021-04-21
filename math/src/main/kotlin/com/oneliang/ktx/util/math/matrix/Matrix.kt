@@ -265,13 +265,13 @@ fun Array<Double>.transpose(operate: (value: Double) -> Double = { it }): Array<
     return results
 }
 
-fun Array<Array<Double>>.transpose(): Array<Array<Double>> {
+fun Array<Array<Double>>.transpose(operate: (value: Double) -> Double = { it }): Array<Array<Double>> {
     if (this.isEmpty() || this[0].isEmpty()) {
         return this
     }
     val results = Array(this[0].size) { Array(this.size) { 0.0 } }
     doubleIteration(results.size, results[0].size) { row, column ->
-        results[row][column] = this[column][row]
+        results[row][column] = operate(this[column][row])
     }
     return results
 }
