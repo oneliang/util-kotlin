@@ -257,10 +257,10 @@ fun Array<Array<Double>>.kroneckerProduct(bMatrix: Array<Array<Double>>): Array<
     return results
 }
 
-fun Array<Double>.transpose(): Array<Array<Double>> {
+fun Array<Double>.transpose(operate: (value: Double) -> Double = { it }): Array<Array<Double>> {
     val results = Array(this.size) { Array(1) { 0.0 } }
     singleIteration(results.size) { row ->
-        results[row][0] = this[row]
+        results[row][0] = operate(this[row])
     }
     return results
 }
