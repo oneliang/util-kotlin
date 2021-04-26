@@ -56,7 +56,7 @@ fun String.jsonToMap(): Map<String, String> {
 }
 
 inline fun <R> String.jsonToMap(transform: (key: String, value: String) -> R): Map<String, R> {
-    if (this.isBlank()) {
+    if (this.isBlank()) {//quick return
         return emptyMap()
     }
     return this.jsonToJsonObject().toMap(transform)
