@@ -108,3 +108,24 @@ fun Array<Array<Double>>.reset(value: Double) = this.reset { _, item -> item.res
 fun Array<Array<Array<Double>>>.reset(value: Double) = this.reset { _, item -> item.reset(value);item }
 
 fun Array<Array<Array<Array<Double>>>>.reset(value: Double) = this.reset { _, item -> item.reset(value);item }
+
+inline fun <T> Array<T>.compareWithIndexed(selector: (item: T) -> Double, valueReplaceComparator: (value: Double, itemValue: Double) -> Boolean): Pair<Int, T> {
+    if (this.isEmpty()) throw NoSuchElementException()
+    var valueItem = this[0]
+    var value = selector(valueItem)
+    var valueIndex = 0
+    for (i in 1..lastIndex) {
+        val item = this[i]
+        val itemValue = selector(item)
+        if (valueReplaceComparator(value, itemValue)) {
+            value = itemValue
+            valueIndex = i
+            valueItem = item
+        }
+    }
+    return valueIndex to valueItem
+}
+
+inline fun <T> Array<T>.maxOfWithIndexed(selector: (item: T) -> Double): Pair<Int, T> = this.compareWithIndexed(selector) { value: Double, itemValue: Double -> value < itemValue }
+
+inline fun <T> Array<T>.minOfWithIndexed(selector: (item: T) -> Double): Pair<Int, T> = this.compareWithIndexed(selector) { value: Double, itemValue: Double -> value > itemValue }
