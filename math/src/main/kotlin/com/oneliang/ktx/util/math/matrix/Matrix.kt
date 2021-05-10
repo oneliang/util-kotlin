@@ -20,8 +20,8 @@ fun matrixOperate(
     }
 
     val newResults = results ?: Array(aMatrix.size) { Array(aMatrix[0].size) { 0.0 } }
-    for (i in newResults.indices) {
-        for (j in newResults[i].indices) {
+    singleIteration(newResults.size) { i ->
+        singleIteration(newResults[i].size) { j ->
             newResults[i][j] = operate(aMatrix[i][j], bMatrix[i][j])
             result = resultOperate(result, newResults[i][j])
         }
@@ -68,13 +68,20 @@ fun matrixMultiply(
     }
 
     val resultMatrix = Array(bMatrix[0].size) { 0.0 }
-    for (column in resultMatrix.indices) {
-        for (bRow in bMatrix.indices) {
+    singleIteration(resultMatrix.size) { column ->
+        singleIteration(bMatrix.size) { bRow ->
             resultMatrix[column] += aMatrix[bRow] * bMatrix[bRow][column]
         }
         resultMatrix[column] = transform(resultMatrix[column])//transform result
         result = resultOperate(result, resultMatrix[column])
     }
+//    for (column in resultMatrix.indices) {
+//        for (bRow in bMatrix.indices) {
+//            resultMatrix[column] += aMatrix[bRow] * bMatrix[bRow][column]
+//        }
+//        resultMatrix[column] = transform(resultMatrix[column])//transform result
+//        result = resultOperate(result, resultMatrix[column])
+//    }
     return resultMatrix to result
 }
 
@@ -94,11 +101,16 @@ fun matrixMultiply(
     }
 
     val resultMatrix = Array(aMatrix.size) { Array(bMatrix[0].size) { 0.0 } }
-    for (row in resultMatrix.indices) {
+    singleIteration(resultMatrix.size) { row ->
         val (subResultMatrix, subResult) = aMatrix[row].multiply(bMatrix, transform, resultOperate)
         resultMatrix[row] = subResultMatrix
         result = resultOperate(result, subResult)
     }
+//    for (row in resultMatrix.indices) {
+//        val (subResultMatrix, subResult) = aMatrix[row].multiply(bMatrix, transform, resultOperate)
+//        resultMatrix[row] = subResultMatrix
+//        result = resultOperate(result, subResult)
+//    }
     return resultMatrix to result
 }
 

@@ -8,7 +8,8 @@ buildscript {
         mavenLocal()
 //        maven("https://maven.aliyun.com/repository/public/")
         google()
-        jcenter()
+//        jcenter()//will be deprecated
+        mavenCentral()
     }
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Constants.kotlinVersion}")
@@ -22,7 +23,8 @@ allprojects {
         mavenLocal()
 //        maven("https://maven.aliyun.com/repository/public/")
         google()
-        jcenter()
+//        jcenter()//will be deprecated
+        mavenCentral()
     }
 }
 
