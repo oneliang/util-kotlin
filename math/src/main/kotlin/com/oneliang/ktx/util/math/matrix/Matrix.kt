@@ -3,11 +3,13 @@ package com.oneliang.ktx.util.math.matrix
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.doubleIteration
 import com.oneliang.ktx.util.common.singleIteration
+import java.util.stream.IntStream
 
 fun matrixOperate(
     aMatrix: Array<Array<Double>>,
     bMatrix: Array<Array<Double>>,
     results: Array<Array<Double>>? = null,
+    parallel: Boolean = false,
     resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result },
     operate: (aValue: Double, bValue: Double) -> Double
 ): Pair<Array<Array<Double>>, Double> {
@@ -20,10 +22,21 @@ fun matrixOperate(
     }
 
     val newResults = results ?: Array(aMatrix.size) { Array(aMatrix[0].size) { 0.0 } }
-    singleIteration(newResults.size) { i ->
-        singleIteration(newResults[i].size) { j ->
-            newResults[i][j] = operate(aMatrix[i][j], bMatrix[i][j])
-            result = resultOperate(result, newResults[i][j])
+    val dataProcessor: (i: Int, j: Int) -> Unit = { i, j ->
+        newResults[i][j] = operate(aMatrix[i][j], bMatrix[i][j])
+        result = resultOperate(result, newResults[i][j])
+    }
+    if (parallel) {
+        IntStream.range(0, newResults.size).parallel().forEach { i ->
+            IntStream.range(0, newResults[i].size).parallel().forEach { j ->
+                dataProcessor(i, j)
+            }
+        }
+    } else {
+        singleIteration(newResults.size) { i ->
+            singleIteration(newResults[i].size) { j ->
+                dataProcessor(i, j)
+            }
         }
     }
     return newResults to result
@@ -32,29 +45,33 @@ fun matrixOperate(
 fun Array<Array<Double>>.operate(
     bMatrix: Array<Array<Double>>,
     results: Array<Array<Double>>? = null,
+    parallel: Boolean = false,
     resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result },
     operate: (aValue: Double, bValue: Double) -> Double
-): Pair<Array<Array<Double>>, Double> = matrixOperate(this, bMatrix, results, resultOperate, operate)
+): Pair<Array<Array<Double>>, Double> = matrixOperate(this, bMatrix, results, parallel, resultOperate, operate)
 
 fun matrixAdd(
     aMatrix: Array<Array<Double>>,
     bMatrix: Array<Array<Double>>,
-    results: Array<Array<Double>>? = null
-): Array<Array<Double>> = matrixOperate(aMatrix, bMatrix, results, operate = { aValue, bValue -> aValue + bValue }).first
+    results: Array<Array<Double>>? = null,
+    parallel: Boolean = false
+): Array<Array<Double>> = matrixOperate(aMatrix, bMatrix, results, parallel, operate = { aValue, bValue -> aValue + bValue }).first
 
 fun matrixMinus(
     aMatrix: Array<Array<Double>>,
     bMatrix: Array<Array<Double>>,
-    results: Array<Array<Double>>? = null
-): Array<Array<Double>> = matrixOperate(aMatrix, bMatrix, results, operate = { aValue, bValue -> aValue - bValue }).first
+    results: Array<Array<Double>>? = null,
+    parallel: Boolean = false
+): Array<Array<Double>> = matrixOperate(aMatrix, bMatrix, results, parallel, operate = { aValue, bValue -> aValue - bValue }).first
 
-fun Array<Array<Double>>.add(bMatrix: Array<Array<Double>>, results: Array<Array<Double>>? = null): Array<Array<Double>> = matrixAdd(this, bMatrix, results)
+fun Array<Array<Double>>.add(bMatrix: Array<Array<Double>>, results: Array<Array<Double>>? = null, parallel: Boolean = false): Array<Array<Double>> = matrixAdd(this, bMatrix, results, parallel)
 
-fun Array<Array<Double>>.minus(bMatrix: Array<Array<Double>>, results: Array<Array<Double>>? = null): Array<Array<Double>> = matrixMinus(this, bMatrix, results)
+fun Array<Array<Double>>.minus(bMatrix: Array<Array<Double>>, results: Array<Array<Double>>? = null, parallel: Boolean = false): Array<Array<Double>> = matrixMinus(this, bMatrix, results, parallel)
 
 fun matrixMultiply(
     aMatrix: Array<Double>,
     bMatrix: Array<Array<Double>>,
+    parallel: Boolean = false,
     transform: (result: Double) -> Double = { it },
     resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result }
 ): Pair<Array<Double>, Double> {
@@ -68,12 +85,22 @@ fun matrixMultiply(
     }
 
     val resultMatrix = Array(bMatrix[0].size) { 0.0 }
-    singleIteration(resultMatrix.size) { column ->
-        singleIteration(bMatrix.size) { bRow ->
-            resultMatrix[column] += aMatrix[bRow] * bMatrix[bRow][column]
+    if (parallel) {
+        IntStream.range(0, resultMatrix.size).parallel().forEach { column ->
+            singleIteration(bMatrix.size) { bRow ->
+                resultMatrix[column] += aMatrix[bRow] * bMatrix[bRow][column]
+            }
+            resultMatrix[column] = transform(resultMatrix[column])//transform result
+            result = resultOperate(result, resultMatrix[column])
         }
-        resultMatrix[column] = transform(resultMatrix[column])//transform result
-        result = resultOperate(result, resultMatrix[column])
+    } else {
+        singleIteration(resultMatrix.size) { column ->
+            singleIteration(bMatrix.size) { bRow ->
+                resultMatrix[column] += aMatrix[bRow] * bMatrix[bRow][column]
+            }
+            resultMatrix[column] = transform(resultMatrix[column])//transform result
+            result = resultOperate(result, resultMatrix[column])
+        }
     }
 //    for (column in resultMatrix.indices) {
 //        for (bRow in bMatrix.indices) {
@@ -88,6 +115,7 @@ fun matrixMultiply(
 fun matrixMultiply(
     aMatrix: Array<Array<Double>>,
     bMatrix: Array<Array<Double>>,
+    parallel: Boolean = false,
     transform: (result: Double) -> Double = { it },
     resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result }
 ): Pair<Array<Array<Double>>, Double> {
@@ -101,58 +129,65 @@ fun matrixMultiply(
     }
 
     val resultMatrix = Array(aMatrix.size) { Array(bMatrix[0].size) { 0.0 } }
-    singleIteration(resultMatrix.size) { row ->
-        val (subResultMatrix, subResult) = aMatrix[row].multiply(bMatrix, transform, resultOperate)
+    val rowProcessor: (i: Int) -> Unit = { row ->
+        val (subResultMatrix, subResult) = aMatrix[row].multiply(bMatrix, parallel, transform, resultOperate)
         resultMatrix[row] = subResultMatrix
         result = resultOperate(result, subResult)
     }
-//    for (row in resultMatrix.indices) {
-//        val (subResultMatrix, subResult) = aMatrix[row].multiply(bMatrix, transform, resultOperate)
-//        resultMatrix[row] = subResultMatrix
-//        result = resultOperate(result, subResult)
-//    }
+    if (parallel) {
+        IntStream.range(0, resultMatrix.size).parallel().forEach(rowProcessor)
+    } else {
+        singleIteration(resultMatrix.size, rowProcessor)
+    }
     return resultMatrix to result
 }
 
 fun Array<Double>.multiply(
     bMatrix: Array<Array<Double>>,
+    parallel: Boolean = false,
     transform: (result: Double) -> Double = { it },
     resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result }
-): Pair<Array<Double>, Double> = matrixMultiply(this, bMatrix, transform, resultOperate)
+): Pair<Array<Double>, Double> = matrixMultiply(this, bMatrix, parallel, transform, resultOperate)
 
 fun Array<Double>.multiply(
     bMatrix: Array<Array<Double>>,
+    parallel: Boolean = false,
     transform: (result: Double) -> Double = { it }
-): Array<Double> = matrixMultiply(this, bMatrix, transform).first
+): Array<Double> = matrixMultiply(this, bMatrix, parallel, transform).first
 
 fun Array<Double>.multiplyAndOperate(
     bMatrix: Array<Array<Double>>,
+    parallel: Boolean = false,
     transform: (result: Double) -> Double = { it },
     resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result }
-): Double = matrixMultiply(this, bMatrix, transform, resultOperate).second
+): Double = matrixMultiply(this, bMatrix, parallel, transform, resultOperate).second
 
 fun Array<Array<Double>>.multiply(
     bMatrix: Array<Array<Double>>,
+    parallel: Boolean = false,
     transform: (result: Double) -> Double = { it },
     resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result }
-): Pair<Array<Array<Double>>, Double> = matrixMultiply(this, bMatrix, transform, resultOperate)
+): Pair<Array<Array<Double>>, Double> = matrixMultiply(this, bMatrix, parallel, transform, resultOperate)
 
 fun Array<Array<Double>>.multiply(
     bMatrix: Array<Array<Double>>,
+    parallel: Boolean = false,
     transform: (result: Double) -> Double = { it }
-): Array<Array<Double>> = matrixMultiply(this, bMatrix, transform).first
+): Array<Array<Double>> = matrixMultiply(this, bMatrix, parallel, transform).first
 
 fun Array<Array<Double>>.multiplyAndOperate(
     bMatrix: Array<Array<Double>>,
+    parallel: Boolean = false,
     transform: (result: Double) -> Double = { it },
     resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result }
-): Double = matrixMultiply(this, bMatrix, transform, resultOperate).second
+): Double = matrixMultiply(this, bMatrix, parallel, transform, resultOperate).second
 
 fun Array<Array<Double>>.dotMultiply(
     bMatrix: Array<Array<Double>>,
     results: Array<Array<Double>>? = null,
+    parallel: Boolean = false,
     resultOperate: (result: Double, matrixValue: Double) -> Double = { result, _ -> result },
-): Pair<Array<Array<Double>>, Double> = matrixOperate(this, bMatrix, results, resultOperate) { aValue, bValue -> aValue * bValue }
+): Pair<Array<Array<Double>>, Double> = matrixOperate(this, bMatrix, results, parallel, resultOperate) { aValue, bValue -> aValue * bValue }
 
 fun Array<Array<Double>>.dotMultiply(
     bMatrix: Array<Array<Double>>,
@@ -293,33 +328,51 @@ fun main() {
 //    f:9.098687,w:1.0
 //    f:1.0,w:1.0
 //    val aMatrix = arrayOf(-0.733928, 9.098687, 1.0)
-    val aMatrix = arrayOf(arrayOf(2.0, 2.0), arrayOf(2.0, 2.0))
-    val bMatrix = arrayOf(arrayOf(1.0, 2.0), arrayOf(1.0, 2.0))
+//    val aMatrix = arrayOf(arrayOf(2.0, 2.0), arrayOf(2.0, 2.0))
+//    val bMatrix = arrayOf(arrayOf(1.0, 2.0), arrayOf(1.0, 2.0))
 //    val resultMatrix = matrixMultiply(aMatrix, bMatrix)
-    var resultMatrix = aMatrix.scaleToSmall(2)
-    resultMatrix.forEach { row ->
-        row.forEach {
-            print(it.toString() + Constants.String.TAB_STRING)
-        }
-        println(row)
-    }
+//    var resultMatrix = aMatrix.scaleToSmall(2)
+//    resultMatrix.forEach { row ->
+//        row.forEach {
+//            print(it.toString() + Constants.String.TAB_STRING)
+//        }
+//        println(row)
+//    }
 //    println(aMatrix.innerProduct(bMatrix, 1, 1))
-    println("-----kronecker product-----")
-    val kaMatrix = arrayOf(arrayOf(1.0, 2.0), arrayOf(3.0, 4.0))
-    val kbMatrix = arrayOf(arrayOf(1.0, 3.0, 2.0), arrayOf(2.0, 4.0, 6.0))
-    resultMatrix = kaMatrix.kroneckerProduct(kbMatrix)
-    resultMatrix.forEach { row ->
-        row.forEach {
-            print(it.toString() + Constants.String.TAB_STRING)
-        }
-        println()
-    }
-    println("-----transpose-----")
-    resultMatrix = kbMatrix.transpose()
-    resultMatrix.forEach { row ->
-        row.forEach {
-            print(it.toString() + Constants.String.TAB_STRING)
-        }
-        println()
+//    println("-----kronecker product-----")
+//    val kaMatrix = arrayOf(arrayOf(1.0, 2.0), arrayOf(3.0, 4.0))
+//    val kbMatrix = arrayOf(arrayOf(1.0, 3.0, 2.0), arrayOf(2.0, 4.0, 6.0))
+//    resultMatrix = kaMatrix.kroneckerProduct(kbMatrix)
+//    resultMatrix.forEach { row ->
+//        row.forEach {
+//            print(it.toString() + Constants.String.TAB_STRING)
+//        }
+//        println()
+//    }
+//    println("-----transpose-----")
+//    resultMatrix = kbMatrix.transpose()
+//    resultMatrix.forEach { row ->
+//        row.forEach {
+//            print(it.toString() + Constants.String.TAB_STRING)
+//        }
+//        println()
+//    }
+    println("-----single multiply double-----")
+    val oneDMatrix = arrayOf(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0)
+    val towDMatrix = arrayOf(
+        arrayOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+        arrayOf(2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+        arrayOf(3.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+        arrayOf(4.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+        arrayOf(5.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+        arrayOf(6.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+        arrayOf(7.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+        arrayOf(8.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+        arrayOf(9.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0),
+        arrayOf(10.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+    )
+    val a = oneDMatrix.multiply(towDMatrix)
+    a.forEach {
+        print(it.toString() + Constants.String.TAB_STRING)
     }
 }
