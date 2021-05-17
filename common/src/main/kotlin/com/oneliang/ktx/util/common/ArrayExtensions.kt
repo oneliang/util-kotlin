@@ -79,6 +79,16 @@ inline fun <T, reified R> Array<T>.toNewArray(transform: (T) -> R): Array<R> {
     return this.toNewArrayWithIndex { _, t -> transform(t) }
 }
 
+/**
+ * the same as toNewArray, just for quick use, because keyword "map"
+ */
+inline fun <T, reified R> Array<T>.mapToNewArray(transform: (T) -> R): Array<R> = this.toNewArray(transform)
+
+/**
+ * the same as toNewArray, just for quick use, because keyword "map"
+ */
+inline fun <T, reified R> Array<T>.mapToNewArrayWithIndex(transform: (index: Int, t: T) -> R): Array<R> = this.toNewArrayWithIndex(transform)
+
 inline fun <T> Array<T>.sumByIndexed(selector: (index: Int, item: T) -> Int): Int {
     var sum = 0
     this.forEachIndexed { index, item ->
@@ -129,3 +139,43 @@ inline fun <T> Array<T>.compareWithIndexed(selector: (item: T) -> Double, valueR
 inline fun <T> Array<T>.maxOfWithIndexed(selector: (item: T) -> Double): Pair<Int, T> = this.compareWithIndexed(selector) { value: Double, itemValue: Double -> value < itemValue }
 
 inline fun <T> Array<T>.minOfWithIndexed(selector: (item: T) -> Double): Pair<Int, T> = this.compareWithIndexed(selector) { value: Double, itemValue: Double -> value > itemValue }
+
+fun Array<Short>.toShortArray(): ShortArray {
+    val shortArray = ShortArray(this.size) { 0 }
+    for (index in shortArray.indices) {
+        shortArray[index] = this[index]
+    }
+    return shortArray
+}
+
+fun Array<Int>.toIntArray(): IntArray {
+    val intArray = IntArray(this.size) { 0 }
+    for (index in intArray.indices) {
+        intArray[index] = this[index]
+    }
+    return intArray
+}
+
+fun Array<Long>.toLongArray(): LongArray {
+    val longArray = LongArray(this.size) { 0L }
+    for (index in longArray.indices) {
+        longArray[index] = this[index]
+    }
+    return longArray
+}
+
+fun Array<Float>.toLongArray(): FloatArray {
+    val floatArray = FloatArray(this.size) { 0.0f }
+    for (index in floatArray.indices) {
+        floatArray[index] = this[index]
+    }
+    return floatArray
+}
+
+fun Array<Double>.toDoubleArray(): DoubleArray {
+    val doubleArray = DoubleArray(this.size) { 0.0 }
+    for (index in doubleArray.indices) {
+        doubleArray[index] = this[index]
+    }
+    return doubleArray
+}

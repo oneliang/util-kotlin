@@ -25,3 +25,11 @@ fun Double.multiplyByBigDecimal(double: Double): BigDecimal {
 fun Double.multiplyByBigDecimal(bigDecimal: BigDecimal): BigDecimal {
     return this.toBigDecimal().times(bigDecimal)
 }
+
+fun Double.toLongBits(): Long {
+    return java.lang.Double.doubleToLongBits(this)
+}
+
+fun Double.toRawLongBits(): Long {
+    return java.lang.Double.doubleToRawLongBits(this)
+}

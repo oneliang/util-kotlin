@@ -83,6 +83,17 @@ object JsonUtil {
         return jsonArrayToArrayLong(jsonArray)
     }
 
+    fun jsonArrayToArrayFloat(jsonArray: JsonArray): Array<Float> {
+        return Array(jsonArray.length()) { index ->
+            jsonArray.optDouble(index, 0.0).toFloat()
+        }
+    }
+
+    fun jsonToArrayFloat(json: String, supportDuplicateKey: Boolean = false): Array<Float> {
+        val jsonArray = JsonArray(json, supportDuplicateKey)
+        return jsonArrayToArrayFloat(jsonArray)
+    }
+
     fun jsonArrayToArrayDouble(jsonArray: JsonArray): Array<Double> {
         return Array(jsonArray.length()) { index ->
             jsonArray.optDouble(index, 0.0)

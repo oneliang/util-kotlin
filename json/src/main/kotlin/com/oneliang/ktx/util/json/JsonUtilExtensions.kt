@@ -26,6 +26,8 @@ fun String.jsonToArrayInt(supportDuplicateKey: Boolean = false): Array<Int> = Js
 
 fun String.jsonToArrayLong(supportDuplicateKey: Boolean = false): Array<Long> = JsonUtil.jsonToArrayLong(this, supportDuplicateKey)
 
+fun String.jsonToArrayFloat(supportDuplicateKey: Boolean = false): Array<Float> = JsonUtil.jsonToArrayFloat(this, supportDuplicateKey)
+
 fun String.jsonToArrayDouble(supportDuplicateKey: Boolean = false): Array<Double> = JsonUtil.jsonToArrayDouble(this, supportDuplicateKey)
 
 fun String.jsonToArrayString(supportDuplicateKey: Boolean = false): Array<String> = JsonUtil.jsonToArrayString(this, supportDuplicateKey)
@@ -37,6 +39,8 @@ fun <T : Any> String.jsonToObjectList(kClass: KClass<T>, classProcessor: KotlinC
     JsonUtil.jsonToObjectList(this, kClass, classProcessor, ignoreFirstLetterCase, ignoreFieldNameArray)
 
 fun JsonArray.toArrayBoolean(): Array<Boolean> = JsonUtil.jsonArrayToArrayBoolean(this)
+
+fun JsonArray.toArrayFloat(): Array<Float> = JsonUtil.jsonArrayToArrayFloat(this)
 
 fun JsonArray.toArrayDouble(): Array<Double> = JsonUtil.jsonArrayToArrayDouble(this)
 

@@ -9,3 +9,7 @@ fun Long.toByteArray(): ByteArray = ByteArray(8) {
 fun Long.toUtilDate(): Date {
     return Date(this)
 }
+
+fun Long.bitsToDouble(): Double {
+    return java.lang.Double.longBitsToDouble(this)
+}
