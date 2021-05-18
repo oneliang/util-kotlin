@@ -167,6 +167,22 @@ inline fun <T, R : Any> Iterable<T>.mapWithFilter(filter: (item: T) -> Boolean, 
     }
 }
 
+inline fun <T> Iterable<T>.sumByFloat(selector: (item: T) -> Float): Float {
+    var sum = 0.0f
+    for (element in this) {
+        sum += selector(element)
+    }
+    return sum
+}
+
+inline fun <T> Iterable<T>.sumByFloatIndexed(selector: (index: Int, item: T) -> Float): Float {
+    var sum = 0.0f
+    for ((index, element) in this.withIndex()) {
+        sum += selector(index, element)
+    }
+    return sum
+}
+
 inline fun <T> Iterable<T>.sumByDoubleIndexed(selector: (index: Int, item: T) -> Double): Double {
     var sum = 0.0
     for ((index, element) in this.withIndex()) {

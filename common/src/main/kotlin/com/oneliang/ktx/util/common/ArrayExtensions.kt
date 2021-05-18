@@ -89,6 +89,22 @@ inline fun <T, reified R> Array<T>.mapToNewArray(transform: (T) -> R): Array<R> 
  */
 inline fun <T, reified R> Array<T>.mapToNewArrayWithIndex(transform: (index: Int, t: T) -> R): Array<R> = this.toNewArrayWithIndex(transform)
 
+inline fun <T> Array<out T>.sumByFloat(selector: (T) -> Float): Float {
+    var sum = 0.0f
+    for (element in this) {
+        sum += selector(element)
+    }
+    return sum
+}
+
+inline fun <T> Array<T>.sumByFloatIndexed(selector: (index: Int, item: T) -> Float): Float {
+    var sum = 0.0f
+    this.forEachIndexed { index, item ->
+        sum += selector(index, item)
+    }
+    return sum
+}
+
 inline fun <T> Array<T>.sumByIndexed(selector: (index: Int, item: T) -> Int): Int {
     var sum = 0
     this.forEachIndexed { index, item ->
