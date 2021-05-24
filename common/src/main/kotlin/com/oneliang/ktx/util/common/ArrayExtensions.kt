@@ -195,3 +195,84 @@ fun Array<Double>.toDoubleArray(): DoubleArray {
     }
     return doubleArray
 }
+
+fun <T : Any> Array<T>.get(xSize: Int, ySize: Int = 0, zSize: Int = 0, x: Int, y: Int = 0, z: Int = 0): T {
+    if (x >= xSize || y >= ySize || z >= zSize) {
+        error("out of index, size:[%s,%s,%s], range:[0~%s,0~%s,0~%s], (x,y,z):[%s,%s,%s]".format(xSize, ySize, zSize, xSize - 1, ySize - 1, zSize - 1, x, y, z))
+    }
+    val index = x * ySize * zSize + y * zSize + z
+    return this[index]
+}
+
+private inline fun <reified T : Any> Array<T>.to2DArray(defaultValue: T, xSize: Int, ySize: Int): Array<Array<T>> {
+    val array = Array(xSize) { Array(ySize) { defaultValue } }
+    for (x in 0 until xSize) {
+        for (y in 0 until ySize) {
+            array[x][y] = this[x * ySize + y]
+        }
+    }
+    return array
+}
+
+fun Array<Int>.to2DArray(xSize: Int, ySize: Int): Array<Array<Int>> = this.to2DArray(0, xSize, ySize)
+fun Array<Float>.to2DArray(xSize: Int, ySize: Int): Array<Array<Float>> = this.to2DArray(0.0f, xSize, ySize)
+fun Array<Double>.to2DArray(xSize: Int, ySize: Int): Array<Array<Double>> = this.to2DArray(0.0, xSize, ySize)
+
+private inline fun <reified T : Any> Array<T>.to3DArray(defaultValue: T, xSize: Int, ySize: Int, zSize: Int): Array<Array<Array<T>>> {
+    val array = Array(xSize) { Array(ySize) { Array(zSize) { defaultValue } } }
+    for (x in 0 until xSize) {
+        for (y in 0 until ySize) {
+            for (z in 0 until zSize) {
+                array[x][y][z] = this[x * ySize * zSize + y * zSize + z]
+            }
+        }
+    }
+    return array
+}
+
+fun Array<Int>.to3DArray(xSize: Int, ySize: Int, zSize: Int): Array<Array<Array<Int>>> = this.to3DArray(0, xSize, ySize, zSize)
+fun Array<Float>.to3DArray(xSize: Int, ySize: Int, zSize: Int): Array<Array<Array<Float>>> = this.to3DArray(0.0f, xSize, ySize, zSize)
+fun Array<Double>.to3DArray(xSize: Int, ySize: Int, zSize: Int): Array<Array<Array<Double>>> = this.to3DArray(0.0, xSize, ySize, zSize)
+
+private inline fun <reified T : Any> Array<Array<T>>.to1DArray(defaultValue: T): Array<T> {
+    if (this.isEmpty() || this[0].isEmpty()) {
+        return emptyArray()
+    }
+    val array = Array(this.size * this[0].size) { defaultValue }
+    val xSize = this.size
+    val ySize = this[0].size
+    for (x in 0 until xSize) {
+        for (y in 0 until ySize) {
+            val index = x * ySize + y
+            array[index] = this[x][y]
+        }
+    }
+    return array
+}
+
+fun Array<Array<Int>>.to1DArray(): Array<Int> = this.to1DArray(0)
+fun Array<Array<Float>>.to1DArray(): Array<Float> = this.to1DArray(0.0f)
+fun Array<Array<Double>>.to1DArray(): Array<Double> = this.to1DArray(0.0)
+
+private inline fun <reified T : Any> Array<Array<Array<T>>>.to1DArray(defaultValue: T): Array<T> {
+    if (this.isEmpty() || this[0].isEmpty() || this[0][0].isEmpty()) {
+        return emptyArray()
+    }
+    val xSize = this.size
+    val ySize = this[0].size
+    val zSize = this[0][0].size
+    val array = Array(xSize * ySize * zSize) { defaultValue }
+    for (x in 0 until xSize) {
+        for (y in 0 until ySize) {
+            for (z in 0 until zSize) {
+                val index = x * ySize * zSize + y * zSize + z
+                array[index] = this[x][y][z]
+            }
+        }
+    }
+    return array
+}
+
+fun Array<Array<Array<Int>>>.to1DArray(): Array<Int> = this.to1DArray(0)
+fun Array<Array<Array<Float>>>.to1DArray(): Array<Float> = this.to1DArray(0.0f)
+fun Array<Array<Array<Double>>>.to1DArray(): Array<Double> = this.to1DArray(0.0)
