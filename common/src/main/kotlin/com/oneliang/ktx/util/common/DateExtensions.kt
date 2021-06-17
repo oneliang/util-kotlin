@@ -3,7 +3,6 @@ package com.oneliang.ktx.util.common
 import com.oneliang.ktx.Constants
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.time.toDuration
 
 fun Date.toFormatString(format: String = Constants.Time.YEAR_MONTH_DAY_HOUR_MINUTE_SECOND, locale: Locale = Locale.getDefault()): String {
     val simpleDateFormat = SimpleDateFormat(format, locale)
@@ -34,6 +33,10 @@ fun Long.getSecondZeroTime(): Long {
     return this.getZeroTime(Constants.Time.MILLISECONDS_OF_SECOND)
 }
 
+fun Long.getZeroTimeNext(modulusTime: Long, offset: Int = 1): Long {
+    return this.getZeroTime(modulusTime) + offset * modulusTime
+}
+
 fun Long.getDayZeroTimeNext(offset: Int = 1): Long {
     return this.getDayZeroTime() + offset * Constants.Time.MILLISECONDS_OF_DAY
 }
@@ -48,6 +51,10 @@ fun Long.getMinuteZeroTimeNext(offset: Int = 1): Long {
 
 fun Long.getSecondZeroTimeNext(offset: Int = 1): Long {
     return this.getSecondZeroTime() + offset * Constants.Time.MILLISECONDS_OF_SECOND
+}
+
+fun Long.getZeroTimePrevious(modulusTime: Long, offset: Int = 1): Long {
+    return this.getZeroTime(modulusTime) - offset * modulusTime
 }
 
 fun Long.getDayZeroTimePrevious(offset: Int = 1): Long {
@@ -86,6 +93,10 @@ fun Date.getSecondZeroTime(): Long {
     return this.time.getSecondZeroTime()
 }
 
+fun Date.getZeroTimeNext(modulusTime: Long, offset: Int = 1): Long {
+    return this.time.getZeroTimeNext(modulusTime, offset)
+}
+
 fun Date.getDayZeroTimeNext(offset: Int = 1): Long {
     return this.time.getDayZeroTimeNext(offset)
 }
@@ -100,6 +111,10 @@ fun Date.getMinuteZeroTimeNext(offset: Int = 1): Long {
 
 fun Date.getSecondZeroTimeNext(offset: Int = 1): Long {
     return this.time.getSecondZeroTimeNext(offset)
+}
+
+fun Date.getZeroTimePrevious(modulusTime: Long, offset: Int = 1): Long {
+    return this.time.getZeroTimePrevious(modulusTime, offset)
 }
 
 fun Date.getDayZeroTimePrevious(offset: Int = 1): Long {
@@ -138,6 +153,10 @@ fun Date.getSecondZeroTimeDate(): Date {
     return this.getZeroTimeDate(Constants.Time.MILLISECONDS_OF_SECOND)
 }
 
+fun Date.getZeroTimeDateNext(modulusTime: Long, offset: Int = 1): Date {
+    return this.getZeroTimeNext(modulusTime, offset).toUtilDate()
+}
+
 fun Date.getDayZeroTimeDateNext(offset: Int = 1): Date {
     return this.getDayZeroTimeNext(offset).toUtilDate()
 }
@@ -152,6 +171,10 @@ fun Date.getMinuteZeroTimeDateNext(offset: Int = 1): Date {
 
 fun Date.getSecondZeroTimeDateNext(offset: Int = 1): Date {
     return this.getSecondZeroTimeNext(offset).toUtilDate()
+}
+
+fun Date.getZeroTimeDatePrevious(modulusTime: Long, offset: Int = 1): Date {
+    return this.getZeroTimePrevious(modulusTime, offset).toUtilDate()
 }
 
 fun Date.getDayZeroTimeDatePrevious(offset: Int = 1): Date {
