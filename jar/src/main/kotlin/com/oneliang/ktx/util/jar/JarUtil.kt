@@ -3,7 +3,6 @@ package com.oneliang.ktx.util.jar
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.FileLoadException
 import com.oneliang.ktx.util.file.fileExists
-import java.io.File
 import java.io.FileInputStream
 import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
@@ -78,8 +77,13 @@ object JarUtil {
             return emptyList()
         }
         val classList = mutableListOf<KClass<*>>()
-        jarClassLoader.addURL(URL(Constants.Protocol.FILE + jarFileRealPath))
-        JarInputStream(FileInputStream(jarFileRealPath)).use { jarInputStream ->
+        val fixJarFileRealPath = if (jarFileRealPath.startsWith(Constants.Symbol.SLASH_LEFT)) {
+            jarFileRealPath
+        } else {
+            Constants.Symbol.SLASH_LEFT + jarFileRealPath
+        }
+        jarClassLoader.addURL(URL(Constants.Protocol.FILE + fixJarFileRealPath))
+        JarInputStream(FileInputStream(fixJarFileRealPath)).use { jarInputStream ->
             var jarEntry: JarEntry? = jarInputStream.nextJarEntry
             while (jarEntry != null) {
                 var entryName = jarEntry.name
