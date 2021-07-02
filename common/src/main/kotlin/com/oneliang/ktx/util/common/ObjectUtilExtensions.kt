@@ -13,3 +13,5 @@ fun <T : Any> T.isEntity(kClass: KClass<*>) = ObjectUtil.isEntity(this, kClass)
 fun <T : java.io.Serializable> InputStream.readObject(): T? = ObjectUtil.readObject(this)
 
 fun <T : java.io.Serializable> OutputStream.writeObject(instance: T) = ObjectUtil.writeObject(this, instance)
+
+fun <T : Any> Class<T>.isInterfaceImplement(interfaceClass: Class<*>) = ObjectUtil.isInterfaceImplement(this, interfaceClass)
