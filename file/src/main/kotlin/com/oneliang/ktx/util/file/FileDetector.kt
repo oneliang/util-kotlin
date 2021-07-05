@@ -8,8 +8,10 @@ import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
-class FileDetector(private val directory: String,
-                   private val fileSuffix: String) : LoopThread() {
+class FileDetector(
+    private val directory: String,
+    private val fileSuffix: String
+) : LoopThread() {
     companion object {
         private val logger = LoggerManager.getLogger(FileDetector::class)
         private const val THREAD_SLEEP_TIME = 30 * Constants.Time.MILLISECONDS_OF_SECOND
@@ -24,6 +26,7 @@ class FileDetector(private val directory: String,
         this.directoryFile.findMatchFile(FileUtil.MatchOption().also {
             it.fileSuffix = fileSuffix
             it.deepMatch = false
+            it.includeHidden = true
         }) {
             val filePath = it.absolutePath
             currentFileMd5Map[filePath] = it.MD5String()
@@ -45,4 +48,14 @@ class FileDetector(private val directory: String,
     interface DetectProcessor {
         fun afterUpdateFileProcess(filePath: String)
     }
+}
+
+fun main() {
+    val fileDetector = FileDetector("D:/", ".jar")
+    fileDetector.detectProcessor = object : FileDetector.DetectProcessor {
+        override fun afterUpdateFileProcess(filePath: String) {
+            println(filePath)
+        }
+    }
+    fileDetector.start()
 }
