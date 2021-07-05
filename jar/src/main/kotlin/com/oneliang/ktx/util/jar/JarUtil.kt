@@ -65,9 +65,9 @@ object JarUtil {
      * @throws FileLoadException
      */
     @Throws(FileLoadException::class)
-    fun extractClassFromJarFile(jarClassLoader: JarClassLoader, jarFileRealPath: String, packageName: String = Constants.String.BLANK): List<KClass<*>> {
+    fun extractClassFromJarFile(jarClassLoader: JarClassLoader, jarFileRealPath: String, packageName: String = Constants.String.BLANK, useCache: Boolean = true): List<KClass<*>> {
         val jarClassCacheKey = generateJarClassCacheKey(jarClassLoader, jarFileRealPath, packageName)
-        if (this.jarClassCacheMap.containsKey(jarClassCacheKey)) {
+        if (useCache && this.jarClassCacheMap.containsKey(jarClassCacheKey)) {
             val classList = jarClassCacheMap[jarClassCacheKey]
             if (classList != null) {
                 return classList
@@ -106,7 +106,9 @@ object JarUtil {
                 jarEntry = jarInputStream.nextJarEntry
             }
         }
-        this.jarClassCacheMap[jarClassCacheKey] = classList
+        if (useCache) {
+            this.jarClassCacheMap[jarClassCacheKey] = classList
+        }
         return classList
     }
 
