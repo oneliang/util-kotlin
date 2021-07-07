@@ -263,3 +263,11 @@ fun String.toBriefString(retainLength: Int = this.length): String {
         this
     }
 }
+
+fun String?.toDefaultWhenIsNullOrBlank(defaultValue: String): String {
+    return if (this.isNullOrBlank()) {
+        defaultValue
+    } else {
+        this
+    }
+}
