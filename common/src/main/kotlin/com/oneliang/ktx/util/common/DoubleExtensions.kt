@@ -33,3 +33,7 @@ fun Double.toLongBits(): Long {
 fun Double.toRawLongBits(): Long {
     return java.lang.Double.doubleToRawLongBits(this)
 }
+
+fun Double.roundToFix(value: Int): String {
+    return "%.${value}f".format(this)
+}
