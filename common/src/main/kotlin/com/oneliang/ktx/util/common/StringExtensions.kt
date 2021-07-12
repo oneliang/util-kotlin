@@ -4,6 +4,7 @@ import com.oneliang.ktx.Constants
 import java.io.File
 import java.math.BigDecimal
 import java.math.MathContext
+import java.net.URL
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
@@ -270,4 +271,13 @@ fun String?.toDefaultWhenIsNullOrBlank(defaultValue: String): String {
     } else {
         this
     }
+}
+
+fun String.toFileProtocolURL(): URL {
+    val fixJarFileRealPath = if (this.startsWith(Constants.Symbol.SLASH_LEFT)) {
+        this
+    } else {
+        Constants.Symbol.SLASH_LEFT + this
+    }
+    return URL(Constants.Protocol.FILE + fixJarFileRealPath)
 }
