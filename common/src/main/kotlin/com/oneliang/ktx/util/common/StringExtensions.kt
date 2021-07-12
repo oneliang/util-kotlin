@@ -273,11 +273,30 @@ fun String?.toDefaultWhenIsNullOrBlank(defaultValue: String): String {
     }
 }
 
-fun String.toFileProtocolURL(): URL {
-    val fixJarFileRealPath = if (this.startsWith(Constants.Symbol.SLASH_LEFT)) {
+fun String.toUnionFilePathString(): String {
+    //linux
+    return if (this.startsWith(Constants.Symbol.SLASH_LEFT)) {
         this
     } else {
+        //windows
         Constants.Symbol.SLASH_LEFT + this
     }
-    return URL(Constants.Protocol.FILE + fixJarFileRealPath)
+}
+
+fun String.toFileProtocolString(): String {
+    return when {
+        //file protocol
+        this.startsWith(Constants.Protocol.FILE) -> {
+            this
+        }
+        //linux || windows
+        else -> {
+
+            Constants.Protocol.FILE + this.toUnionFilePathString()
+        }
+    }
+}
+
+fun String.toFileProtocolURL(): URL {
+    return URL(this.toFileProtocolString())
 }

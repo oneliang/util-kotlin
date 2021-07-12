@@ -3,5 +3,6 @@ apply from: "${rootDir}/gradle/maven-publish.gradle"
 
 dependencies {
     implementation project(":base")
+    implementation project(":common")
     implementation project(":file")
 }
