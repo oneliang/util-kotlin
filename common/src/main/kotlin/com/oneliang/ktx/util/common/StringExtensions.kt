@@ -273,7 +273,7 @@ fun String?.toDefaultWhenIsNullOrBlank(defaultValue: String): String {
     }
 }
 
-fun String.toUnionFilePathString(): String {
+fun String.toUnifyFilePathString(): String {
     //linux
     return if (this.startsWith(Constants.Symbol.SLASH_LEFT)) {
         this
@@ -292,7 +292,7 @@ fun String.toFileProtocolString(): String {
         //linux || windows
         else -> {
 
-            Constants.Protocol.FILE + this.toUnionFilePathString()
+            Constants.Protocol.FILE + this.toUnifyFilePathString()
         }
     }
 }

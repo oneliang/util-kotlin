@@ -2,7 +2,7 @@ package com.oneliang.ktx.util.jar
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.exception.FileLoadException
-import com.oneliang.ktx.util.common.toUnionFilePathString
+import com.oneliang.ktx.util.common.toUnifyFilePathString
 import com.oneliang.ktx.util.file.fileExists
 import java.io.FileInputStream
 import java.net.URL
@@ -78,7 +78,7 @@ object JarUtil {
             return emptyList()
         }
         val classList = mutableListOf<KClass<*>>()
-        val fixJarFileRealPath = jarFileRealPath.toUnionFilePathString()
+        val fixJarFileRealPath = jarFileRealPath.toUnifyFilePathString()
         jarClassLoader.addURL(URL(Constants.Protocol.FILE + fixJarFileRealPath))
         JarInputStream(FileInputStream(fixJarFileRealPath)).use { jarInputStream ->
             var jarEntry: JarEntry? = jarInputStream.nextJarEntry
