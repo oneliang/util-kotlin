@@ -59,7 +59,7 @@ class AtomicMap<K : Any, V> constructor() : AbstractMap<K, V>() {
 
     private fun atomicUpdate(key: K, update: (V) -> V): V? {
         val atomicReference = this.map[key]
-        return atomicReference?.getAndUpdate { old ->
+        return atomicReference?.updateAndGet { old ->
             update(old).apply {
                 if (old.hashCode() != this.hashCode()) {
                     return@apply
