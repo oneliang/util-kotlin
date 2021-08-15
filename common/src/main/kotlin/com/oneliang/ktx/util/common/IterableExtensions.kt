@@ -46,13 +46,17 @@ inline fun <T, K> Iterable<T>.toKeyListAndMap(keySelector: (item: T) -> K): Pair
 }
 
 inline fun <T, K, MK> Iterable<T>.toKeyListAndMap(keySelector: (item: T) -> K, mapKeySelector: (item: T) -> MK): Pair<List<K>, Map<MK, T>> {
+    return this.toKeyListAndMap(keySelector, mapKeySelector) { it }
+}
+
+inline fun <T, K, MK, MV> Iterable<T>.toKeyListAndMap(keySelector: (item: T) -> K, mapKeySelector: (item: T) -> MK, mapValueTransform: (item: T) -> MV): Pair<List<K>, Map<MK, MV>> {
     val keyList = mutableListOf<K>()
-    val map = mutableMapOf<MK, T>()
+    val map = mutableMapOf<MK, MV>()
     this.forEach {
         val key = keySelector(it)
         val mapKey = mapKeySelector(it)
         keyList += key
-        map[mapKey] = it
+        map[mapKey] = mapValueTransform(it)
     }
     return keyList to map
 }
