@@ -35,20 +35,11 @@ fun DoubleArray.toJson() = joinToString(prefix = Constants.Symbol.MIDDLE_BRACKET
     it.toString()
 }
 
-fun String.jsonMatches(map: Map<String, String>): Boolean {
+fun String.jsonMatches(inputMap: Map<String, String>, valueComparator: (key: String, value: String, mapValue: String) -> Boolean = { _, value, mapValue -> value == mapValue }): Boolean {
     if (this.isBlank()) {
         return false
     }
-    this.jsonToJsonObject().forEach { key, value ->
-        val inputValue = map[key].nullToBlank()
-        val conditionValue = value.toString()
-        if (inputValue == conditionValue) {
-            return@forEach//continue
-        }
-        //not equal
-        return false
-    }
-    return true
+    return this.jsonToJsonObject().matches(inputMap, valueComparator)
 }
 
 fun String.jsonToMap(): Map<String, String> {
@@ -107,6 +98,19 @@ inline fun JsonObject.forEach(block: (key: String, value: Any) -> Unit) {
     this.keys().forEach {
         block(it, this.opt(it))
     }
+}
+
+fun JsonObject.matches(inputMap: Map<String, String>, valueComparator: (key: String, value: String, mapValue: String) -> Boolean = { _, value, mapValue -> value == mapValue }): Boolean {
+    this.forEach { key, value ->
+        val inputValue = inputMap[key].nullToBlank()
+        val conditionValue = value.toString()
+        if (inputValue == conditionValue || valueComparator(key, conditionValue, inputValue)) {
+            return@forEach//continue
+        }
+        //not equal
+        return false
+    }
+    return true
 }
 
 inline fun JsonArray.forEach(block: (item: Any) -> Unit) = this.forEachWithIndex { _, any -> block(any) }
