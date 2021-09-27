@@ -34,6 +34,9 @@ fun Double.toRawLongBits(): Long {
     return java.lang.Double.doubleToRawLongBits(this)
 }
 
-fun Double.roundToFix(value: Int): String {
+/**
+ * @param value default zero, it is no need to round, and no decimal
+ */
+fun Double.roundToFix(value: Int = 0): String {
     return "%.${value}f".format(this)
 }
