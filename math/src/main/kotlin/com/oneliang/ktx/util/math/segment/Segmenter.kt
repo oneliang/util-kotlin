@@ -83,7 +83,7 @@ object Segmenter {
         return splitSegment(newSegmentList, fixBegin, lengthDataList)
     }
 
-    fun <T> resetAndSplitSegment2(segmentList: List<Segment<T>>, insertBegin: Long, insertLengthData: Pair<Long, T?>): List<Segment<T>> {
+    private fun <T> resetAndSplitSegment2(segmentList: List<Segment<T>>, insertBegin: Long, insertLengthData: Pair<Long, T?>): List<Segment<T>> {
         if (segmentList.isEmpty()) {
             error("segment list is empty")
         }
