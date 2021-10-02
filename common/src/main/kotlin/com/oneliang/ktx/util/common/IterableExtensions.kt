@@ -253,3 +253,31 @@ fun <T, K> Iterable<T>.groupByMultiKeySelector(keySelectorArray: Array<(item: T)
     }
     return mapArray.toNewArray { it }
 }
+
+inline fun <T, K, R, SK> Iterable<T>.groupByDistinctWithIndex(keySelector: (item: T) -> K, subKeySelector: (item: T) -> SK, valueTransform: (index: Int, T) -> R): Map<K, Map<SK, R>> {
+    return groupByDistinctToWithIndex(mutableMapOf(), keySelector, subKeySelector, valueTransform)
+}
+
+inline fun <T, K, R, SK, M : MutableMap<in K, MutableMap<SK, R>>> Iterable<T>.groupByDistinctToWithIndex(destination: M, keySelector: (item: T) -> K, subKeySelector: (item: T) -> SK, valueTransform: (index: Int, T) -> R): M {
+    this.forEachIndexed { index: Int, element: T ->
+        val key = keySelector(element)
+        val subMap = destination.getOrPut(key) { mutableMapOf() }
+        val subKey = subKeySelector(element)
+        subMap[subKey] = valueTransform(index, element)
+    }
+    return destination
+}
+
+inline fun <T, K, R, SK> Iterable<T>.groupByDistinct(keySelector: (item: T) -> K, subKeySelector: (item: T) -> SK, valueTransform: (T) -> R): Map<K, Map<SK, R>> {
+    return groupByDistinctTo(mutableMapOf(), keySelector, subKeySelector, valueTransform)
+}
+
+inline fun <T, K, R, SK, M : MutableMap<in K, MutableMap<SK, R>>> Iterable<T>.groupByDistinctTo(destination: M, keySelector: (item: T) -> K, subKeySelector: (item: T) -> SK, valueTransform: (T) -> R): M {
+    this.forEach { element: T ->
+        val key = keySelector(element)
+        val subMap = destination.getOrPut(key) { mutableMapOf() }
+        val subKey = subKeySelector(element)
+        subMap[subKey] = valueTransform(element)
+    }
+    return destination
+}
