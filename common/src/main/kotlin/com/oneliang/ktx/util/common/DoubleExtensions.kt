@@ -34,6 +34,14 @@ fun Double.toRawLongBits(): Long {
     return java.lang.Double.doubleToRawLongBits(this)
 }
 
+fun Double.fixNaN(defaultValue: Double = 0.0): Double {
+    return if (this.isNaN()) {
+        defaultValue
+    } else {
+        this
+    }
+}
+
 /**
  * @param value default zero, it is no need to round, and no decimal
  */

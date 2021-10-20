@@ -17,7 +17,7 @@ class AtomicMap<K : Any, V> constructor() : AbstractMap<K, V>() {
     override val entries: Set<Map.Entry<K, V>>
         get() = this.snapshot().entries
 
-    fun operate(key: K, create: () -> V, update: (V) -> V): V? {
+    fun operate(key: K, create: () -> V, update: ((V) -> V)? = null): V? {
         if (this.map.containsKey(key)) {
             return atomicUpdate(key, update)
         } else {
@@ -57,14 +57,18 @@ class AtomicMap<K : Any, V> constructor() : AbstractMap<K, V>() {
         }
     }
 
-    private fun atomicUpdate(key: K, update: (V) -> V): V? {
+    private fun atomicUpdate(key: K, update: ((V) -> V)?): V? {
         val atomicReference = this.map[key]
-        return atomicReference?.updateAndGet { old ->
-            update(old).apply {
-                if (old.hashCode() != this.hashCode()) {
-                    return@apply
+        return if (update == null) {
+            atomicReference?.get()
+        } else {
+            atomicReference?.updateAndGet { old ->
+                update(old).apply {
+                    if (old.hashCode() != this.hashCode()) {
+                        return@apply
+                    }
+                    error("must create a new object after update.the object has not changed")
                 }
-                error("must create a new object after update.the object has not changed")
             }
         }
     }

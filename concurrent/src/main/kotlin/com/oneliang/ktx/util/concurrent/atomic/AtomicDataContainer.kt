@@ -10,16 +10,17 @@ class AtomicDataContainer<K : Any, V> {
     private val reentrantLockMap = ConcurrentHashMap<K, ReentrantLock>()
 
     operator fun set(key: K, block: () -> V): V? {
-        return if (this.reentrantLockMap.containsKey(key)) {
-            val reentrantLock = this.reentrantLockMap[key] ?: error("not found ReentrantLock for key:$key, may be something error")
+        var reentrantLock = this.reentrantLockMap[key]
+        return if (reentrantLock != null) {
             doLockBlock(key, reentrantLock, block)
         } else {
             try {
                 this.lock.lock()
-                if (!this.reentrantLockMap.containsKey(key)) {
-                    this.reentrantLockMap[key] = ReentrantLock()
+                reentrantLock = this.reentrantLockMap[key]
+                if (reentrantLock == null) {
+                    reentrantLock = ReentrantLock()
+                    this.reentrantLockMap[key] = reentrantLock
                 }
-                val reentrantLock = this.reentrantLockMap[key] ?: error("not found ReentrantLock for key:$key, may be something error")
                 doLockBlock(key, reentrantLock, block)
             } catch (e: Throwable) {
                 null
