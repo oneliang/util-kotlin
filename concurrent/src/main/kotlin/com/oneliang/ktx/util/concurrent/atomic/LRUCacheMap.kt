@@ -34,26 +34,31 @@ class LRUCacheMap<K : Any, V>(private val maxSize: Int) : Iterable<LRUCacheMap.I
         return this.dataSortedSet.iterator()
     }
 
-    operator fun set(key: K, value: V) {
-        this.dataAtomicMap.operate(key, create = {
+    fun operate(key: K, create: () -> V): V? {
+        return this.dataAtomicMap.operate(key, create = {
             //check size
+            val value = create()
             val itemCounter = ItemCounter(key, value).also { it.update() }
             this.dataSortedSet += itemCounter
             itemCounter
         }, update = {
             it.update()
             this.dataSortedSet -= it
-            val newItemCounter = it.copy(value)
+            val newItemCounter = it.copy(it.value)
             this.dataSortedSet += newItemCounter//replace
             newItemCounter
         }, removeWhenFull = {
             val itemCounter = this.dataSortedSet.last()
             this.dataSortedSet -= itemCounter
             itemCounter.key
-        })
+        })?.value
     }
 
-    fun clear(){
+    operator fun get(key: K): V? {
+        return this.dataAtomicMap[key]?.value
+    }
+
+    fun clear() {
         this.dataSortedSet.clear()
         this.dataAtomicMap.clear()
     }
