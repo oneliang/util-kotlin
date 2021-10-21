@@ -4,11 +4,11 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 
-class AtomicMap<K : Any, V> constructor() : AbstractMap<K, V>() {
+class AtomicMap<K : Any, V> constructor(private val maxSize: Int = 0) : AbstractMap<K, V>() {
     private val lock = ReentrantLock()
     private val map = ConcurrentHashMap<K, AtomicReference<V>>()
 
-    constructor(map: Map<K, V>) : this() {
+    constructor(map: Map<K, V>, maxSize: Int = 0) : this(maxSize) {
         map.forEach { (key, value) ->
             this.map[key] = AtomicReference(value)
         }
@@ -17,18 +17,33 @@ class AtomicMap<K : Any, V> constructor() : AbstractMap<K, V>() {
     override val entries: Set<Map.Entry<K, V>>
         get() = this.snapshot().entries
 
-    fun operate(key: K, create: () -> V, update: ((V) -> V)? = null): V? {
-        if (this.map.containsKey(key)) {
+    fun operate(key: K, create: () -> V, update: ((V) -> V)? = null, removeWhenFull: (() -> K)? = null): V? {
+        val createAndSetToMap: () -> V = {
+            val value = create()
+            this.map[key] = AtomicReference(value)
+            value
+        }
+        if (this.map.containsKey(key)) {//update when exists
             return atomicUpdate(key, update)
-        } else {
+        } else {//create
             return try {
                 this.lock.lock()
                 if (this.map.containsKey(key)) {
                     atomicUpdate(key, update)
-                } else {
-                    val value = create()
-                    this.map[key] = AtomicReference(value)
-                    value
+                } else {//check size
+                    val size = this.map.size
+                    if (this.maxSize <= 0 || size < this.maxSize) {
+                        createAndSetToMap()
+                    } else {
+                        if (removeWhenFull != null) {
+                            val removeKey = removeWhenFull()
+                            this.map.remove(removeKey)
+                            createAndSetToMap()
+                        } else {
+                            //error
+                            error("map is full, please implement block parameter(removeWhenMax), current size:%s, max size:%s".format(size, this.maxSize))
+                        }
+                    }
                 }
             } finally {
                 this.lock.unlock()
