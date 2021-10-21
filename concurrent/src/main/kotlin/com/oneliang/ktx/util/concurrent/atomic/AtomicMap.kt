@@ -26,8 +26,7 @@ class AtomicMap<K : Any, V> constructor(private val maxSize: Int = 0) : Abstract
         if (this.map.containsKey(key)) {//update when exists
             return atomicUpdate(key, update)
         } else {//create
-            return try {
-                this.lock.lock()
+            return this.lockOperate {
                 if (this.map.containsKey(key)) {
                     atomicUpdate(key, update)
                 } else {//check size
@@ -45,8 +44,6 @@ class AtomicMap<K : Any, V> constructor(private val maxSize: Int = 0) : Abstract
                         }
                     }
                 }
-            } finally {
-                this.lock.unlock()
             }
         }
     }

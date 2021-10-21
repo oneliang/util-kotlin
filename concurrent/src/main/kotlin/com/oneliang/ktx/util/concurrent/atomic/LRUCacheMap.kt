@@ -53,6 +53,11 @@ class LRUCacheMap<K : Any, V>(private val maxSize: Int) : Iterable<LRUCacheMap.I
         })
     }
 
+    fun clear(){
+        this.dataSortedSet.clear()
+        this.dataAtomicMap.clear()
+    }
+
     class ItemCounter<K, V>(val key: K, val value: V) {
         var lastUsedTime: Long = 0
         var count = 0
