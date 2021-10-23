@@ -276,3 +276,9 @@ private inline fun <reified T : Any> Array<Array<Array<T>>>.to1DArray(defaultVal
 fun Array<Array<Array<Int>>>.to1DArray(): Array<Int> = this.to1DArray(0)
 fun Array<Array<Array<Float>>>.to1DArray(): Array<Float> = this.to1DArray(0.0f)
 fun Array<Array<Array<Double>>>.to1DArray(): Array<Double> = this.to1DArray(0.0)
+
+fun <T> Array<T>.swap(fromIndex: Int, toIndex: Int) {
+    val t = this[fromIndex]
+    this[fromIndex] = this[toIndex]
+    this[toIndex] = t
+}

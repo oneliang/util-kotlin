@@ -17,3 +17,7 @@ fun Long.calculateRemainder(modulus: Long): Long = MathUtil.calculateRemainder(t
 fun Long.calculatePieceAndRemainder(modulus: Long): Pair<Long, Long> = MathUtil.calculatePieceAndRemainder(this, modulus)
 
 fun Int.calculateIndex(rowsPerPage: Int, currentPage: Int): Pair<Int, Int> = MathUtil.calculateIndex(this, rowsPerPage, currentPage)
+
+fun <T> Array<T>.calculatePermutation(start: Int = 0) = MathUtil.calculatePermutation(this, 0)
+
+fun <T> Array<T>.calculatePermutation(start: Int = 0, block: (Array<T>) -> Unit) = MathUtil.calculatePermutation(this, 0, block)

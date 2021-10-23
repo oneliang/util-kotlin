@@ -78,4 +78,24 @@ object MathUtil {
         }
         return fromIndex to toIndex
     }
+
+    fun <T> calculatePermutation(array: Array<T>, start: Int = 0): List<Array<T>> {
+        val list = mutableListOf<Array<T>>()
+        calculatePermutation(array, start) {
+            list += it
+        }
+        return list
+    }
+
+    fun <T> calculatePermutation(array: Array<T>, start: Int = 0, block: (Array<T>) -> Unit) {
+        if (start == array.size) {
+            return block(array.copyOf())
+        } else {
+            for (i in start until array.size) {
+                array.swap(i, start)
+                calculatePermutation(array, start + 1, block)
+                array.swap(start, i)
+            }
+        }
+    }
 }
