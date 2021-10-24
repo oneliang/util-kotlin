@@ -18,6 +18,8 @@ fun Long.calculatePieceAndRemainder(modulus: Long): Pair<Long, Long> = MathUtil.
 
 fun Int.calculateIndex(rowsPerPage: Int, currentPage: Int): Pair<Int, Int> = MathUtil.calculateIndex(this, rowsPerPage, currentPage)
 
+inline fun <reified T> Array<T>.calculateCompose(composeSize: Int) = MathUtil.calculateCompose(this, composeSize)
+
 fun <T> Array<T>.calculatePermutation(start: Int = 0) = MathUtil.calculatePermutation(this, 0)
 
 fun <T> Array<T>.calculatePermutation(start: Int = 0, block: (Array<T>) -> Unit) = MathUtil.calculatePermutation(this, 0, block)

@@ -48,6 +48,14 @@ object MathUtil {
         return list
     }
 
+    inline fun <reified T> calculateCompose(array: Array<T>, composeSize: Int): List<Array<T>> {
+        val list = mutableListOf<Array<T>>()
+        calculateCompose(Stack(), array.size, composeSize, 0, 0, true) { indexArray ->
+            list += indexArray.toNewArray { array[it] }
+        }
+        return list
+    }
+
     fun calculateCompose(totalSize: Int, composeSize: Int, block: (Array<Int>) -> Unit) {
         calculateCompose(Stack(), totalSize, composeSize, 0, 0, false, block)
     }
@@ -56,7 +64,7 @@ object MathUtil {
         calculateCompose(Stack(), totalSize, composeSize, 0, 0, outputIndex, block)
     }
 
-    private fun calculateCompose(stack: Stack<Int>, totalSize: Int, composeSize: Int, depth: Int, startIndex: Int, outputIndex: Boolean = false, block: (Array<Int>) -> Unit) {
+    fun calculateCompose(stack: Stack<Int>, totalSize: Int, composeSize: Int, depth: Int, startIndex: Int, outputIndex: Boolean = false, block: (Array<Int>) -> Unit) {
         if (depth == composeSize) {
             block(stack.toTypedArray())
             return
@@ -98,4 +106,9 @@ object MathUtil {
             }
         }
     }
+}
+
+fun main() {
+    val array = arrayOf("A", "B", "C", "D", "E")
+
 }
