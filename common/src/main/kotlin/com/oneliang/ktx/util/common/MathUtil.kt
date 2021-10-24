@@ -87,22 +87,22 @@ object MathUtil {
         return fromIndex to toIndex
     }
 
-    fun <T> calculatePermutation(array: Array<T>, start: Int = 0): List<Array<T>> {
+    fun <T> calculatePermutation(array: Array<T>, startIndex: Int = 0): List<Array<T>> {
         val list = mutableListOf<Array<T>>()
-        calculatePermutation(array, start) {
+        calculatePermutation(array, startIndex) {
             list += it
         }
         return list
     }
 
-    fun <T> calculatePermutation(array: Array<T>, start: Int = 0, block: (Array<T>) -> Unit) {
-        if (start == array.size) {
+    fun <T> calculatePermutation(array: Array<T>, startIndex: Int = 0, block: (Array<T>) -> Unit) {
+        if (startIndex == array.size) {
             return block(array.copyOf())
         } else {
-            for (i in start until array.size) {
-                array.swap(i, start)
-                calculatePermutation(array, start + 1, block)
-                array.swap(start, i)
+            for (i in startIndex until array.size) {
+                array.swap(i, startIndex)
+                calculatePermutation(array, startIndex + 1, block)
+                array.swap(startIndex, i)
             }
         }
     }

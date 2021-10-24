@@ -20,6 +20,6 @@ fun Int.calculateIndex(rowsPerPage: Int, currentPage: Int): Pair<Int, Int> = Mat
 
 inline fun <reified T> Array<T>.calculateCompose(composeSize: Int) = MathUtil.calculateCompose(this, composeSize)
 
-fun <T> Array<T>.calculatePermutation(start: Int = 0) = MathUtil.calculatePermutation(this, 0)
+fun <T> Array<T>.calculatePermutation(startIndex: Int = 0) = MathUtil.calculatePermutation(this, startIndex)
 
-fun <T> Array<T>.calculatePermutation(start: Int = 0, block: (Array<T>) -> Unit) = MathUtil.calculatePermutation(this, 0, block)
+fun <T> Array<T>.calculatePermutation(startIndex: Int = 0, block: (Array<T>) -> Unit) = MathUtil.calculatePermutation(this, startIndex, block)
