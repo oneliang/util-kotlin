@@ -1,9 +1,7 @@
 package com.oneliang.ktx.util.concurrent.atomic
 
-import java.util.*
-
 class LRUCacheMap<K : Any, V>(private val maxSize: Int) : Iterable<LRUCacheMap.ItemCounter<K, V>> {
-    private val dataSortedSet = AtomicTreeSet(object : Comparator<ItemCounter<K, V>> {
+    private val dataAtomicTreeSet = AtomicTreeSet(object : Comparator<ItemCounter<K, V>> {
         override fun compare(o1: ItemCounter<K, V>?, o2: ItemCounter<K, V>?): Int {
             if (o1 != null && o2 != null) {
                 return when {
@@ -32,7 +30,7 @@ class LRUCacheMap<K : Any, V>(private val maxSize: Int) : Iterable<LRUCacheMap.I
     private val dataAtomicMap = AtomicMap<K, ItemCounter<K, V>>(this.maxSize)
 
     override fun iterator(): Iterator<ItemCounter<K, V>> {
-        return this.dataSortedSet.iterator()
+        return this.dataAtomicTreeSet.iterator()
     }
 
     fun operate(key: K, create: () -> V): V? {
@@ -40,28 +38,24 @@ class LRUCacheMap<K : Any, V>(private val maxSize: Int) : Iterable<LRUCacheMap.I
             //check size
             val value = create()
             val itemCounter = ItemCounter(key, value).also { it.update() }
-            this.dataSortedSet += itemCounter
+            this.dataAtomicTreeSet += itemCounter
             itemCounter
         }, update = {
             it.update()
-            this.dataSortedSet -= it
+            this.dataAtomicTreeSet -= it
             val newItemCounter = it.copy(it.value)
-            this.dataSortedSet += newItemCounter//replace
+            this.dataAtomicTreeSet += newItemCounter//replace
             newItemCounter
         }, removeWhenFull = {
-            val itemCounter = this.dataSortedSet.last()
-            this.dataSortedSet -= itemCounter
+            val itemCounter = this.dataAtomicTreeSet.last()
+            this.dataAtomicTreeSet -= itemCounter
             itemCounter.key
         })?.value
     }
 
-    operator fun get(key: K): V? {
-        return this.dataAtomicMap[key]?.value
-    }
-
     fun remove(key: K): V? {
         val itemCounter = this.dataAtomicMap - key
-        this.dataSortedSet - itemCounter
+        this.dataAtomicTreeSet - itemCounter
         return itemCounter?.value
     }
 
@@ -70,7 +64,7 @@ class LRUCacheMap<K : Any, V>(private val maxSize: Int) : Iterable<LRUCacheMap.I
     }
 
     fun clear() {
-        this.dataSortedSet.clear()
+        this.dataAtomicTreeSet.clear()
         this.dataAtomicMap.clear()
     }
 

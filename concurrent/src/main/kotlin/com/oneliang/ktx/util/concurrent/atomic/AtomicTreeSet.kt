@@ -8,7 +8,9 @@ class AtomicTreeSet<T>(comparator: Comparator<T>) : Iterable<T> {
     private val treeSet = TreeSet(comparator)
 
     override fun iterator(): Iterator<T> {
-        return this.treeSet.iterator()
+        return this.lock.operate {
+            this.treeSet.iterator()
+        }
     }
 
     operator fun plus(value: T): Boolean {
