@@ -2,10 +2,9 @@ package com.oneliang.ktx.util.concurrent.atomic
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.locks.ReentrantLock
 
 class AtomicMap<K : Any, V> constructor(private val maxSize: Int = 0) : AbstractMap<K, V>() {
-    private val lock = ReentrantLock()
+    private val lock = Lock()
     private val map = ConcurrentHashMap<K, AtomicReference<V>>()
 
     constructor(map: Map<K, V>, maxSize: Int = 0) : this(maxSize) {
@@ -26,7 +25,7 @@ class AtomicMap<K : Any, V> constructor(private val maxSize: Int = 0) : Abstract
         if (this.map.containsKey(key)) {//update when exists
             return atomicUpdate(key, update)
         } else {//create
-            return this.lockOperate {
+            return this.lock.operate {
                 if (this.map.containsKey(key)) {
                     atomicUpdate(key, update)
                 } else {//check size
@@ -48,23 +47,18 @@ class AtomicMap<K : Any, V> constructor(private val maxSize: Int = 0) : Abstract
         }
     }
 
-    private fun <T> lockOperate(operate: () -> T): T {
-        return try {
-            this.lock.lock()
-            operate()
-        } finally {
-            this.lock.unlock()
-        }
-    }
-
     fun remove(key: K): V? {
-        return lockOperate {
+        return this.lock.operate {
             this.map.remove(key)?.get()
         }
     }
 
+    operator fun minus(key: K): V? {
+        return remove(key)
+    }
+
     fun clear() {
-        this.lockOperate {
+        this.lock.operate {
             this.map.clear()
         }
     }

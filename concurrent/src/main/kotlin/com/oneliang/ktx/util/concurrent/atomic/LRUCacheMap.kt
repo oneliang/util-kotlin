@@ -3,7 +3,7 @@ package com.oneliang.ktx.util.concurrent.atomic
 import java.util.*
 
 class LRUCacheMap<K : Any, V>(private val maxSize: Int) : Iterable<LRUCacheMap.ItemCounter<K, V>> {
-    private val dataSortedSet = TreeSet(object : Comparator<ItemCounter<K, V>> {
+    private val dataSortedSet = AtomicTreeSet(object : Comparator<ItemCounter<K, V>> {
         override fun compare(o1: ItemCounter<K, V>?, o2: ItemCounter<K, V>?): Int {
             if (o1 != null && o2 != null) {
                 return when {
@@ -28,6 +28,7 @@ class LRUCacheMap<K : Any, V>(private val maxSize: Int) : Iterable<LRUCacheMap.I
             return 0//o1 is null or o2 is null
         }
     })
+
     private val dataAtomicMap = AtomicMap<K, ItemCounter<K, V>>(this.maxSize)
 
     override fun iterator(): Iterator<ItemCounter<K, V>> {
@@ -56,6 +57,16 @@ class LRUCacheMap<K : Any, V>(private val maxSize: Int) : Iterable<LRUCacheMap.I
 
     operator fun get(key: K): V? {
         return this.dataAtomicMap[key]?.value
+    }
+
+    fun remove(key: K): V? {
+        val itemCounter = this.dataAtomicMap - key
+        this.dataSortedSet - itemCounter
+        return itemCounter?.value
+    }
+
+    operator fun minus(key: K): V? {
+        return this.remove(key)
     }
 
     fun clear() {
