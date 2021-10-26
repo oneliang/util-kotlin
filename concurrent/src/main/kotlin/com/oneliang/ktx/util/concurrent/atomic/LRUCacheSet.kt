@@ -37,8 +37,8 @@ class LRUCacheSet<V : Any>(private val maxSize: Int) : Iterable<LRUCacheSet.Item
             }
         }
 
-    fun add(value: V) {
-        this.dataAtomicMap.operate(value, create = {
+    fun operate(value: V, removeWhenFull: ((itemCounter: ItemCounter<V>) -> Unit)? = null): V? {
+        return this.dataAtomicMap.operate(value, create = {
             //check size
             val itemCounter = ItemCounter(value).also { it.update() }
             this.dataAtomicTreeSet += itemCounter
@@ -53,7 +53,7 @@ class LRUCacheSet<V : Any>(private val maxSize: Int) : Iterable<LRUCacheSet.Item
             val itemCounter = this.dataAtomicTreeSet.last()
             this.dataAtomicTreeSet -= itemCounter
             itemCounter.value
-        })
+        })?.value
     }
 
     fun remove(value: V) {
@@ -61,14 +61,6 @@ class LRUCacheSet<V : Any>(private val maxSize: Int) : Iterable<LRUCacheSet.Item
         if (itemCounter != null) {
             this.dataAtomicTreeSet -= itemCounter
         }
-    }
-
-    operator fun plusAssign(value: V) {
-        this.add(value)
-    }
-
-    operator fun minusAssign(value: V) {
-        this.remove(value)
     }
 
     fun clear() {

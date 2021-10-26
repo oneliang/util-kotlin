@@ -6,12 +6,12 @@ import com.oneliang.ktx.util.concurrent.atomic.LRUCacheSet
 
 fun main() {
     val lruSet = LRUCacheSet<String>(2)
-    lruSet += "B"
-    lruSet += "A"
-    lruSet += "A"
-    lruSet += "B"
-    lruSet += "B"
-    lruSet += "B"
+    lruSet.operate("B")
+    lruSet.operate("A")
+    lruSet.operate("A")
+    lruSet.operate("A")
+    lruSet.operate("B")
+    lruSet.operate("A")
     lruSet.forEach {
         println("${it.value}, last used time:" + it.lastUsedTime.toUtilDate().toFormatString() + ", count:" + it.count)
     }
