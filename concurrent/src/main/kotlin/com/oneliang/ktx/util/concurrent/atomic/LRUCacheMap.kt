@@ -1,39 +1,43 @@
 package com.oneliang.ktx.util.concurrent.atomic
 
 class LRUCacheMap<K : Any, V>(private val maxSize: Int) : Iterable<LRUCacheMap.ItemCounter<K, V>> {
-    private val dataAtomicTreeSet = AtomicTreeSet(object : Comparator<ItemCounter<K, V>> {
-        override fun compare(o1: ItemCounter<K, V>?, o2: ItemCounter<K, V>?): Int {
-            if (o1 != null && o2 != null) {
-                return when {
-                    o1.key == o2.key -> {//same item
-                        0
-                    }
-                    o1.lastUsedTime > o2.lastUsedTime -> {
-                        -1
-                    }
-                    o1.lastUsedTime == o2.lastUsedTime -> {
-                        if (o1.count >= o2.count) {
-                            -1
-                        } else {
-                            1
-                        }
-                    }
-                    else -> {
-                        1
-                    }
+
+    private val dataAtomicTreeSet = AtomicTreeSet<ItemCounter<K, V>> { o1, o2 ->
+        when {
+            o1.key == o2.key -> {//same item
+                0
+            }
+            o1.lastUsedTime > o2.lastUsedTime -> {
+                -1
+            }
+            o1.lastUsedTime == o2.lastUsedTime -> {
+                if (o1.count >= o2.count) {
+                    -1
+                } else {
+                    1
                 }
             }
-            return 0//o1 is null or o2 is null
+            else -> {
+                1
+            }
         }
-    })
-
+    }
     private val dataAtomicMap = AtomicMap<K, ItemCounter<K, V>>(this.maxSize)
 
     override fun iterator(): Iterator<ItemCounter<K, V>> {
         return this.dataAtomicTreeSet.iterator()
     }
 
-    fun operate(key: K, create: () -> V): V? {
+    val size: Int
+        get() {
+            if (this.dataAtomicMap.size == this.dataAtomicTreeSet.size) {
+                return this.dataAtomicTreeSet.size
+            } else {
+                error("size not match, map size:%s, tree set size:%s".format(this.dataAtomicMap.size, this.dataAtomicTreeSet.size))
+            }
+        }
+
+    fun operate(key: K, create: () -> V, removeWhenFull: ((itemCounter: ItemCounter<K, V>) -> Unit)? = null): V? {
         return this.dataAtomicMap.operate(key, create = {
             //check size
             val value = create()
@@ -48,6 +52,7 @@ class LRUCacheMap<K : Any, V>(private val maxSize: Int) : Iterable<LRUCacheMap.I
             newItemCounter
         }, removeWhenFull = {
             val itemCounter = this.dataAtomicTreeSet.last()
+            removeWhenFull?.invoke(itemCounter)
             this.dataAtomicTreeSet -= itemCounter
             itemCounter.key
         })?.value
@@ -55,12 +60,10 @@ class LRUCacheMap<K : Any, V>(private val maxSize: Int) : Iterable<LRUCacheMap.I
 
     fun remove(key: K): V? {
         val itemCounter = this.dataAtomicMap - key
-        this.dataAtomicTreeSet - itemCounter
+        if (itemCounter != null) {
+            this.dataAtomicTreeSet - itemCounter
+        }
         return itemCounter?.value
-    }
-
-    operator fun minus(key: K): V? {
-        return this.remove(key)
     }
 
     fun clear() {

@@ -35,7 +35,8 @@ class AtomicMap<K : Any, V> constructor(private val maxSize: Int = 0) : Abstract
                     } else {
                         if (removeWhenFull != null) {
                             val removeKey = removeWhenFull()
-                            this.map.remove(removeKey)
+//                            println("what?[$removeKey],before:"+this.map.entries)//for debug
+                            this.map.remove(removeKey) ?: error("map remove error, remove key:[$removeKey] not exists")
                             createAndSetToMap()
                         } else {
                             //error
