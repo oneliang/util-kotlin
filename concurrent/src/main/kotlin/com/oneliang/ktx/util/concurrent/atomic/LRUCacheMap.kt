@@ -61,7 +61,7 @@ class LRUCacheMap<K : Any, V>(private val maxSize: Int) : Iterable<LRUCacheMap.I
     fun remove(key: K): V? {
         val itemCounter = this.dataAtomicMap - key
         if (itemCounter != null) {
-            this.dataAtomicTreeSet - itemCounter
+            this.dataAtomicTreeSet -= itemCounter
         }
         return itemCounter?.value
     }
