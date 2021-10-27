@@ -37,10 +37,14 @@ class LRUCacheSet<V : Any>(private val maxSize: Int) : Iterable<LRUCacheSet.Item
             }
         }
 
-    fun operate(value: V, removeWhenFull: ((itemCounter: ItemCounter<V>) -> Unit)? = null): V? {
+    fun operate(value: V, initializeItemCounter: InitializeItemCounter? = null, removeWhenFull: ((itemCounter: ItemCounter<V>) -> Unit)? = null): ItemCounter<V>? {
         return this.dataAtomicMap.operate(value, create = {
             //check size
-            val itemCounter = ItemCounter(value).also { it.update() }
+            val itemCounter = ItemCounter(value).also {
+                it.lastUsedTime = initializeItemCounter?.lastUsedTime ?: it.lastUsedTime
+                it.count = initializeItemCounter?.count ?: it.count
+                it.update()
+            }
             this.dataAtomicTreeSet += itemCounter
             itemCounter
         }, update = {
@@ -53,20 +57,23 @@ class LRUCacheSet<V : Any>(private val maxSize: Int) : Iterable<LRUCacheSet.Item
             val itemCounter = this.dataAtomicTreeSet.last()
             this.dataAtomicTreeSet -= itemCounter
             itemCounter.value
-        })?.value
+        })
     }
 
-    fun remove(value: V) {
+    fun remove(value: V): ItemCounter<V>? {
         val itemCounter = this.dataAtomicMap.remove(value)
         if (itemCounter != null) {
             this.dataAtomicTreeSet -= itemCounter
         }
+        return itemCounter
     }
 
     fun clear() {
         this.dataAtomicTreeSet.clear()
         this.dataAtomicMap.clear()
     }
+
+    class InitializeItemCounter(val lastUsedTime: Long = System.currentTimeMillis(), val count: Int = 0)
 
     class ItemCounter<V>(val value: V) {
 
@@ -83,6 +90,18 @@ class LRUCacheSet<V : Any>(private val maxSize: Int) : Iterable<LRUCacheSet.Item
             itemCounter.lastUsedTime = this.lastUsedTime
             itemCounter.count = this.count
             return itemCounter
+        }
+
+        operator fun component1(): V {
+            return this.value
+        }
+
+        operator fun component2(): Long {
+            return this.lastUsedTime
+        }
+
+        operator fun component3(): Int {
+            return this.count
         }
 
         override fun toString(): String {
