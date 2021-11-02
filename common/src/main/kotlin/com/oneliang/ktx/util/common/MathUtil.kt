@@ -77,12 +77,12 @@ object MathUtil {
         }
     }
 
-    fun calculateIndex(totalRows: Int, rowsPerPage: Int, currentPage: Int): Pair<Int, Int> {
-        val fromIndex = (currentPage - 1) * rowsPerPage
-        val toIndex = if (currentPage * rowsPerPage >= totalRows) {
-            totalRows
+    fun calculateIndex(totalSize: Int, segmentSize: Int, currentSegment: Int): Pair<Int, Int> {
+        val fromIndex = (currentSegment - 1) * segmentSize
+        val toIndex = if (currentSegment * segmentSize >= totalSize) {
+            totalSize
         } else {
-            currentPage * rowsPerPage
+            currentSegment * segmentSize
         }
         return fromIndex to toIndex
     }
