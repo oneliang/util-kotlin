@@ -21,7 +21,7 @@ open class DefaultKotlinClassProcessor : KotlinClassUtil.KotlinClassProcessor {
      * @return Object
      */
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> changeClassProcess(kClass: KClass<T>, values: Array<String>, fieldName: String): Any? {
+    override fun <T : Any, SP> changeClassProcess(kClass: KClass<T>, values: Array<String>, fieldName: String, specialParameter: SP?): Any? {
         var value: Any? = null
         val classType = KotlinClassUtil.getClassType(kClass)
         when (classType) {

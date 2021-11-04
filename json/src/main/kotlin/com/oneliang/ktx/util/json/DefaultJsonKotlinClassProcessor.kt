@@ -6,10 +6,10 @@ import com.oneliang.ktx.util.common.toArray
 import kotlin.reflect.KClass
 
 open class DefaultJsonKotlinClassProcessor : DefaultKotlinClassProcessor() {
-    override fun <T : Any> changeClassProcess(kClass: KClass<T>, values: Array<String>, fieldName: String): Any? {
+    override fun <T : Any, SP> changeClassProcess(kClass: KClass<T>, values: Array<String>, fieldName: String, specialParameter: SP?): Any? {
         val classType = KotlinClassUtil.getClassType(kClass)
         return if (classType != null) {
-            super.changeClassProcess(kClass, values, fieldName)
+            super.changeClassProcess(kClass, values, fieldName, specialParameter)
         } else {
             if (values.isNotEmpty()) {
                 if (kClass.java.isArray) {

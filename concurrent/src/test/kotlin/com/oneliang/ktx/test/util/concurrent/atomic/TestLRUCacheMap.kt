@@ -46,7 +46,7 @@ fun main() {
     println(set.size)
     set.forEach { value ->
 //        lruCacheMap += value
-        lruCacheMap.operate(value, create = { value }, removeWhenFull = { itemCounter ->
+        lruCacheMap.operate(value, create = { value to null }, removeWhenFull = { itemCounter ->
             println("value file size:%s, value remove item:%s".format(lruCacheMap.size, itemCounter.hashCode().toString() + "," + itemCounter.key))
         })
     }

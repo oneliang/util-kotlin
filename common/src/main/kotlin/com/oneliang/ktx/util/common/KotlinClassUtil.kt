@@ -22,6 +22,7 @@ object KotlinClassUtil {
     enum class ClassType {
         KOTLIN_STRING, KOTLIN_CHARACTER, KOTLIN_SHORT, KOTLIN_INTEGER, KOTLIN_LONG,
         KOTLIN_FLOAT, KOTLIN_DOUBLE, KOTLIN_BOOLEAN, KOTLIN_BYTE, JAVA_UTIL_DATE, JAVA_MATH_BIG_DECIMAL,
+
         //        CHAR, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BOOLEAN,
         KOTLIN_STRING_ARRAY,
         KOTLIN_CHAR_ARRAY, KOTLIN_SHORT_ARRAY, KOTLIN_INT_ARRAY, KOTLIN_LONG_ARRAY,
@@ -172,7 +173,21 @@ object KotlinClassUtil {
     </T> */
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> changeType(kClass: KClass<T>, values: Array<String>, fieldName: String = Constants.String.BLANK, classProcessor: KotlinClassProcessor = DEFAULT_KOTLIN_CLASS_PROCESSOR): T? {
-        return classProcessor.changeClassProcess(kClass, values, fieldName) as T?
+        return classProcessor.changeClassProcess(kClass, values, fieldName, null) as T?
+    }
+
+    /**
+     * change type width class processor
+     * @param <T>
+     * @param kClass
+     * @param values
+     * @param fieldName is null if not exist
+     * @param classProcessor
+     * @return Object
+    </T> */
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any, SP> changeType(kClass: KClass<T>, values: Array<String>, fieldName: String = Constants.String.BLANK, classProcessor: KotlinClassProcessor = DEFAULT_KOTLIN_CLASS_PROCESSOR, specialParameter: SP?): T? {
+        return classProcessor.changeClassProcess(kClass, values, fieldName, specialParameter) as T?
     }
 
     interface KotlinClassProcessor {
@@ -182,8 +197,9 @@ object KotlinClassUtil {
          * @param kClass
          * @param values
          * @param fieldName is empty if not exist
+         * @param specialParameter for special use
          * @return Object
          */
-        fun <T : Any> changeClassProcess(kClass: KClass<T>, values: Array<String>, fieldName: String): Any?
+        fun <T : Any, SP> changeClassProcess(kClass: KClass<T>, values: Array<String>, fieldName: String, specialParameter: SP? = null): Any?
     }
 }

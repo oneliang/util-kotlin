@@ -12,6 +12,7 @@ object JsonUtil {
 
     val DEFAULT_JSON_PROCESSOR: JsonProcessor = DefaultJsonProcessor()
     val DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR = DefaultJsonKotlinClassProcessor()
+    val MAPPING_JSON_KOTLIN_CLASS_PROCESSOR = MappingJsonKotlinClassProcessor()
 
     /**
      * Method:basic array to json
@@ -301,7 +302,7 @@ object JsonUtil {
      * @param ignoreFieldNameArray
      * @return T
      */
-    fun <T : Any> jsonObjectToObject(jsonObject: JsonObject, kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, ignoreFirstLetterCase: Boolean = false, ignoreFieldNameArray: Array<String> = emptyArray()): T {
+    fun <T : Any> jsonObjectToObject(jsonObject: JsonObject, kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = MAPPING_JSON_KOTLIN_CLASS_PROCESSOR, fieldNameKClassMapping: Map<String, Pair<MappingJsonKotlinClassProcessor.Type, KClass<*>>> = emptyMap(), ignoreFirstLetterCase: Boolean = false, ignoreFieldNameArray: Array<String> = emptyArray()): T {
         val instance: T
         val methods = kClass.java.methods
         try {
@@ -326,9 +327,9 @@ object JsonUtil {
                         try {
                             if (KotlinClassUtil.isSimpleClass(objectClass)) {
                                 value = if (!jsonObject.isNull(fieldName)) {
-                                    KotlinClassUtil.changeType(objectClass, arrayOf(jsonObject.get(fieldName).toString()), fieldName, classProcessor)
+                                    KotlinClassUtil.changeType(objectClass, arrayOf(jsonObject.get(fieldName).toString()), fieldName, classProcessor, fieldNameKClassMapping)
                                 } else {
-                                    KotlinClassUtil.changeType(objectClass, emptyArray(), fieldName, classProcessor)
+                                    KotlinClassUtil.changeType(objectClass, emptyArray(), fieldName, classProcessor, fieldNameKClassMapping)
                                 }
                             } else if (KotlinClassUtil.isBaseArray(objectClass) || KotlinClassUtil.isSimpleArray(objectClass)) {
                                 if (!jsonObject.isNull(fieldName)) {
@@ -336,7 +337,7 @@ object JsonUtil {
                                 }
                             } else {
                                 if (!jsonObject.isNull(fieldName)) {
-                                    value = KotlinClassUtil.changeType(objectClass, arrayOf(jsonObject.get(fieldName).toString()), fieldName, classProcessor)
+                                    value = KotlinClassUtil.changeType(objectClass, arrayOf(jsonObject.get(fieldName).toString()), fieldName, classProcessor, fieldNameKClassMapping)
                                 }
                             }
                         } catch (e: Throwable) {
@@ -382,19 +383,19 @@ object JsonUtil {
      * @return List<T>
     </T></T> */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> jsonArrayToList(jsonArray: JsonArray, kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, ignoreFirstLetterCase: Boolean = false, ignoreFieldNameArray: Array<String> = emptyArray()): List<T> {
+    fun <T : Any> jsonArrayToList(jsonArray: JsonArray, kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = MAPPING_JSON_KOTLIN_CLASS_PROCESSOR, fieldNameKClassMapping: Map<String, Pair<MappingJsonKotlinClassProcessor.Type, KClass<*>>> = emptyMap(), ignoreFirstLetterCase: Boolean = false, ignoreFieldNameArray: Array<String> = emptyArray()): List<T> {
         val length = jsonArray.length()
         val list = mutableListOf<T>()
         for (i in 0 until length) {
             val jsonArrayItem = jsonArray.get(i)
             if (jsonArrayItem is JsonObject) {
-                list.add(jsonObjectToObject(jsonArrayItem, kClass, classProcessor, ignoreFirstLetterCase, ignoreFieldNameArray))
+                list.add(jsonObjectToObject(jsonArrayItem, kClass, classProcessor, fieldNameKClassMapping, ignoreFirstLetterCase, ignoreFieldNameArray))
             } else if (jsonArrayItem is JsonArray) {
                 //last depth, so spread the data, only base array and simple array use
                 if (KotlinClassUtil.isBaseArray(kClass) || KotlinClassUtil.isSimpleArray(kClass)) {
                     list.add(jsonArrayToArray(jsonArrayItem, kClass, Constants.String.BLANK, classProcessor) as T)
                 } else {
-                    list.add(classProcessor.changeClassProcess(kClass, arrayOf(jsonArrayItem.toString()), Constants.String.BLANK) as T)
+                    list.add(classProcessor.changeClassProcess(kClass, arrayOf(jsonArrayItem.toString()), Constants.String.BLANK, null) as T)
                 }
             }
         }
@@ -406,13 +407,14 @@ object JsonUtil {
      * @param json
      * @param kClass
      * @param classProcessor
+     * @param fieldNameKClassMapping
      * @param ignoreFirstLetterCase
      * @param ignoreFieldNameArray
      * @return T
      */
-    fun <T : Any> jsonToObject(json: String, kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, ignoreFirstLetterCase: Boolean = false, ignoreFieldNameArray: Array<String> = emptyArray()): T {
+    fun <T : Any> jsonToObject(json: String, kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = MAPPING_JSON_KOTLIN_CLASS_PROCESSOR, fieldNameKClassMapping: Map<String, Pair<MappingJsonKotlinClassProcessor.Type, KClass<*>>> = emptyMap(), ignoreFirstLetterCase: Boolean = false, ignoreFieldNameArray: Array<String> = emptyArray()): T {
         val jsonObject = json.jsonToJsonObject()
-        return jsonObjectToObject(jsonObject, kClass, classProcessor, ignoreFirstLetterCase, ignoreFieldNameArray)
+        return jsonObjectToObject(jsonObject, kClass, classProcessor, fieldNameKClassMapping, ignoreFirstLetterCase, ignoreFieldNameArray)
     }
 
     /**
@@ -424,9 +426,9 @@ object JsonUtil {
      * @param ignoreFieldNameArray
      * @return List<T>
     </T> */
-    fun <T : Any> jsonToObjectList(json: String, kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, ignoreFirstLetterCase: Boolean = false, ignoreFieldNameArray: Array<String> = emptyArray()): List<T> {
+    fun <T : Any> jsonToObjectList(json: String, kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, fieldNameKClassMapping: Map<String, Pair<MappingJsonKotlinClassProcessor.Type, KClass<*>>> = emptyMap(), ignoreFirstLetterCase: Boolean = false, ignoreFieldNameArray: Array<String> = emptyArray()): List<T> {
         val jsonArray = json.jsonToJsonArray()
-        return jsonArrayToList(jsonArray, kClass, classProcessor, ignoreFirstLetterCase, ignoreFieldNameArray)
+        return jsonArrayToList(jsonArray, kClass, classProcessor, fieldNameKClassMapping, ignoreFirstLetterCase, ignoreFieldNameArray)
     }
 
     class JsonUtilException(message: String) : Exception(message)
