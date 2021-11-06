@@ -282,18 +282,18 @@ inline fun <T, K, R, SK, M : MutableMap<in K, MutableMap<SK, R>>> Iterable<T>.gr
     return destination
 }
 
-fun <T> Iterable<T>.count(): Map<T, Int> = this.countKey { it }
+fun <T> Iterable<T>.countBySelf(): Map<T, Int> = this.countByKey { it }
 
-fun <T, K> Iterable<T>.countKey(keySelector: (item: T) -> K): Map<K, Int> = this.countKeyTo(mutableMapOf(), keySelector)
+fun <T, K> Iterable<T>.countByKey(keySelector: (item: T) -> K): Map<K, Int> = this.countByKeyTo(mutableMapOf(), keySelector)
 
-fun <T, K, M : MutableMap<in K, Int>> Iterable<T>.countKeyTo(destination: M, keySelector: (item: T) -> K): M {
-    this.countKeyAndCheckTo(destination, keySelector)
+fun <T, K, M : MutableMap<in K, Int>> Iterable<T>.countByKeyTo(destination: M, keySelector: (item: T) -> K): M {
+    this.countByKeyAndCheckTo(destination, keySelector)
     return destination
 }
 
-fun <T, K> Iterable<T>.keyCountAndCheck(keySelector: (item: T) -> K, threshold: Int = 0) = this.countKeyAndCheckTo(mutableMapOf(), keySelector, threshold)
+fun <T, K> Iterable<T>.countByKeyAndCheck(keySelector: (item: T) -> K, threshold: Int = 0) = this.countByKeyAndCheckTo(mutableMapOf(), keySelector, threshold)
 
-fun <T, K, M : MutableMap<in K, Int>> Iterable<T>.countKeyAndCheckTo(destination: M, keySelector: (item: T) -> K, threshold: Int = 0): Boolean {
+fun <T, K, M : MutableMap<in K, Int>> Iterable<T>.countByKeyAndCheckTo(destination: M, keySelector: (item: T) -> K, threshold: Int = 0): Boolean {
     this.forEach { element: T ->
         val key = keySelector(element)
         var keyCount = destination.getOrPut(key) { 0 }

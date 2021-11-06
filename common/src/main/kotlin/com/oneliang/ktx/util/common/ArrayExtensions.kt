@@ -283,18 +283,18 @@ fun <T> Array<T>.swap(fromIndex: Int, toIndex: Int) {
     this[toIndex] = t
 }
 
-fun <T> Array<T>.count(): Map<T, Int> = this.countKey { it }
+fun <T> Array<T>.countBySelf(): Map<T, Int> = this.countByKey { it }
 
-fun <T, K> Array<T>.countKey(keySelector: (item: T) -> K): Map<K, Int> = this.countKeyTo(mutableMapOf(), keySelector)
+fun <T, K> Array<T>.countByKey(keySelector: (item: T) -> K): Map<K, Int> = this.countByKeyTo(mutableMapOf(), keySelector)
 
-fun <T, K, M : MutableMap<in K, Int>> Array<T>.countKeyTo(destination: M, keySelector: (item: T) -> K): M {
-    this.countKeyAndCheckTo(destination, keySelector)
+fun <T, K, M : MutableMap<in K, Int>> Array<T>.countByKeyTo(destination: M, keySelector: (item: T) -> K): M {
+    this.countByKeyAndCheckTo(destination, keySelector)
     return destination
 }
 
-fun <T, K> Array<T>.keyCountAndCheck(keySelector: (item: T) -> K, threshold: Int = 0) = this.countKeyAndCheckTo(mutableMapOf(), keySelector, threshold)
+fun <T, K> Array<T>.countByKeyAndCheck(keySelector: (item: T) -> K, threshold: Int = 0) = this.countByKeyAndCheckTo(mutableMapOf(), keySelector, threshold)
 
-fun <T, K, M : MutableMap<in K, Int>> Array<T>.countKeyAndCheckTo(destination: M, keySelector: (item: T) -> K, threshold: Int = 0): Boolean {
+fun <T, K, M : MutableMap<in K, Int>> Array<T>.countByKeyAndCheckTo(destination: M, keySelector: (item: T) -> K, threshold: Int = 0): Boolean {
     this.forEach { element: T ->
         val key = keySelector(element)
         var keyCount = destination.getOrPut(key) { 0 }
