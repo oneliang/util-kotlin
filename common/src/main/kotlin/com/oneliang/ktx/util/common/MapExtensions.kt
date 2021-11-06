@@ -300,3 +300,29 @@ inline fun <K, V> Map<K, V>.sumByBigDecimal(selector: (key: K, value: V) -> BigD
     }
     return sum
 }
+
+fun <K, V, R> Map<K, V>.count(transform: (key: K, value: V) -> R): Map<R, Int> = this.countTo(mutableMapOf(), transform)
+
+fun <K, V, R, M : MutableMap<in R, Int>> Map<K, V>.countTo(destination: M, transform: (key: K, value: V) -> R): M {
+    this.countAndCheckTo(destination, transform)
+    return destination
+}
+
+fun <K, V, R> Map<K, V>.countAndCheck(transform: (key: K, value: V) -> R, threshold: Int = 0) = this.countAndCheckTo(mutableMapOf(), transform, threshold)
+
+fun <K, V, R, M : MutableMap<in R, Int>> Map<K, V>.countAndCheckTo(destination: M, transform: (key: K, value: V) -> R, threshold: Int = 0): Boolean {
+    this.forEach { (key: K, value: V) ->
+        val newKey = transform(key, value)
+        var keyCount = destination.getOrPut(newKey) { 0 }
+        keyCount++
+        if (threshold > 0) {
+            if (keyCount > threshold) {
+                return false//break and return
+            }
+        } else {
+            //default simple count
+        }
+        destination[newKey] = keyCount
+    }
+    return true
+}
