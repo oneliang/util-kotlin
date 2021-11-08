@@ -6,7 +6,12 @@ import com.oneliang.ktx.util.common.toArray
 import kotlin.reflect.KClass
 
 open class DefaultJsonKotlinClassProcessor : DefaultKotlinClassProcessor() {
-    override fun <T : Any, SP> changeClassProcess(kClass: KClass<T>, values: Array<String>, fieldName: String, specialParameter: SP?): Any? {
+
+    enum class Type {
+        OBJECT, ARRAY
+    }
+
+    private fun <T : Any, SP> changeClassProcessDefault(kClass: KClass<T>, values: Array<String>, fieldName: String, specialParameter: SP?): Any? {
         val classType = KotlinClassUtil.getClassType(kClass)
         return if (classType != null) {
             super.changeClassProcess(kClass, values, fieldName, specialParameter)
@@ -22,6 +27,28 @@ open class DefaultJsonKotlinClassProcessor : DefaultKotlinClassProcessor() {
             } else {
                 null
             }
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any, SP> changeClassProcess(kClass: KClass<T>, values: Array<String>, fieldName: String, specialParameter: SP?): Any? {
+        return if (specialParameter != null && specialParameter is Map<*, *> && specialParameter.isNotEmpty()) {
+            try {
+                val fieldNameKClassMapping = specialParameter as Map<String, Pair<Type, KClass<*>>>
+                if (fieldNameKClassMapping.containsKey(fieldName)) {
+                    val (type, fieldNameKClass) = fieldNameKClassMapping[fieldName]!!
+                    when (type) {
+                        Type.OBJECT -> values[0].jsonToObject(fieldNameKClass, this, specialParameter)
+                        Type.ARRAY -> values[0].jsonToObjectList(fieldNameKClass, this, specialParameter)
+                    }
+                } else {
+                    this.changeClassProcessDefault(kClass, values, fieldName, specialParameter)
+                }
+            } catch (e: Throwable) {
+                this.changeClassProcessDefault(kClass, values, fieldName, specialParameter)
+            }
+        } else {
+            this.changeClassProcessDefault(kClass, values, fieldName, specialParameter)
         }
     }
 }
