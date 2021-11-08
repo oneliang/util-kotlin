@@ -11,7 +11,7 @@ open class DefaultJsonKotlinClassProcessor : DefaultKotlinClassProcessor() {
         OBJECT, ARRAY
     }
 
-    private fun <T : Any, SP> changeClassProcessDefault(kClass: KClass<T>, values: Array<String>, fieldName: String, specialParameter: SP?): Any? {
+    private fun <T : Any, SP> simplyChangeClassProcess(kClass: KClass<T>, values: Array<String>, fieldName: String, specialParameter: SP?): Any? {
         val classType = KotlinClassUtil.getClassType(kClass)
         return if (classType != null) {
             super.changeClassProcess(kClass, values, fieldName, specialParameter)
@@ -42,13 +42,13 @@ open class DefaultJsonKotlinClassProcessor : DefaultKotlinClassProcessor() {
                         Type.ARRAY -> values[0].jsonToObjectList(fieldNameKClass, this, specialParameter)
                     }
                 } else {
-                    this.changeClassProcessDefault(kClass, values, fieldName, specialParameter)
+                    this.simplyChangeClassProcess(kClass, values, fieldName, specialParameter)
                 }
             } catch (e: Throwable) {
-                this.changeClassProcessDefault(kClass, values, fieldName, specialParameter)
+                this.simplyChangeClassProcess(kClass, values, fieldName, specialParameter)
             }
         } else {
-            this.changeClassProcessDefault(kClass, values, fieldName, specialParameter)
+            this.simplyChangeClassProcess(kClass, values, fieldName, specialParameter)
         }
     }
 }
