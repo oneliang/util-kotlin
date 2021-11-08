@@ -11,18 +11,18 @@ open class DefaultJsonKotlinClassProcessor : DefaultKotlinClassProcessor() {
         OBJECT, ARRAY
     }
 
-    private fun <T : Any, SP> simplyChangeClassProcess(kClass: KClass<T>, values: Array<String>, fieldName: String, specialParameter: SP?): Any? {
+    private fun <T : Any> simplyChangeClassProcess(kClass: KClass<T>, values: Array<String>, fieldName: String, fieldNameKClassMapping: Map<String, Pair<Type, KClass<*>>> = emptyMap()): Any? {
         val classType = KotlinClassUtil.getClassType(kClass)
         return if (classType != null) {
-            super.changeClassProcess(kClass, values, fieldName, specialParameter)
+            super.changeClassProcess(kClass, values, fieldName, null)
         } else {
             if (values.isNotEmpty()) {
                 if (kClass.java.isArray) {
                     val arrayComponentKClass = kClass.java.componentType.kotlin
-                    val objectList = JsonUtil.jsonToObjectList(values[0], arrayComponentKClass, this)
+                    val objectList = JsonUtil.jsonToObjectList(values[0], arrayComponentKClass, this, fieldNameKClassMapping)
                     objectList.toArray(arrayComponentKClass)
                 } else {
-                    JsonUtil.jsonToObject(values[0], kClass, this)
+                    JsonUtil.jsonToObject(values[0], kClass, this, fieldNameKClassMapping)
                 }
             } else {
                 null
@@ -38,17 +38,17 @@ open class DefaultJsonKotlinClassProcessor : DefaultKotlinClassProcessor() {
                 if (fieldNameKClassMapping.containsKey(fieldName)) {
                     val (type, fieldNameKClass) = fieldNameKClassMapping[fieldName]!!
                     when (type) {
-                        Type.OBJECT -> values[0].jsonToObject(fieldNameKClass, this, specialParameter)
-                        Type.ARRAY -> values[0].jsonToObjectList(fieldNameKClass, this, specialParameter)
+                        Type.OBJECT -> JsonUtil.jsonToObject(values[0], fieldNameKClass, this, specialParameter)
+                        Type.ARRAY -> JsonUtil.jsonToObjectList(values[0], fieldNameKClass, this, specialParameter)
                     }
                 } else {
-                    this.simplyChangeClassProcess(kClass, values, fieldName, specialParameter)
+                    this.simplyChangeClassProcess(kClass, values, fieldName, fieldNameKClassMapping)
                 }
             } catch (e: Throwable) {
-                this.simplyChangeClassProcess(kClass, values, fieldName, specialParameter)
+                this.simplyChangeClassProcess(kClass, values, fieldName)
             }
         } else {
-            this.simplyChangeClassProcess(kClass, values, fieldName, specialParameter)
+            this.simplyChangeClassProcess(kClass, values, fieldName)
         }
     }
 }
