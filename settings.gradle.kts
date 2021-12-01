@@ -17,6 +17,7 @@ include(":upload")
 include(":math")
 include(":validator")
 include(":reflect")
+include(":jwt")
 
 //libraries
 apply(from = "${rootDir}/libraries/libraries.gradle")
