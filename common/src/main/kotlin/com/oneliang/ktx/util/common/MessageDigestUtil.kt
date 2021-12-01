@@ -51,7 +51,7 @@ object MessageDigestUtil {
     fun digest(algorithm: Algorithm, inputStream: InputStream): ByteArray {
         try {
             return digest(algorithm) {
-                val buffer = ByteArray(1024)
+                val buffer = ByteArray(Constants.Capacity.BYTES_PER_KB)
                 var readCount: Int
                 readCount = inputStream.read(buffer, 0, buffer.size)
                 while (readCount != -1) {
