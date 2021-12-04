@@ -8,7 +8,6 @@ import com.oneliang.ktx.util.json.toJson
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.util.concurrent.ConcurrentHashMap
 import javax.script.Invocable
-import javax.script.ScriptContext
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 
@@ -32,13 +31,13 @@ object Template {
                     json = option.json
                 }
             }
-            logger.verbose("data object json:$json")
+            if (option.showLog) logger.verbose("data object json:$json")
             scriptEngine.eval(JavaScriptFunctionGenerator.template())
             val invocable = scriptEngine as Invocable
-            logger.verbose("template content:%s", templateContent)
+            if (option.showLog) logger.verbose("template content:%s", templateContent)
             var functionResult = invocable.invokeFunction(JavaScriptFunctionGenerator.FUNCTION_TEMPLATE, templateContent)
             val getResultFunction = JavaScriptFunctionGenerator.getResult(functionResult.toString())
-            logger.verbose("get result content:%s", getResultFunction)
+            if (option.showLog) logger.verbose("get result content:%s", getResultFunction)
             scriptEngine.eval(getResultFunction)
             functionResult = invocable.invokeFunction(JavaScriptFunctionGenerator.FUNCTION_GET_RESULT, json)
 
@@ -47,7 +46,7 @@ object Template {
             } else {
                 templateContent
             }
-            logger.debug("template engine map size:%s, result:%s", templateEngineMap.size, result)
+            if (option.showLog) logger.debug("template engine map size:%s, result:%s", templateEngineMap.size, result)
             return result
         } catch (e: Exception) {
             logger.error(Constants.String.EXCEPTION, e)
@@ -65,7 +64,7 @@ object Template {
             }
             val templateContent = stringBuilder.toString()
             val result = generate(templateContent, option)
-            logger.debug("result:%s", result)
+            if (option.showLog) logger.debug("result:%s", result)
             val toFileByteArray = result.toByteArray(Charsets.UTF_8)
             FileUtil.writeFile(toFullFilename, toFileByteArray)
         } catch (e: Exception) {
@@ -81,6 +80,7 @@ object Template {
         var instance: Any? = null
         var json: String = Constants.String.BLANK
         var jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR
+        var showLog = false
     }
 
     private object JavaScriptFunctionGenerator {
