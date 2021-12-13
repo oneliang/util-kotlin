@@ -10,6 +10,9 @@ class ThreadPool : Runnable {
         private val logger = LoggerManager.getLogger(ThreadPool::class)
     }
 
+    @Volatile
+    private var hasBeenInitialized = false
+
     var minThreads = 0
     var maxThreads = 1
     private var totalTaskCount = 0
@@ -21,7 +24,7 @@ class ThreadPool : Runnable {
     private var processor: Processor? = null
     private val lock = Object()
 
-    private fun initialPool() {
+    private fun initialize() {
         this.daemonThread = DaemonThread()
         this.daemonThread?.start()
         this.allInnerThread = arrayOfNulls(this.maxThreads)
@@ -34,7 +37,6 @@ class ThreadPool : Runnable {
     }
 
     override fun run() {
-        initialPool()
         while (!Thread.currentThread().isInterrupted) {
             try {
                 if (!this.threadTaskQueue.isEmpty()) {
@@ -97,11 +99,16 @@ class ThreadPool : Runnable {
             this.thread?.priority = Thread.NORM_PRIORITY
             this.thread?.start()
         }
+        if (!this.hasBeenInitialized) {
+            this.initialize()
+            this.hasBeenInitialized = true
+        }
     }
 
     /**
      * real interrupt
      */
+    @Synchronized
     fun interrupt() {
         for ((i, innerThread) in this.allInnerThread.withIndex()) {
             if (innerThread != null) {
@@ -118,6 +125,7 @@ class ThreadPool : Runnable {
             this.daemonThread = null
         }
         this.threadTaskQueue.clear()
+        this.hasBeenInitialized = false
     }
 
     /**
@@ -182,11 +190,13 @@ class ThreadPool : Runnable {
         private var finishedTimeMillis: Long = 0
         private var currentThreadTask: ThreadTask? = null
         private val lock = Object()
+
         /**
          * @return the finishedCount
          */
         var finishedCount = 0
             private set
+
         /**
          * @return the executeCount
          */
