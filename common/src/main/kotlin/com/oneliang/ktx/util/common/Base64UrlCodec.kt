@@ -1,5 +1,15 @@
 package com.oneliang.ktx.util.common
 
+/**
+ * use Base64UrlCodec to encode
+ */
+fun ByteArray.encodeToBase64Url(): String = Base64UrlCodec.encode(this)
+
+/**
+ * use Base64UrlCodec to decode
+ */
+fun String.decodeFromBase64Url(): ByteArray = Base64UrlCodec.decode(this)
+
 object Base64UrlCodec {
 
     fun encode(data: ByteArray): String {
@@ -11,10 +21,10 @@ object Base64UrlCodec {
 
         //replace URL-unfriendly Base64 chars to url-friendly ones:
         for (i in byteArray.indices) {
-            if (byteArray[i] == '+'.toByte()) {
-                byteArray[i] = '-'.toByte()
-            } else if (byteArray[i] == '/'.toByte()) {
-                byteArray[i] = '_'.toByte()
+            if (byteArray[i] == '+'.code.toByte()) {
+                byteArray[i] = '-'.code.toByte()
+            } else if (byteArray[i] == '/'.code.toByte()) {
+                byteArray[i] = '_'.code.toByte()
             }
         }
         return String(byteArray, Charsets.US_ASCII)
@@ -24,7 +34,7 @@ object Base64UrlCodec {
         var result = bytes
         var paddingCount = 0
         for (i in bytes.size - 1 downTo 1) {
-            if (bytes[i] == '='.toByte()) {
+            if (bytes[i] == '='.code.toByte()) {
                 paddingCount++
             } else {
                 break
