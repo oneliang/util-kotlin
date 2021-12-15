@@ -14,7 +14,7 @@ fun parseJwt(jwtData: String, signatureBlock: (signatureString: String) -> ByteA
  */
 object JsonWebToken {
 
-    const val JWT = "JWT"
+    const val TYPE_JWT = "JWT"
 
     fun create(headerByteArray: ByteArray, bodyByteArray: ByteArray, signatureBlock: (signatureString: String) -> ByteArray): String {
         val headerBase64UrlEncode = headerByteArray.encodeToBase64Url()
