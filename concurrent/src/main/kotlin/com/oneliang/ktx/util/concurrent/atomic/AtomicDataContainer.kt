@@ -40,6 +40,17 @@ class AtomicDataContainer<K : Any, V> {
         }
     }
 
+    fun remove(key: K): V? {
+        val reentrantLock = this.reentrantLockMap[key] ?: return null
+        try {
+            reentrantLock.lock()
+            this.reentrantLockMap.remove(key)
+            return this.map.remove(key)
+        } finally {
+            reentrantLock.unlock()
+        }
+    }
+
     private fun doLockBlock(key: K, reentrantLock: ReentrantLock, block: () -> V): V? {
         val result: V?
         try {
