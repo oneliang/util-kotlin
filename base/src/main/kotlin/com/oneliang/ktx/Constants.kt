@@ -1,5 +1,7 @@
 package com.oneliang.ktx
 
+import java.util.*
+
 object Constants {
 
     object Time {
@@ -65,7 +67,9 @@ object Constants {
             }
         }
         val NEW_LINE = System.lineSeparator() ?: CRLF_STRING
-        val ELLIPSIS = "..."
+        const val ELLIPSIS = "..."
+        const val EMPTY_OBJECT_JSON = Symbol.BIG_BRACKET_LEFT + Symbol.BIG_BRACKET_RIGHT
+        const val EMPTY_ARRAY_JSON = Symbol.MIDDLE_BRACKET_LEFT + Symbol.MIDDLE_BRACKET_RIGHT
     }
 
     object Symbol {
@@ -420,5 +424,9 @@ object Constants {
     object CompressType {
         const val GZIP = "gzip"
         const val ZIP = "zip"
+    }
+
+    object Date {
+        val DEFAULT = Date(0)
     }
 }
