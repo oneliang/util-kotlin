@@ -161,7 +161,7 @@ inline fun <T, R> Iterable<T>.toHashSet(transform: (item: T) -> R): Set<R> {
     return hashSet
 }
 
-inline fun <T, R : Any> Iterable<T>.mapWithFilter(filter: (item: T) -> Boolean, transform: (item: T) -> R): List<R> {
+inline fun <T, R> Iterable<T>.mapWithFilter(filter: (item: T) -> Boolean, transform: (item: T) -> R): List<R> {
     return this.mapNotNull {
         if (!filter(it)) {
             null
