@@ -5,22 +5,21 @@ import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
-fun String.DESEncrypt(keyByteArray: ByteArray): String = Des.encrypt(this.toByteArray(Charsets.UTF_8), keyByteArray).toHexString()
-fun ByteArray.DESEncrypt(keyByteArray: ByteArray): ByteArray = Des.encrypt(this, keyByteArray)
-fun InputStream.DESEncrypt(keyByteArray: ByteArray): ByteArray = Des.encrypt(this, keyByteArray)
+fun String.DESEncrypt(keyByteArray: ByteArray, ivParameterByteArray: ByteArray): String = Des.encrypt(this.toByteArray(Charsets.UTF_8), keyByteArray, ivParameterByteArray).toHexString()
+fun ByteArray.DESEncrypt(keyByteArray: ByteArray, ivParameterByteArray: ByteArray): ByteArray = Des.encrypt(this, keyByteArray, ivParameterByteArray)
+fun InputStream.DESEncrypt(keyByteArray: ByteArray, ivParameterByteArray: ByteArray): ByteArray = Des.encrypt(this, keyByteArray, ivParameterByteArray)
 
-fun String.DESDecrypt(keyByteArray: ByteArray): String = Des.decrypt(this.toByteArray(Charsets.UTF_8), keyByteArray).toHexString()
-fun ByteArray.DESDecrypt(keyByteArray: ByteArray): ByteArray = Des.decrypt(this, keyByteArray)
-fun InputStream.DESDecrypt(keyByteArray: ByteArray): ByteArray = Des.decrypt(this, keyByteArray)
+fun String.DESDecrypt(keyByteArray: ByteArray, ivParameterByteArray: ByteArray): String = Des.decrypt(this.toByteArray(Charsets.UTF_8), keyByteArray, ivParameterByteArray).toHexString()
+fun ByteArray.DESDecrypt(keyByteArray: ByteArray, ivParameterByteArray: ByteArray): ByteArray = Des.decrypt(this, keyByteArray, ivParameterByteArray)
+fun InputStream.DESDecrypt(keyByteArray: ByteArray, ivParameterByteArray: ByteArray): ByteArray = Des.decrypt(this, keyByteArray, ivParameterByteArray)
 
 object Des {
     private const val DES = "DES"
     private const val DES_CBC_PKC5PADDING = "DES/CBC/PKCS5Padding"
-    private val IV = byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8)
 
-    private val desFirstBlock: (encrypt: Boolean, keyByteArray: ByteArray) -> Cipher = { encrypt, key ->
-        val ivParameterSpec = IvParameterSpec(IV)
-        val secretKeySpec = SecretKeySpec(key, DES)
+    private val desFirstBlock: (encrypt: Boolean, keyByteArray: ByteArray, ivParameterByteArray: ByteArray) -> Cipher = { encrypt, keyByteArray, ivParameterByteArray ->
+        val secretKeySpec = SecretKeySpec(keyByteArray, DES)
+        val ivParameterSpec = IvParameterSpec(ivParameterByteArray)
         val cipher = Cipher.getInstance(DES_CBC_PKC5PADDING)
         if (encrypt) {
             cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec)
@@ -30,40 +29,40 @@ object Des {
         cipher
     }
 
-    fun encrypt(inputStream: InputStream, keyByteArray: ByteArray): ByteArray {
+    fun encrypt(inputStream: InputStream, keyByteArray: ByteArray, ivParameterByteArray: ByteArray): ByteArray {
         return try {
             return CryptoUtil.cryptoDigest(inputStream) {
-                desFirstBlock(true, keyByteArray)
+                desFirstBlock(true, keyByteArray, ivParameterByteArray)
             }
         } catch (e: Throwable) {
             ByteArray(0)
         }
     }
 
-    fun encrypt(byteArray: ByteArray, keyByteArray: ByteArray): ByteArray {
+    fun encrypt(byteArray: ByteArray, keyByteArray: ByteArray, ivParameterByteArray: ByteArray): ByteArray {
         return try {
             return CryptoUtil.cryptoDigest(byteArray) {
-                desFirstBlock(true, keyByteArray)
+                desFirstBlock(true, keyByteArray, ivParameterByteArray)
             }
         } catch (e: Throwable) {
             ByteArray(0)
         }
     }
 
-    fun decrypt(inputStream: InputStream, keyByteArray: ByteArray): ByteArray {
+    fun decrypt(inputStream: InputStream, keyByteArray: ByteArray, ivParameterByteArray: ByteArray): ByteArray {
         return try {
             return CryptoUtil.cryptoDigest(inputStream) {
-                desFirstBlock(false, keyByteArray)
+                desFirstBlock(false, keyByteArray, ivParameterByteArray)
             }
         } catch (e: Throwable) {
             ByteArray(0)
         }
     }
 
-    fun decrypt(byteArray: ByteArray, keyByteArray: ByteArray): ByteArray {
+    fun decrypt(byteArray: ByteArray, keyByteArray: ByteArray, ivParameterByteArray: ByteArray): ByteArray {
         return try {
             return CryptoUtil.cryptoDigest(byteArray) {
-                desFirstBlock(false, keyByteArray)
+                desFirstBlock(false, keyByteArray, ivParameterByteArray)
             }
         } catch (e: Throwable) {
             ByteArray(0)
