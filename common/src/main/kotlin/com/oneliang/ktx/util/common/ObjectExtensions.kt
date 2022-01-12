@@ -20,13 +20,13 @@ inline fun <T> T.convertByCondition(conditionBlock: () -> Boolean, successValue:
     }
 }
 
-fun <T : Any?> T.ifNull(block: (t: T) -> Unit) {
+inline fun <T : Any?> T.ifNull(block: (t: T) -> Unit) {
     if (this == null) {
         block(this)
     }
 }
 
-fun <T : Any> T?.ifNotNull(block: (t: T) -> Unit) {
+inline fun <T : Any> T?.ifNotNull(block: (t: T) -> Unit) {
     if (this != null) {
         block(this)
     }
