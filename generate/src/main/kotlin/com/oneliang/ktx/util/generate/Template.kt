@@ -2,6 +2,7 @@ package com.oneliang.ktx.util.generate
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.MD5String
+import com.oneliang.ktx.util.common.readContentIgnoreLine
 import com.oneliang.ktx.util.file.FileUtil
 import com.oneliang.ktx.util.json.JsonUtil
 import com.oneliang.ktx.util.json.toJson
@@ -41,10 +42,21 @@ object Template {
             scriptEngine.eval(getResultFunction)
             functionResult = invocable.invokeFunction(JavaScriptFunctionGenerator.FUNCTION_GET_RESULT, json)
 
-            val result = if (functionResult != null && functionResult.toString().isNotBlank()) {
+            var result = if (functionResult != null && functionResult.toString().isNotBlank()) {
                 functionResult.toString()
             } else {
                 templateContent
+            }
+            if (option.removeBlankLine) {
+                val resultBuilder = StringBuilder()
+                result.byteInputStream().readContentIgnoreLine {
+                    if (it.isNotBlank()) {
+                        resultBuilder.append(it)
+                        resultBuilder.append(Constants.String.CRLF_STRING)
+                    }
+                    true
+                }
+                result = resultBuilder.toString()
             }
             if (option.showLog) logger.debug("template engine map size:%s, result:%s", templateEngineMap.size, result)
             return result
@@ -81,6 +93,7 @@ object Template {
         var json: String = Constants.String.BLANK
         var jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR
         var showLog = false
+        var removeBlankLine = false
     }
 
     private object JavaScriptFunctionGenerator {
