@@ -265,9 +265,14 @@ fun String.toBriefString(retainLength: Int = this.length): String {
     }
 }
 
+@Deprecated("will delete it in future", replaceWith = ReplaceWith("this.ifNullOrBlank { defaultValue }"), level = DeprecationLevel.WARNING)
 fun String?.toDefaultWhenIsNullOrBlank(defaultValue: String): String {
+    return this.ifNullOrBlank { defaultValue }
+}
+
+fun String?.ifNullOrBlank(block: () -> String): String {
     return if (this.isNullOrBlank()) {
-        defaultValue
+        block()
     } else {
         this
     }
