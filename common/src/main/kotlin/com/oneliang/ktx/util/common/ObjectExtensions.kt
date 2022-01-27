@@ -12,7 +12,7 @@ inline fun <T> T.convertByCondition(conditionBlock: () -> Boolean, failureValue:
     return this.convertByCondition(conditionBlock, this, failureValue)
 }
 
-inline fun <T> T.convertByCondition(conditionBlock: () -> Boolean, successValue: T, failureValue: T): T {
+inline fun <T, R> T.convertByCondition(conditionBlock: () -> Boolean, successValue: R, failureValue: R): R {
     return if (conditionBlock()) {
         successValue
     } else {
