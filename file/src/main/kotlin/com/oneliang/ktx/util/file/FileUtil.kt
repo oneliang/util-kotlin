@@ -282,15 +282,25 @@ object FileUtil {
 
     /**
      * read file content ignore line
-     *
      * @param fullFilename
      * @param encoding
      * @param append
      * @return String
      */
     fun readFileContentIgnoreLine(fullFilename: String, encoding: String = Constants.Encoding.UTF8, append: String = Constants.String.BLANK): String {
+        return readFileContentIgnoreLine(File(fullFilename), encoding, append)
+    }
+
+    /**
+     * read file content ignore line
+     * @param file
+     * @param encoding
+     * @param append
+     * @return String
+     */
+    fun readFileContentIgnoreLine(file: File, encoding: String = Constants.Encoding.UTF8, append: String = Constants.String.BLANK): String {
         val stringBuilder = StringBuilder()
-        readFileContentIgnoreLine(fullFilename, encoding) { line ->
+        readFileContentIgnoreLine(file, encoding) { line ->
             stringBuilder.append(line)
             stringBuilder.append(append)
             true
@@ -305,9 +315,19 @@ object FileUtil {
      * @param readFileContentProcessor
      */
     fun readFileContentIgnoreLine(fullFilename: String, encoding: String = Constants.Encoding.UTF8, readFileContentProcessor: (line: String) -> Boolean) {
+        readFileContentIgnoreLine(File(fullFilename), encoding, readFileContentProcessor)
+    }
+
+    /**
+     * read file content ignore line
+     * @param file
+     * @param encoding
+     * @param readFileContentProcessor
+     */
+    fun readFileContentIgnoreLine(file: File, encoding: String = Constants.Encoding.UTF8, readFileContentProcessor: (line: String) -> Boolean) {
         var inputStream: InputStream? = null
         try {
-            inputStream = FileInputStream(fullFilename)
+            inputStream = FileInputStream(file)
             StreamUtil.readInputStreamContentIgnoreLine(inputStream, encoding, readFileContentProcessor)
         } catch (e: Exception) {
             throw FileUtilException(e)

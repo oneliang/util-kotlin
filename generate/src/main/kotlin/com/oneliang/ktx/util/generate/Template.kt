@@ -7,6 +7,7 @@ import com.oneliang.ktx.util.file.FileUtil
 import com.oneliang.ktx.util.json.JsonUtil
 import com.oneliang.ktx.util.json.toJson
 import com.oneliang.ktx.util.logging.LoggerManager
+import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import javax.script.Invocable
 import javax.script.ScriptEngine
@@ -67,9 +68,13 @@ object Template {
     }
 
     fun generate(templateFullFilename: String, toFullFilename: String, option: Option) {
+        generate(File(templateFullFilename), toFullFilename, option)
+    }
+
+    fun generate(template: File, toFullFilename: String, option: Option) {
         try {
             val stringBuilder = StringBuilder()
-            FileUtil.readFileContentIgnoreLine(templateFullFilename, Constants.Encoding.UTF8) { line ->
+            FileUtil.readFileContentIgnoreLine(template, Constants.Encoding.UTF8) { line ->
                 stringBuilder.append(line)
                 stringBuilder.append(Constants.String.CRLF_STRING)
                 true
