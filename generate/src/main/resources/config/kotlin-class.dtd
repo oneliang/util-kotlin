@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ELEMENT kotlin-classes (kotlin-class*)>
+<!ELEMENT kotlin-class (import*, field*,codeInClass*)>
+<!ATTLIST kotlin-class packageName CDATA #REQUIRED>
+<!ATTLIST kotlin-class className ID #REQUIRED>
+<!ATTLIST kotlin-class superClassNames CDATA #IMPLIED>
+<!ATTLIST kotlin-class classType (INTERFACE|OPEN_CLASS|CLASS) #REQUIRED>
+<!ELEMENT import EMPTY>
+<!ATTLIST import value CDATA #REQUIRED>
+<!ELEMENT field EMPTY>
+<!ATTLIST field override (false|true) #IMPLIED>
+<!ATTLIST field lateinit (false|true) #IMPLIED>
+<!ATTLIST field name CDATA #REQUIRED>
+<!ATTLIST field type CDATA #REQUIRED>
+<!ATTLIST field nullable (false|true) #IMPLIED>
+<!ATTLIST field defaultValue CDATA #IMPLIED>
+<!ELEMENT codeInClass ANY>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE kotlin-classes SYSTEM "kotlin-class.dtd">
+<kotlin-classes>
+    <kotlin-class packageName="com.oneliang.platform.internal.model.privilege" className="PrivilegeType" classType="CLASS">
+        <import value="java.util.*"/>
+        <import value="com.oneliang.ktx.Constants"/>
+
+        <field name="id" type="String" defaultValue="Constants.String.BLANK"/>
+        <field name="name" type="String" defaultValue="Constants.String.BLANK"/>
+        <codeInClass>
+            <![CDATA[
+
+            ]]>
+        </codeInClass>
+    </kotlin-class>
+</kotlin-classes>

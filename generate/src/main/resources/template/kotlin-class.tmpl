@@ -1,0 +1,29 @@
+package <%=packageName%>
+
+<%for(var i=0;i<importArray.length;i++){%><%var importName=importArray[i];%>
+import <%=importName%>
+<%}%>
+
+<%var classTypeString = 'class';%>
+<%if(classType == 'INTERFACE'){%>
+<%classTypeString = 'interface';%>
+<%}else if(classType == 'OPEN_CLASS'){%>
+<%classTypeString = 'open class';%>
+<%}else{%>
+<%classTypeString = 'class';%>
+<%}%>
+<%=classTypeString%> <%=className%><%=(superClassNames.length != 0 ? " : "+superClassNames : "")%> {
+<%for(var i=0;i<fieldArray.length;i++){%><%var fieldBean = fieldArray[i];%>
+    <%var overrideString = (fieldBean.override ? "override " : "");%>
+    <%var lateinitString = (fieldBean.lateinit ? "lateinit " : "");%>
+    <%var type = fieldBean.type;%>
+    <%var nullable = fieldBean.nullable;%>
+    <%var nullableString = (nullable? "?": "");%>
+    <%var defaultValue = fieldBean.defaultValue;%>
+    <%=overrideString%><%=lateinitString%>var <%=fieldBean.name%>: <%=type%><%=nullableString%> = <%=defaultValue%>
+    <%}%>
+<%}%>
+<%for(var i=0;i<codeInClassArray.length;i++){%><%var codeInClass = codeInClassArray[i];%>
+<%=codeInClass%>
+<%}%>
+}
