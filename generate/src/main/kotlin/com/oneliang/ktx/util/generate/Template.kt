@@ -4,6 +4,7 @@ import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.MD5String
 import com.oneliang.ktx.util.common.readContentIgnoreLine
 import com.oneliang.ktx.util.file.FileUtil
+import com.oneliang.ktx.util.file.fileExists
 import com.oneliang.ktx.util.json.JsonUtil
 import com.oneliang.ktx.util.json.toJson
 import com.oneliang.ktx.util.logging.LoggerManager
@@ -72,6 +73,9 @@ object Template {
     }
 
     fun generate(template: File, toFullFilename: String, option: Option) {
+        if (!option.rewrite && toFullFilename.fileExists()) {
+            error("file exists and rewrite is false, can not rewrite the file:%s".format(toFullFilename))
+        }
         try {
             val stringBuilder = StringBuilder()
             FileUtil.readFileContentIgnoreLine(template, Constants.Encoding.UTF8) { line ->
@@ -97,8 +101,9 @@ object Template {
         var instance: Any? = null
         var json: String = Constants.String.BLANK
         var jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR
-        var showLog = false
-        var removeBlankLine = false
+        var showLog: Boolean = false
+        var removeBlankLine: Boolean = false
+        var rewrite: Boolean = true
     }
 
     private object JavaScriptFunctionGenerator {
