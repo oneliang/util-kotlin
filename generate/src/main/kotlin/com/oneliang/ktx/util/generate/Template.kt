@@ -74,7 +74,8 @@ object Template {
 
     fun generate(template: File, toFullFilename: String, option: Option) {
         if (!option.rewrite && toFullFilename.fileExists()) {
-            error("file exists and rewrite is false, can not rewrite the file:%s".format(toFullFilename))
+            if (option.showLog) logger.debug("file exists and rewrite is false, can not rewrite the file:%s", toFullFilename)
+            return
         }
         try {
             val stringBuilder = StringBuilder()
