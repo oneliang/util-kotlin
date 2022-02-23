@@ -1,0 +1,11 @@
+apply from: "${rootDir}/gradle/feature.gradle"
+apply from: "${rootDir}/gradle/maven-publish.gradle"
+
+jar {
+    manifest {
+        from(project.file("src/main/resources/META-INF/MANIFEST.MF"))
+    }
+}
+
+dependencies {
+}
