@@ -30,6 +30,20 @@ object ZipUtil {
      * @param zipProcessor
      */
     fun zip(directoryFile: File, outputZipFullFilename: String, fileSuffix: String = Constants.String.BLANK, zipProcessor: ((zipEntryName: String, inputStream: InputStream) -> InputStream)? = null) {
+        if (outputZipFullFilename.isBlank()) {
+            error("outputZipFullFilename is blank")
+        }
+        zip(directoryFile, File(outputZipFullFilename), fileSuffix, zipProcessor)
+    }
+
+    /**
+     * zip
+     * @param directoryFile
+     * @param outputZipFile
+     * @param fileSuffix
+     * @param zipProcessor
+     */
+    fun zip(directoryFile: File, outputZipFile: File, fileSuffix: String = Constants.String.BLANK, zipProcessor: ((zipEntryName: String, inputStream: InputStream) -> InputStream)? = null) {
         val matchOption = FileUtil.MatchOption()
         matchOption.fileSuffix = fileSuffix
         val fileList = FileUtil.findMatchFile(directoryFile, matchOption)
@@ -41,7 +55,7 @@ object ZipUtil {
                 zipEntryName = zipEntryName.replace(Constants.Symbol.SLASH_RIGHT, Constants.Symbol.SLASH_LEFT)
                 zipEntryPathList.add(ZipEntryPath(file, ZipEntry(zipEntryName), true))
             }
-            zip(outputZipFullFilename, Constants.String.BLANK, zipEntryPathList, zipProcessor)
+            zip(outputZipFile, Constants.String.BLANK, zipEntryPathList, zipProcessor)
         }
     }
 
@@ -54,6 +68,21 @@ object ZipUtil {
      * @param zipProcessor
      */
     fun zip(outputZipFullFilename: String, inputZipFullFilename: String = Constants.String.BLANK, zipEntryPathList: List<ZipEntryPath>, zipProcessor: ((zipEntryName: String, inputStream: InputStream) -> InputStream)? = null) {
+        if (outputZipFullFilename.isBlank()) {
+            error("outputZipFullFilename is blank")
+        }
+        zip(File(outputZipFullFilename), inputZipFullFilename, zipEntryPathList, zipProcessor)
+    }
+
+    /**
+     * zip
+     * @param outputZipFile
+     * @param inputZipFullFilename,can
+     * blank,the entry will not from the input file
+     * @param zipEntryPathList
+     * @param zipProcessor
+     */
+    fun zip(outputZipFile: File, inputZipFullFilename: String = Constants.String.BLANK, zipEntryPathList: List<ZipEntryPath>, zipProcessor: ((zipEntryName: String, inputStream: InputStream) -> InputStream)? = null) {
         var zipOutputStream: ZipOutputStream? = null
         var zipFile: ZipFile? = null
         val zipEntryPathMap = mutableMapOf<String, ZipEntryPath>()
@@ -65,8 +94,8 @@ object ZipUtil {
             }
         }
         try {
-            FileUtil.createFileIncludeDirectory(outputZipFullFilename)
-            zipOutputStream = ZipOutputStream(FileOutputStream(outputZipFullFilename))
+            outputZipFile.createFileIncludeDirectory()
+            zipOutputStream = ZipOutputStream(FileOutputStream(outputZipFile))
             if (inputZipFullFilename.isNotBlank()) {
                 zipFile = ZipFile(inputZipFullFilename)
                 val enumeration = zipFile.entries()
@@ -217,12 +246,27 @@ object ZipUtil {
      * @return List<String>
     </String> */
     fun unzip(file: File, outputDirectory: String, zipEntryNameList: List<String> = emptyList()): List<String> {
-        FileUtil.createDirectory(outputDirectory)
+        if (outputDirectory.isBlank()) {
+            error("outputDirectory is blank")
+        }
+        return unzip(file, File(outputDirectory), zipEntryNameList)
+    }
+
+    /**
+     * unzip
+     * @param file
+     * @param outputDirectoryFile
+     * @param zipEntryNameList,if
+     * it is null or empty,will unzip all
+     * @return List<String>
+    </String> */
+    fun unzip(file: File, outputDirectoryFile: File, zipEntryNameList: List<String> = emptyList()): List<String> {
+        outputDirectoryFile.createDirectory()
         val storeFileList = mutableListOf<String>()
         var zipFile: ZipFile? = null
         try {
             zipFile = ZipFile(file)
-            val outputDirectoryAbsolutePath = File(outputDirectory).absolutePath
+            val outputDirectoryAbsolutePath = outputDirectoryFile.absolutePath
             val enumeration = zipFile.entries()
             while (enumeration.hasMoreElements()) {
                 val zipEntry = enumeration.nextElement()
@@ -237,25 +281,19 @@ object ZipUtil {
                 }
                 if (contains) {
                     val inputStream = zipFile.getInputStream(zipEntry)
-                    val outputFullFilename = outputDirectoryAbsolutePath + Constants.Symbol.SLASH_LEFT + zipEntryName
+                    val outputFile = File(outputDirectoryAbsolutePath, zipEntryName)
                     if (zipEntry.isDirectory) {
-                        FileUtil.createDirectory(outputFullFilename)
+                        outputFile.createDirectory()
                     } else {
-                        FileUtil.createFileIncludeDirectory(outputFullFilename)
-                        val outputStream = FileOutputStream(outputFullFilename)
+                        outputFile.createFileIncludeDirectory()
+                        val outputStream = FileOutputStream(outputFile)
                         try {
-                            val buffer = ByteArray(Constants.Capacity.BYTES_PER_KB)
-                            var length = inputStream.read(buffer, 0, buffer.size)
-                            while (length != -1) {
-                                outputStream.write(buffer, 0, length)
-                                outputStream.flush()
-                                length = inputStream.read(buffer, 0, buffer.size)
-                            }
+                            inputStream.copyTo(outputStream)
                         } finally {
                             inputStream?.close()
                             outputStream.close()
                         }
-                        storeFileList.add(outputFullFilename)
+                        storeFileList.add(outputFile.absolutePath)
                     }
                 }
             }
