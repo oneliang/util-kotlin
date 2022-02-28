@@ -12,10 +12,20 @@ object StringUtil {
      * @return String
      */
     fun generateZeroString(length: Int): String {
+        return generateSameCharString(Constants.String.ZERO.toCharArray()[0], length)
+    }
+
+    /**
+     * generate same char string
+     * @param length
+     * @return String
+     */
+    fun generateSameCharString(char: Char, length: Int): String {
         val stringBuilder = StringBuilder()
         for (i in 0 until length) {
-            stringBuilder.append(Constants.String.ZERO)
+            stringBuilder.append(char)
         }
         return stringBuilder.toString()
     }
+
 }
