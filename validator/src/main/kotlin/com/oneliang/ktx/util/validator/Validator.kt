@@ -17,9 +17,9 @@ object Validator {
      * @throws Exception
     </ViolateConstrain> */
     @Throws(Exception::class)
-    fun validate(instance: Any, validateProcessor: ValidateProcessor = DEFAULT_VALIDATE_PROCESSOR): List<ViolateConstrain> {
+    fun validate(instance: Any, validateProcessor: ValidateProcessor = DEFAULT_VALIDATE_PROCESSOR): List<ViolateConstraint> {
         val fields = instance.javaClass.declaredFields ?: return emptyList()
-        val violateConstrainList = mutableListOf<ViolateConstrain>()
+        val violateConstrainList = mutableListOf<ViolateConstraint>()
         for (field in fields) {
             val violateConstrain = validateProcessor.validateProcess(instance, field)
             if (violateConstrain != null) {
@@ -38,7 +38,7 @@ object Validator {
          * @throws Exception
          */
         @Throws(Exception::class)
-        fun validateProcess(instance: Any, field: Field): ViolateConstrain?
+        fun validateProcess(instance: Any, field: Field): ViolateConstraint?
     }
 
     class DefaultValidateProcessor : ValidateProcessor {
@@ -50,8 +50,8 @@ object Validator {
          * @throws Exception
          */
         @Throws(Exception::class)
-        override fun validateProcess(instance: Any, field: Field): ViolateConstrain? {
-            var violateConstrain: ViolateConstrain? = null
+        override fun validateProcess(instance: Any, field: Field): ViolateConstraint? {
+            var violateConstraint: ViolateConstraint? = null
             val fieldName = field.name
             if (field.isAnnotationPresent(Numeric::class.java)) {
                 val numeric = field.getAnnotation(Numeric::class.java)
@@ -65,16 +65,16 @@ object Validator {
                             throw Exception("min:$min is larger then max:$max")
                         }
                         value < min -> {
-                            violateConstrain = ViolateConstrain(fieldName, "The field:($fieldName) is violate constrain, $value must >= $min")
+                            violateConstraint = ViolateConstraint(fieldName, "The field:($fieldName) is violate constraint, $value must >= $min")
                         }
                         value > max -> {
-                            violateConstrain = ViolateConstrain(fieldName, "The field:($fieldName) is violate constrain, $value must <= $max")
+                            violateConstraint = ViolateConstraint(fieldName, "The field:($fieldName) is violate constraint, $value must <= $max")
                         }
                     }
                 } else {
                     val nullable = numeric.nullable
                     if (!nullable) {
-                        violateConstrain = ViolateConstrain(fieldName, "The field:($fieldName) is violate constrain, can not be null")
+                        violateConstraint = ViolateConstraint(fieldName, "The field:($fieldName) is violate constraint, can not be null")
                     }
                 }
             } else if (field.isAnnotationPresent(Decimal::class.java)) {
@@ -89,16 +89,16 @@ object Validator {
                             throw Exception("min:$min is larger then max:$max")
                         }
                         value < min -> {
-                            violateConstrain = ViolateConstrain(fieldName, "The field:($fieldName) is violate constrain, $value must >= $min")
+                            violateConstraint = ViolateConstraint(fieldName, "The field:($fieldName) is violate constraint, $value must >= $min")
                         }
                         value > max -> {
-                            violateConstrain = ViolateConstrain(fieldName, "The field:($fieldName) is violate constrain, $value must <= $max")
+                            violateConstraint = ViolateConstraint(fieldName, "The field:($fieldName) is violate constraint, $value must <= $max")
                         }
                     }
                 } else {
                     val nullable = decimal.nullable
                     if (!nullable) {
-                        violateConstrain = ViolateConstrain(fieldName, "The field:($fieldName) is violate constrain, can not be null")
+                        violateConstraint = ViolateConstraint(fieldName, "The field:($fieldName) is violate constraint, can not be null")
                     }
                 }
             } else if (field.isAnnotationPresent(Length::class.java)) {
@@ -113,16 +113,16 @@ object Validator {
                             throw Exception("min:$min is larger then max:$max")
                         }
                         value.length < min -> {
-                            violateConstrain = ViolateConstrain(fieldName, "The field:($fieldName) is violate constrain, $value must >= $min")
+                            violateConstraint = ViolateConstraint(fieldName, "The field:($fieldName) is violate constraint, $value must >= $min")
                         }
                         value.length > max -> {
-                            violateConstrain = ViolateConstrain(fieldName, "The field:($fieldName) is violate constrain, $value must <= $max")
+                            violateConstraint = ViolateConstraint(fieldName, "The field:($fieldName) is violate constraint, $value must <= $max")
                         }
                     }
                 } else {
                     val nullable = length.nullable
                     if (!nullable) {
-                        violateConstrain = ViolateConstrain(fieldName, "The field:($fieldName) is violate constrain, can not be null")
+                        violateConstraint = ViolateConstraint(fieldName, "The field:($fieldName) is violate constraint, can not be null")
                     }
                 }
             } else if (field.isAnnotationPresent(Regex::class.java)) {
@@ -133,20 +133,20 @@ object Validator {
                     val regexArray = regex.value
                     for (regexValue in regexArray) {
                         if (!value.matches(regexValue)) {
-                            violateConstrain = ViolateConstrain(fieldName, "The field:($fieldName) is violate constrain, $value mush match regex value:$regexValue")
+                            violateConstraint = ViolateConstraint(fieldName, "The field:($fieldName) is violate constraint, $value mush match regex value:$regexValue")
                             break
                         }
                     }
                 } else {
                     val nullable = regex.nullable
                     if (!nullable) {
-                        violateConstrain = ViolateConstrain(fieldName, "The field:($fieldName) is violate constrain, can not be null")
+                        violateConstraint = ViolateConstraint(fieldName, "The field:($fieldName) is violate constraint, can not be null")
                     }
                 }
             }
-            return violateConstrain
+            return violateConstraint
         }
     }
 
-    class ViolateConstrain(val fieldName: String, val result: String)
+    class ViolateConstraint(val fieldName: String, val result: String)
 }
