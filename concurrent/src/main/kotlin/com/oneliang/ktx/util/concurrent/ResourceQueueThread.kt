@@ -1,6 +1,5 @@
 package com.oneliang.ktx.util.concurrent
 
-import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.util.concurrent.ConcurrentLinkedQueue
 
