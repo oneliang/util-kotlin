@@ -6,10 +6,10 @@ import com.oneliang.ktx.util.common.toFormatString
 import java.util.*
 
 object Identifier {
-    const val SIMPLE_YEAR = "${Constants.Symbol.MIDDLE_BRACKET_LEFT}Y${Constants.Symbol.MIDDLE_BRACKET_RIGHT}"
-    const val YEAR = "${Constants.Symbol.MIDDLE_BRACKET_LEFT}YYYY${Constants.Symbol.MIDDLE_BRACKET_RIGHT}"
-    const val MONTH = "${Constants.Symbol.MIDDLE_BRACKET_LEFT}M${Constants.Symbol.MIDDLE_BRACKET_RIGHT}"
-    const val DAY = "${Constants.Symbol.MIDDLE_BRACKET_LEFT}D${Constants.Symbol.MIDDLE_BRACKET_RIGHT}"
+    private const val SIMPLE_YEAR = "${Constants.Symbol.MIDDLE_BRACKET_LEFT}Y${Constants.Symbol.MIDDLE_BRACKET_RIGHT}"
+    private const val YEAR = "${Constants.Symbol.MIDDLE_BRACKET_LEFT}YYYY${Constants.Symbol.MIDDLE_BRACKET_RIGHT}"
+    private const val MONTH = "${Constants.Symbol.MIDDLE_BRACKET_LEFT}M${Constants.Symbol.MIDDLE_BRACKET_RIGHT}"
+    private const val DAY = "${Constants.Symbol.MIDDLE_BRACKET_LEFT}D${Constants.Symbol.MIDDLE_BRACKET_RIGHT}"
     fun generate(template: String, keyTemplate: String = Constants.String.BLANK, afterIdentifierKeyGenerate: (identifierKey: String) -> Map<String, String> = { _ -> emptyMap() }): String {
         val currentTime = Date()
         val simpleYearString = currentTime.toFormatString(Constants.Time.SIMPLE_YEAR)
