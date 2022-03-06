@@ -305,3 +305,15 @@ fun String.toFileProtocolString(): String {
 fun String.toFileProtocolURL(): URL {
     return URL(this.toFileProtocolString())
 }
+
+fun String.ifNotBlank(block: (String) -> Unit) {
+    if (this.isNotBlank()) {
+        block(this)
+    }
+}
+
+fun String.ifNotEmpty(block: (String) -> Unit) {
+    if (this.isNotEmpty()) {
+        block(this)
+    }
+}
