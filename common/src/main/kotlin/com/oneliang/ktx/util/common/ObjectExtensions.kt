@@ -20,9 +20,9 @@ inline fun <T, R> T.convertByCondition(conditionBlock: () -> Boolean, successVal
     }
 }
 
-inline fun <T : Any?> T.ifNull(block: (t: T) -> Unit) {
+inline fun <T : Any?> T.ifNull(block: () -> Unit) {
     if (this == null) {
-        block(this)
+        block()
     }
 }
 
