@@ -75,11 +75,18 @@ fun CharSequence.matchesPattern(pattern: String): Boolean {
 fun CharSequence.finds(regex: String): Boolean {
     return this.finds(regex.toRegex())
 }
-
+/**
+ * the regex support full match(use ^ $) and partial match(not include ^ &) for string
+ */
 fun CharSequence.finds(regex: Regex): Boolean {
     return regex.find(this, 0) != null
 }
 
+/**
+ * Returns true if this char sequence matches the given regular expression
+ * only support full match(use ^ $ default)
+ * @param regex
+ */
 fun CharSequence.matches(regex: String): Boolean {
     val matchRegex = regex.toRegex()
     return this.matches(matchRegex)
