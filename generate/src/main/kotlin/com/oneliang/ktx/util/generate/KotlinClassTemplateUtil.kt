@@ -2,8 +2,8 @@ package com.oneliang.ktx.util.generate
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.nullToBlank
-import com.oneliang.ktx.util.common.parseXml
 import com.oneliang.ktx.util.common.toFile
+import com.oneliang.ktx.util.common.toJavaXmlDocument
 import java.io.File
 
 object KotlinClassTemplateUtil {
@@ -17,7 +17,7 @@ object KotlinClassTemplateUtil {
         if (!kotlinClassXmlFile.exists() || !kotlinClassXmlFile.isFile) {
             error("xml does not exists or is not a file, input file [%s]".format(kotlinClassXmlFile.absolutePath))
         }
-        val document = kotlinClassXmlFile.parseXml()
+        val document = kotlinClassXmlFile.toJavaXmlDocument()
         val root = document.documentElement
         val kotlinClassElementList = root.getElementsByTagName(KotlinClassTemplateBean.TAG_KOTLIN_CLASS)
         val kotlinClassTemplateBeanList = mutableListOf<KotlinClassTemplateBean>()
