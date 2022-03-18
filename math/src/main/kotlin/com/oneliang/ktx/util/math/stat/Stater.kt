@@ -73,19 +73,19 @@ object Stater {
         }
     }
 
-    fun <K, V> stat(dataMap: Map<K, V>, statKeyArray: Array<StatKey>, statKeyTransform: (statKey: String) -> K): Map<String, Result> {
+    fun <K, V> stat(dataMap: Map<K, V>, statKeys: Array<StatKey>, statKeyTransform: (statKey: String) -> K): Map<String, Result> {
         val statResultMap = mutableMapOf<String, Result>()
-        statKeyArray.forEach { statKey ->
+        statKeys.forEach { statKey ->
             statResultMap[statKey.newKey] = stat(dataMap, statKey.function, statKeyTransform)
         }
         return statResultMap
     }
 
-    fun <K, V> stat(dataMapIterable: Iterable<Map<K, V>>, statKeyArray: Array<StatKey>, statKeyTransform: (statKey: String) -> K): Map<String, Result> {
+    fun <K, V> stat(dataMapIterable: Iterable<Map<K, V>>, statKeys: Array<StatKey>, statKeyTransform: (statKey: String) -> K): Map<String, Result> {
         val statResultMap = mutableMapOf<String, Result>()
-        val statKeyMap = statKeyArray.toMapBy { it.newKey }
+        val statKeyMap = statKeys.toMapBy { it.newKey }
         dataMapIterable.forEach { dataMap ->
-            val currentStatResultMap = stat(dataMap, statKeyArray, statKeyTransform)
+            val currentStatResultMap = stat(dataMap, statKeys, statKeyTransform)
             statResultMap.merge(currentStatResultMap, statKeyMap)
         }
         return statResultMap

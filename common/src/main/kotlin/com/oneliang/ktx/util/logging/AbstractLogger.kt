@@ -130,16 +130,16 @@ abstract class AbstractLogger(val level: Level) : Logger {
      */
     abstract fun log(level: Level, message: String, throwable: Throwable?, extraInfo: ExtraInfo)
 
-    private fun generateStackTraceInfo(stackTraceArray: Array<StackTraceElement>): String {
+    private fun generateStackTraceInfo(stackTraceElements: Array<StackTraceElement>): String {
         val stringBuilder = StringBuilder()
-        if (stackTraceArray.size > STACK_TRACE_BEGIN_INDEX) {
-            val endIndex = if (stackTraceArray.size > (STACK_TRACE_BEGIN_INDEX + stackTraceMaxSize - 1)) {
+        if (stackTraceElements.size > STACK_TRACE_BEGIN_INDEX) {
+            val endIndex = if (stackTraceElements.size > (STACK_TRACE_BEGIN_INDEX + stackTraceMaxSize - 1)) {
                 STACK_TRACE_BEGIN_INDEX + stackTraceMaxSize - 1//include begin and end
             } else {
-                stackTraceArray.size - 1
+                stackTraceElements.size - 1
             }
             for (i in STACK_TRACE_BEGIN_INDEX..endIndex) {
-                val stackTrace = stackTraceArray[i]
+                val stackTrace = stackTraceElements[i]
                 stringBuilder.append(Constants.Symbol.BRACKET_LEFT + stackTrace.fileName.nullToBlank() + Constants.Symbol.COLON + stackTrace.lineNumber + Constants.Symbol.BRACKET_RIGHT)
             }
         }

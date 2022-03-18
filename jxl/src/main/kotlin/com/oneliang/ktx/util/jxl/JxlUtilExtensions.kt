@@ -48,79 +48,79 @@ fun <T : Any> InputStream.readSimpleExcelForDataRow(headerRowIndex: Int = -1, da
     return JxlUtil.readSimpleExcelForDataRow(workbook, headerRowIndex, dataRowOffset, readDataRow)
 }
 
-fun File.writeSimpleExcel(writeOptionArray: Array<JxlUtil.WriteOption>) {
+fun File.writeSimpleExcel(writeOptions: Array<JxlUtil.WriteOption>) {
     val writableWorkbook = Workbook.createWorkbook(this)
     writableWorkbook.use {
-        JxlUtil.writeSimpleExcel(it, writeOptionArray)
+        JxlUtil.writeSimpleExcel(it, writeOptions)
     }
 }
 
-fun <T> File.writeSimpleExcel(startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>) {
+fun <T> File.writeSimpleExcel(startRow: Int = 0, headers: Array<String> = emptyArray(), iterable: Iterable<Array<T>>) {
     val writableWorkbook = Workbook.createWorkbook(this)
     writableWorkbook.use {
-        JxlUtil.writeSimpleExcelForArray(it, startRow, headerArray, iterable)
+        JxlUtil.writeSimpleExcelForArray(it, startRow, headers, iterable)
     }
 }
 
-fun <T, R> File.writeSimpleExcel(startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (column: Int, row: Int, value: T) -> R) {
+fun <T, R> File.writeSimpleExcel(startRow: Int = 0, headers: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (column: Int, row: Int, value: T) -> R) {
     val writableWorkbook = Workbook.createWorkbook(this)
     writableWorkbook.use {
-        JxlUtil.writeSimpleExcelForArray(it, startRow, headerArray, iterable, transform)
+        JxlUtil.writeSimpleExcelForArray(it, startRow, headers, iterable, transform)
     }
 }
 
-fun <T> OutputStream.writeSimpleExcel(startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>) {
+fun <T> OutputStream.writeSimpleExcel(startRow: Int = 0, headers: Array<String> = emptyArray(), iterable: Iterable<Array<T>>) {
     val writableWorkbook = Workbook.createWorkbook(this)
     writableWorkbook.use {
-        JxlUtil.writeSimpleExcelForArray(it, startRow, headerArray, iterable)
+        JxlUtil.writeSimpleExcelForArray(it, startRow, headers, iterable)
     }
 }
 
-fun <T, R> OutputStream.writeSimpleExcel(startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (column: Int, row: Int, value: T) -> R) {
+fun <T, R> OutputStream.writeSimpleExcel(startRow: Int = 0, headers: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (column: Int, row: Int, value: T) -> R) {
     val writableWorkbook = Workbook.createWorkbook(this)
     writableWorkbook.use {
-        JxlUtil.writeSimpleExcelForArray(it, startRow, headerArray, iterable, transform)
+        JxlUtil.writeSimpleExcelForArray(it, startRow, headers, iterable, transform)
     }
 }
 
-fun <T> File.writeOrUpdateSimpleExcelForArray(writeOptionForArrayArray: Array<JxlUtil.WriteOptionForArray<T>>) {
+fun <T> File.writeOrUpdateSimpleExcelForArray(writeOptionForArrays: Array<JxlUtil.WriteOptionForArray<T>>) {
     val writableWorkbook = JxlUtil.getOrCreateWorkbook(this)
     writableWorkbook.use {
-        JxlUtil.writeSimpleExcelForArray(it, writeOptionForArrayArray)
+        JxlUtil.writeSimpleExcelForArray(it, writeOptionForArrays)
     }
 }
 
-fun <T> File.writeOrUpdateSimpleExcelForArray(startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>) {
+fun <T> File.writeOrUpdateSimpleExcelForArray(startRow: Int = 0, headers: Array<String> = emptyArray(), iterable: Iterable<Array<T>>) {
     val writableWorkbook = JxlUtil.getOrCreateWorkbook(this)
     writableWorkbook.use {
-        JxlUtil.writeSimpleExcelForArray(it, startRow, headerArray, iterable)
+        JxlUtil.writeSimpleExcelForArray(it, startRow, headers, iterable)
     }
 }
 
-fun <T, R> File.writeOrUpdateSimpleExcelForArray(startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (column: Int, row: Int, value: T) -> R) {
+fun <T, R> File.writeOrUpdateSimpleExcelForArray(startRow: Int = 0, headers: Array<String> = emptyArray(), iterable: Iterable<Array<T>>, transform: (column: Int, row: Int, value: T) -> R) {
     val writableWorkbook = JxlUtil.getOrCreateWorkbook(this)
     writableWorkbook.use {
-        JxlUtil.writeSimpleExcelForArray(it, startRow, headerArray, iterable, transform)
+        JxlUtil.writeSimpleExcelForArray(it, startRow, headers, iterable, transform)
     }
 }
 
-fun <T> File.writeOrUpdateSimpleExcelForIterable(writeOptionForIterableArray: Array<JxlUtil.WriteOptionForIterable<T>>) {
+fun <T> File.writeOrUpdateSimpleExcelForIterable(writeOptionForIterables: Array<JxlUtil.WriteOptionForIterable<T>>) {
     val writableWorkbook = JxlUtil.getOrCreateWorkbook(this)
     writableWorkbook.use {
-        JxlUtil.writeSimpleExcelForIterable(it, writeOptionForIterableArray)
+        JxlUtil.writeSimpleExcelForIterable(it, writeOptionForIterables)
     }
 }
 
-fun <T> File.writeOrUpdateSimpleExcelForIterable(startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>) {
+fun <T> File.writeOrUpdateSimpleExcelForIterable(startRow: Int = 0, headers: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>) {
     val writableWorkbook = JxlUtil.getOrCreateWorkbook(this)
     writableWorkbook.use {
-        JxlUtil.writeSimpleExcelForIterable(it, startRow, headerArray, iterable)
+        JxlUtil.writeSimpleExcelForIterable(it, startRow, headers, iterable)
     }
 }
 
-fun <T, R> File.writeOrUpdateSimpleExcelForIterable(startRow: Int = 0, headerArray: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>, transform: (column: Int, row: Int, value: T) -> R) {
+fun <T, R> File.writeOrUpdateSimpleExcelForIterable(startRow: Int = 0, headers: Array<String> = emptyArray(), iterable: Iterable<Iterable<T>>, transform: (column: Int, row: Int, value: T) -> R) {
     val writableWorkbook = JxlUtil.getOrCreateWorkbook(this)
     writableWorkbook.use {
-        JxlUtil.writeSimpleExcelForIterable(it, startRow, headerArray, iterable, transform)
+        JxlUtil.writeSimpleExcelForIterable(it, startRow, headers, iterable, transform)
     }
 }

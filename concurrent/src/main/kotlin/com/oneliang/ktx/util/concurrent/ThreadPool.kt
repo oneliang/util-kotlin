@@ -17,7 +17,7 @@ class ThreadPool : Runnable {
     var maxThreads = 1
     private var totalTaskCount = 0
     private var currentTaskCount = 0
-    private var allInnerThread: Array<InnerThread?> = arrayOfNulls(0)
+    private var allInnerThreads: Array<InnerThread?> = arrayOfNulls(0)
     private val threadTaskQueue = ConcurrentLinkedQueue<ThreadTask>()
     private var daemonThread: DaemonThread? = null
     private var thread: Thread? = null
@@ -27,11 +27,11 @@ class ThreadPool : Runnable {
     private fun initialize() {
         this.daemonThread = DaemonThread()
         this.daemonThread?.start()
-        this.allInnerThread = arrayOfNulls(this.maxThreads)
+        this.allInnerThreads = arrayOfNulls(this.maxThreads)
         for (i in 0 until this.minThreads) {
             val innerThread = InnerThread(this)
             innerThread.start()
-            this.allInnerThread[i] = innerThread
+            this.allInnerThreads[i] = innerThread
             this.daemonThread?.addInnerThread(innerThread)
         }
     }
@@ -41,7 +41,7 @@ class ThreadPool : Runnable {
             try {
                 if (!this.threadTaskQueue.isEmpty()) {
                     var hasAllInnerThreadBusy = true
-                    for ((index, innerThread) in this.allInnerThread.withIndex()) {
+                    for ((index, innerThread) in this.allInnerThreads.withIndex()) {
                         if (innerThread != null && innerThread.isIdle) {
                             hasAllInnerThreadBusy = false
                             this.processor?.beforeRunTaskProcess(this.threadTaskQueue)
@@ -59,7 +59,7 @@ class ThreadPool : Runnable {
                                 val tempInnerThread = InnerThread(this)
                                 tempInnerThread.setCurrentThreadTask(threadTask)
                                 tempInnerThread.start()
-                                this.allInnerThread[index] = tempInnerThread
+                                this.allInnerThreads[index] = tempInnerThread
                                 this.daemonThread?.addInnerThread(tempInnerThread)
                             }
                         }
@@ -110,10 +110,10 @@ class ThreadPool : Runnable {
      */
     @Synchronized
     fun interrupt() {
-        for ((i, innerThread) in this.allInnerThread.withIndex()) {
+        for ((i, innerThread) in this.allInnerThreads.withIndex()) {
             if (innerThread != null) {
                 innerThread.interrupt()
-                this.allInnerThread[i] = null
+                this.allInnerThreads[i] = null
             }
         }
         if (this.thread != null) {

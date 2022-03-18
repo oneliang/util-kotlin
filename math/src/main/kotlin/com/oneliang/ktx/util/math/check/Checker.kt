@@ -12,17 +12,17 @@ object Checker {
         PERCENT(0), DIFF(1)
     }
 
-    fun check(value: Double, consultValue: Double, parameterArray: Array<Double>, checkType: CheckType, parameterCheckType: ParameterCheckType): Boolean {
-        if (parameterArray.isEmpty() || parameterArray.size != 2) {
+    fun check(value: Double, consultValue: Double, parameters: Array<Double>, checkType: CheckType, parameterCheckType: ParameterCheckType): Boolean {
+        if (parameters.isEmpty() || parameters.size != 2) {
             error("match rule parameter size error, $checkType need two parameter")
         }
         val left = when (parameterCheckType) {
-            ParameterCheckType.PERCENT -> value * parameterArray[0]
-            else -> value + parameterArray[0]
+            ParameterCheckType.PERCENT -> value * parameters[0]
+            else -> value + parameters[0]
         }
         val right = when (parameterCheckType) {
-            ParameterCheckType.PERCENT -> value * parameterArray[1]
-            else -> value + parameterArray[1]
+            ParameterCheckType.PERCENT -> value * parameters[1]
+            else -> value + parameters[1]
         }
         when (checkType) {
             CheckType.RANGE_LEFT_OPEN_RIGHT_OPEN -> {

@@ -242,11 +242,11 @@ inline fun <T, K, ST> Iterable<T>.fillWithSlaveIterable(keySelector: (T) -> K, s
     }
 }
 
-fun <T, K> Iterable<T>.groupByMultiKeySelector(keySelectorArray: Array<(item: T) -> K>): Array<Map<K, List<T>>> {
-    val mapArray = Array<MutableMap<K, MutableList<T>>>(keySelectorArray.size) { mutableMapOf() }
+fun <T, K> Iterable<T>.groupByMultiKeySelector(keySelectors: Array<(item: T) -> K>): Array<Map<K, List<T>>> {
+    val mapArray = Array<MutableMap<K, MutableList<T>>>(keySelectors.size) { mutableMapOf() }
     this.forEach { element: T ->
         mapArray.forEachIndexed { index, mutableMap ->
-            val key = keySelectorArray[index](element)
+            val key = keySelectors[index](element)
             val list = mutableMap.getOrPut(key) { mutableListOf() }
             list += element
         }

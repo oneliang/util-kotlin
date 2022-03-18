@@ -194,16 +194,16 @@ fun Array<Array<Float>>.dotMultiply(
     results: Array<Array<Float>>? = null
 ): Array<Array<Float>> = matrixOperate(this, bMatrix, results, operate = { aValue, bValue -> aValue * bValue }).first
 
-fun Array<Float>.innerProduct(bArray: Array<Float>, columnOffset: Int = 0): Float {
-    if (this.isEmpty() || bArray.isEmpty()) {
+fun Array<Float>.innerProduct(floats: Array<Float>, columnOffset: Int = 0): Float {
+    if (this.isEmpty() || floats.isEmpty()) {
         return 0.0f
     }
-    if (columnOffset > (this.size - bArray.size)) {
-        error("column offset out of range, index:%s, this size:%s, array size:%s".format(columnOffset, this.size, bArray.size))
+    if (columnOffset > (this.size - floats.size)) {
+        error("column offset out of range, index:%s, this size:%s, array size:%s".format(columnOffset, this.size, floats.size))
     }
     var result = 0.0f
-    singleIteration(bArray.size) { columnIndex ->
-        result += this[columnIndex + columnOffset] * bArray[columnIndex]
+    singleIteration(floats.size) { columnIndex ->
+        result += this[columnIndex + columnOffset] * floats[columnIndex]
     }
     return result
 }

@@ -29,11 +29,11 @@ class CommandLine(private val maxCommandKeyLength: Int) {
         /**
          * to command key
          *
-         * @param commandArray
+         * @param commands
          * @return String
          */
-        fun toCommandKey(commandArray: Array<String>): String {
-            return commandArray.joinToString(Constants.String.SPACE) { it.trim() }
+        fun toCommandKey(commands: Array<String>): String {
+            return commands.joinToString(Constants.String.SPACE) { it.trim() }
         }
     }
 

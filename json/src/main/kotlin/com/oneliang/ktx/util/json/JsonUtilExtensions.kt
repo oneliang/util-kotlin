@@ -32,11 +32,11 @@ fun String.jsonToArrayDouble(supportDuplicateKey: Boolean = false): Array<Double
 
 fun String.jsonToArrayString(supportDuplicateKey: Boolean = false): Array<String> = JsonUtil.jsonToArrayString(this, supportDuplicateKey)
 
-fun <T : Any> String.jsonToObject(kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = JsonUtil.DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, fieldNameKClassMapping: Map<String, Pair<DefaultJsonKotlinClassProcessor.Type, KClass<*>>> = emptyMap(), ignoreFirstLetterCase: Boolean = false, ignoreFieldNameArray: Array<String> = emptyArray()): T =
-    JsonUtil.jsonToObject(this, kClass, classProcessor, fieldNameKClassMapping, ignoreFirstLetterCase, ignoreFieldNameArray)
+fun <T : Any> String.jsonToObject(kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = JsonUtil.DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, fieldNameKClassMapping: Map<String, Pair<DefaultJsonKotlinClassProcessor.Type, KClass<*>>> = emptyMap(), ignoreFirstLetterCase: Boolean = false, ignoreFieldNames: Array<String> = emptyArray()): T =
+    JsonUtil.jsonToObject(this, kClass, classProcessor, fieldNameKClassMapping, ignoreFirstLetterCase, ignoreFieldNames)
 
-fun <T : Any> String.jsonToObjectList(kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = JsonUtil.DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, fieldNameKClassMapping: Map<String, Pair<DefaultJsonKotlinClassProcessor.Type, KClass<*>>> = emptyMap(), ignoreFirstLetterCase: Boolean = false, ignoreFieldNameArray: Array<String> = emptyArray()): List<T> =
-    JsonUtil.jsonToObjectList(this, kClass, classProcessor, fieldNameKClassMapping, ignoreFirstLetterCase, ignoreFieldNameArray)
+fun <T : Any> String.jsonToObjectList(kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = JsonUtil.DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, fieldNameKClassMapping: Map<String, Pair<DefaultJsonKotlinClassProcessor.Type, KClass<*>>> = emptyMap(), ignoreFirstLetterCase: Boolean = false, ignoreFieldNames: Array<String> = emptyArray()): List<T> =
+    JsonUtil.jsonToObjectList(this, kClass, classProcessor, fieldNameKClassMapping, ignoreFirstLetterCase, ignoreFieldNames)
 
 fun JsonArray.toArrayBoolean(): Array<Boolean> = JsonUtil.jsonArrayToArrayBoolean(this)
 

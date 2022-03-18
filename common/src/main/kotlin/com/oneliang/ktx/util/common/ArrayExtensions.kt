@@ -15,16 +15,16 @@ inline fun <T, K, V> Array<out T>.toMapWithIndex(transform: (index: Int, t: T) -
 /**
  * find the different value which in this but not in compare array
  */
-fun <T> Array<T>.differs(compareArray: Array<T>, valueComparator: (value: T, compareValue: T) -> Boolean = { value, compareValue -> value == compareValue }): List<T> {
-    return this.differs(compareArray, { it }, valueComparator)
+fun <T> Array<T>.differs(compareDatas: Array<T>, valueComparator: (value: T, compareValue: T) -> Boolean = { value, compareValue -> value == compareValue }): List<T> {
+    return this.differs(compareDatas, { it }, valueComparator)
 }
 
 /**
  * find the different value which in this but not in compare array
  */
-fun <T, K> Array<T>.differs(compareArray: Array<T>, keySelector: (value: T) -> K, valueComparator: (value: T, compareValue: T) -> Boolean = { value, compareValue -> value == compareValue }): List<T> {
+fun <T, K> Array<T>.differs(compareDatas: Array<T>, keySelector: (value: T) -> K, valueComparator: (value: T, compareValue: T) -> Boolean = { value, compareValue -> value == compareValue }): List<T> {
     val map = this.toMap { keySelector(it) to it }
-    val compareMap = compareArray.toMap { keySelector(it) to it }
+    val compareMap = compareDatas.toMap { keySelector(it) to it }
     val keyList = map.differs(compareMap) { _: K, value: T, mapValue: T ->
         valueComparator(value, mapValue)
     }
@@ -39,16 +39,16 @@ fun <T, K> Array<T>.differs(compareArray: Array<T>, keySelector: (value: T) -> K
 /**
  * find the add value list which in this but not in compare array and find compare failure value list
  */
-fun <T> Array<T>.differsAccurate(compareArray: Array<T>, valueComparator: (value: T, compareValue: T) -> Boolean = { value, compareValue -> value == compareValue }): Pair<List<T>, List<T>> {
-    return this.differsAccurate(compareArray, { it }, valueComparator)
+fun <T> Array<T>.differsAccurate(compareDatas: Array<T>, valueComparator: (value: T, compareValue: T) -> Boolean = { value, compareValue -> value == compareValue }): Pair<List<T>, List<T>> {
+    return this.differsAccurate(compareDatas, { it }, valueComparator)
 }
 
 /**
  * find the add value list which in this but not in compare array and find compare failure value list
  */
-fun <T, K> Array<T>.differsAccurate(compareArray: Array<T>, keySelector: (value: T) -> K, valueComparator: (value: T, compareValue: T) -> Boolean = { value, compareValue -> value == compareValue }): Pair<List<T>, List<T>> {
+fun <T, K> Array<T>.differsAccurate(compareDatas: Array<T>, keySelector: (value: T) -> K, valueComparator: (value: T, compareValue: T) -> Boolean = { value, compareValue -> value == compareValue }): Pair<List<T>, List<T>> {
     val map = this.toMap { keySelector(it) to it }
-    val compareMap = compareArray.toMap { keySelector(it) to it }
+    val compareMap = compareDatas.toMap { keySelector(it) to it }
     val (addKeyList, valueNotMatchKeyList) = map.differsAccurate(compareMap) { _: K, value: T, mapValue: T ->
         valueComparator(value, mapValue)
     }

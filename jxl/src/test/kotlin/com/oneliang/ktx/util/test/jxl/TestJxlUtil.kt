@@ -30,19 +30,19 @@ fun main() {
             println("$row:$key:$value")
         }
     }
-//    File(writeFullFilename).writeSimpleExcel(headerArray = headers, iterable = newList)
+//    File(writeFullFilename).writeSimpleExcel(headers = headers, iterable = newList)
     File(writeFullFilename).writeOrUpdateSimpleExcelForArray(
         arrayOf(
             JxlUtil.WriteOptionForArray(
                 sheetName = "a",
                 sheetIndex = 0,
-                headerArray = headers,
+                headers = headers,
                 iterable = newList
             ),
             JxlUtil.WriteOptionForArray(
                 sheetName = "b",
                 sheetIndex = 1,
-                headerArray = headers,
+                headers = headers,
                 iterable = newList
             )
         )
