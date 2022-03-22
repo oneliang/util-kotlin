@@ -7,15 +7,3 @@ fun CharSequence?.toDefaultWhenIsNullOrBlank(defaultValue: CharSequence): CharSe
         this
     }
 }
-
-inline fun CharSequence.ifNotBlank(block: (CharSequence) -> Unit) {
-    if (this.isNotBlank()) {
-        block(this)
-    }
-}
-
-inline fun CharSequence.ifNotEmpty(block: (CharSequence) -> Unit) {
-    if (this.isNotEmpty()) {
-        block(this)
-    }
-}
