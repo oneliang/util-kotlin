@@ -75,6 +75,7 @@ fun CharSequence.matchesPattern(pattern: String): Boolean {
 fun CharSequence.finds(regex: String): Boolean {
     return this.finds(regex.toRegex())
 }
+
 /**
  * the regex support full match(use ^ $) and partial match(not include ^ &) for string
  */
@@ -313,14 +314,6 @@ fun String.toFileProtocolURL(): URL {
     return URL(this.toFileProtocolString())
 }
 
-inline fun String.ifNotBlank(block: (String) -> Unit) {
-    if (this.isNotBlank()) {
-        block(this)
-    }
-}
-
-inline fun String.ifNotEmpty(block: (String) -> Unit) {
-    if (this.isNotEmpty()) {
-        block(this)
-    }
+fun String.append(string: String): String {
+    return this + string
 }
