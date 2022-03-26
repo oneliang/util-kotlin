@@ -28,7 +28,7 @@ object Template {
             var json: String = Constants.String.BLANK
             val instance = option.instance
             if (instance != null) {
-                json = instance.toJson(jsonProcessor = option.jsonProcessor)
+                json = instance.toJson(extendValueMap = option.instanceExtendValueMap, jsonProcessor = option.jsonProcessor)
             } else {
                 if (option.json.isNotBlank()) {
                     json = option.json
@@ -105,6 +105,7 @@ object Template {
         var showLog: Boolean = false
         var removeBlankLine: Boolean = false
         var rewrite: Boolean = true
+        var instanceExtendValueMap: Map<String, Any> = emptyMap()
     }
 
     private object JavaScriptFunctionGenerator {
