@@ -46,7 +46,7 @@ open class DefaultJsonProcessor : JsonUtil.JsonProcessor {
             result = when (value) {
                 is Iterable<*> -> JsonUtil.iterableToJson(value as Iterable<Any>, this, ignoreFirstLetterCase)
                 is Map<*, *> -> JsonUtil.mapToJson(value, this, ignoreFirstLetterCase)
-                else -> JsonUtil.objectToJson(value, emptyArray(), this, ignoreFirstLetterCase)
+                else -> JsonUtil.objectToJson(value, emptyArray(), emptyMap(), this, ignoreFirstLetterCase)
             }
         }
         return result

@@ -10,6 +10,9 @@ fun main() {
 //    val testJsonBean = testJson.jsonToObject(JsonBean::class, ignoreFieldNameArray = arrayOf("d"))
 //    println(testJsonBean.toJson())
     val jsonBean1 = JsonBean()
+    println(JsonUtil.objectToJson(jsonBean1,extendValueMap = mapOf("inner" to jsonBean1)))
+
+    return
     val jsonBean1Json = jsonBean1.toJson()
     println("to json:$jsonBean1Json")
     println("from json:" + jsonBean1Json.jsonToObject(JsonBean::class).toJson())

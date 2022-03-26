@@ -4,8 +4,8 @@ import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.KotlinClassUtil
 import kotlin.reflect.KClass
 
-fun <T : Any> T.toJson(fields: Array<String> = emptyArray(), jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR): String {
-    return JsonUtil.objectToJson(this, fields, jsonProcessor)
+fun <T : Any> T.toJson(fields: Array<String> = emptyArray(), extendValueMap: Map<String, Any> = emptyMap(), jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR): String {
+    return JsonUtil.objectToJson(this, fields, extendValueMap, jsonProcessor)
 }
 
 fun Array<*>.toJson(jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR) = joinToString(prefix = Constants.Symbol.MIDDLE_BRACKET_LEFT, postfix = Constants.Symbol.MIDDLE_BRACKET_RIGHT, separator = Constants.Symbol.COMMA) {
