@@ -2,7 +2,7 @@ package com.oneliang.ktx.util.concurrent.atomic
 
 class AtomicTreeSet<T>(private val comparator: Comparator<T>?) : Iterable<T> {
 
-    private val lock = Lock()
+    private val operationLock = OperationLock()
     private val list = mutableListOf<T>()
 
     constructor() : this(null)
@@ -11,14 +11,14 @@ class AtomicTreeSet<T>(private val comparator: Comparator<T>?) : Iterable<T> {
         get() = this.list.size
 
     override fun iterator(): Iterator<T> {
-        return this.lock.operate {
+        return this.operationLock.operate {
             this.list.iterator()
         }
     }
 
     @Suppress("UNCHECKED_CAST")
     fun add(value: T): Boolean {
-        return this.lock.operate {
+        return this.operationLock.operate {
             if (this.list.isEmpty()) {
                 return@operate this.list.add(value)
             }
@@ -65,7 +65,7 @@ class AtomicTreeSet<T>(private val comparator: Comparator<T>?) : Iterable<T> {
 
     @Suppress("UNCHECKED_CAST")
     fun remove(value: T): Boolean {
-        return this.lock.operate {
+        return this.operationLock.operate {
             var deleteIndex = 0
             var needToDelete = false
             for ((index, item) in this.list.withIndex()) {
@@ -102,25 +102,25 @@ class AtomicTreeSet<T>(private val comparator: Comparator<T>?) : Iterable<T> {
     }
 
     fun first(): T {
-        return this.lock.operate {
+        return this.operationLock.operate {
             this.list.first()
         }
     }
 
     fun last(): T {
-        return this.lock.operate {
+        return this.operationLock.operate {
             this.list.last()
         }
     }
 
     fun clear() {
-        this.lock.operate {
+        this.operationLock.operate {
             this.list.clear()
         }
     }
 
     fun isEmpty(): Boolean {
-        return this.lock.operate {
+        return this.operationLock.operate {
             this.list.isEmpty()
         }
     }

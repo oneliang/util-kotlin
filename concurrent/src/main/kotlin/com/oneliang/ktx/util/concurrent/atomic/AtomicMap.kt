@@ -4,7 +4,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 
 class AtomicMap<K : Any, V> constructor(private val maxSize: Int = 0) : AbstractMap<K, V>() {
-    private val lock = Lock()
+    private val operationLock = OperationLock()
     private val map = ConcurrentHashMap<K, AtomicReference<V>>()
 
     constructor(map: Map<K, V>, maxSize: Int = 0) : this(maxSize) {
@@ -25,7 +25,7 @@ class AtomicMap<K : Any, V> constructor(private val maxSize: Int = 0) : Abstract
         if (this.map.containsKey(key)) {//update when exists
             return atomicUpdate(key, update)
         } else {//create
-            return this.lock.operate {
+            return this.operationLock.operate {
                 if (this.map.containsKey(key)) {
                     atomicUpdate(key, update)
                 } else {//check size
@@ -49,7 +49,7 @@ class AtomicMap<K : Any, V> constructor(private val maxSize: Int = 0) : Abstract
     }
 
     fun remove(key: K): V? {
-        return this.lock.operate {
+        return this.operationLock.operate {
             this.map.remove(key)?.get()
         }
     }
@@ -59,7 +59,7 @@ class AtomicMap<K : Any, V> constructor(private val maxSize: Int = 0) : Abstract
     }
 
     fun clear() {
-        this.lock.operate {
+        this.operationLock.operate {
             this.map.clear()
         }
     }

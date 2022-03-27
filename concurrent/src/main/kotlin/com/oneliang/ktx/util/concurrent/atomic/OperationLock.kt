@@ -2,7 +2,7 @@ package com.oneliang.ktx.util.concurrent.atomic
 
 import java.util.concurrent.locks.ReentrantLock
 
-class Lock {
+class OperationLock {
 
     private val lock = ReentrantLock()
 
