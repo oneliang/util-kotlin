@@ -17,13 +17,14 @@ abstract class ResourcePool<T : Any> : Runnable {
     }
 
     var resourcePoolName: String = Constants.String.BLANK
-    lateinit var resourceSource: ResourceSource<T>
     var minResourceSize = 1
     var maxResourceSize = 1
     var maxStableResourceSize = 1
     var resourceAliveTime: Long = 0
     var threadSleepTime = 5 * Constants.Time.MILLISECONDS_OF_MINUTE
     var resourceStatusArray = emptyArray<ResourceStatus<T>?>()
+
+    private lateinit var resourceSource: ResourceSource<T>
 
     @Volatile
     private var hasBeenInitialized = false
@@ -294,6 +295,10 @@ abstract class ResourcePool<T : Any> : Runnable {
                 logger.error(Constants.String.EXCEPTION, e)
             }
         }
+    }
+
+    fun setResourceSource(resourceSource: ResourceSource<T>) {
+        this.resourceSource = resourceSource
     }
 
     /**
