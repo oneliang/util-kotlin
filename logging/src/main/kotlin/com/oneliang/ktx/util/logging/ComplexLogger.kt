@@ -43,7 +43,7 @@ class ComplexLogger(level: Logger.Level, private val loggerList: List<AbstractLo
         for (logger in this.loggerList) {
             logger.destroy()
         }
-        this.logQueueThread?.interrupt()
+        this.logQueueThread?.stop()
     }
 
     private class LogMessage(val level: Logger.Level, val message: String, val throwable: Throwable?, val extraInfo: ExtraInfo)

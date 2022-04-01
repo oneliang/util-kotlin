@@ -106,13 +106,13 @@ class ThreadPool : Runnable {
     }
 
     /**
-     * real interrupt
+     * stop, real stop
      */
     @Synchronized
-    fun interrupt() {
+    fun stop() {
         for ((i, innerThread) in this.allInnerThreads.withIndex()) {
             if (innerThread != null) {
-                innerThread.interrupt()
+                innerThread.stop()
                 this.allInnerThreads[i] = null
             }
         }
@@ -121,7 +121,7 @@ class ThreadPool : Runnable {
             this.thread = null
         }
         if (this.daemonThread != null) {
-            this.daemonThread?.interrupt()
+            this.daemonThread?.stop()
             this.daemonThread = null
         }
         this.threadTaskQueue.clear()
@@ -178,7 +178,7 @@ class ThreadPool : Runnable {
      */
     @Throws(Throwable::class)
     protected fun finalize() {
-        this.interrupt()
+        this.stop()
     }
 
     private class InnerThread internal constructor(private val threadPool: ThreadPool) : Runnable {
@@ -235,9 +235,9 @@ class ThreadPool : Runnable {
         }
 
         /**
-         * interrupt
+         * stop
          */
-        fun interrupt() {
+        fun stop() {
             if (this.thread != null) {
                 this.thread?.interrupt()
                 this.thread = null
@@ -330,9 +330,9 @@ class ThreadPool : Runnable {
         }
 
         /**
-         * interrupt
+         * stop
          */
-        fun interrupt() {
+        fun stop() {
             if (this.thread != null) {
                 this.thread?.interrupt()
                 this.thread = null

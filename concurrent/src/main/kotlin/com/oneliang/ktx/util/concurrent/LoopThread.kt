@@ -36,7 +36,7 @@ abstract class LoopThread : Runnable {
     }
 
     @Synchronized
-    open fun interrupt() {
+    open fun stop() {
         if (this.thread != null) {
             this.thread?.interrupt()
             this.thread = null

@@ -4,7 +4,7 @@ import com.oneliang.ktx.util.logging.LoggerManager
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
- * it will process all resources which are in queue when interrupt
+ * it will process all resources which are in queue when stop
  * ResourceQueueThread
  *
  * @param <T>
@@ -21,7 +21,7 @@ class ResourceQueueThread<T>(private val resourceProcessor: ResourceProcessor<T>
     // always binding in self instance(ResourceQueueThread),finalize self
 // instance will set null(release the resourceProcessor)
     @Volatile
-    private var needToInterrupt = false
+    private var needToStop = false
     private val lock = Object()
 
     @Throws(Throwable::class)
@@ -32,8 +32,8 @@ class ResourceQueueThread<T>(private val resourceProcessor: ResourceProcessor<T>
         } else {
             synchronized(lock) {
                 // check for the scene which notify first,so do it in synchronized block
-                if (this.needToInterrupt) {
-                    this.realInterrupt()
+                if (this.needToStop) {
+                    this.realStop()
                 }
                 lock.wait()
             }
@@ -41,21 +41,28 @@ class ResourceQueueThread<T>(private val resourceProcessor: ResourceProcessor<T>
     }
 
     /**
-     * interrupt
+     * stop when process all resource
      */
-    override fun interrupt() {
-        this.needToInterrupt = true
+    override fun stop() {
+        this.needToStop = true
         synchronized(lock) {
             lock.notify()
         }
     }
 
     /**
-     * real interrupt
+     * stop immediately, will not process all resource
      */
-    private fun realInterrupt() {
-        super.interrupt()
-        this.needToInterrupt = false
+    fun stopNow() {
+        realStop()
+    }
+
+    /**
+     * real stop
+     */
+    private fun realStop() {
+        super.stop()
+        this.needToStop = false
     }
 
     /**
@@ -85,7 +92,7 @@ class ResourceQueueThread<T>(private val resourceProcessor: ResourceProcessor<T>
      */
     @Throws(Throwable::class)
     protected fun finalize() {
-        this.interrupt()
+        this.stop()
     }
 
     interface ResourceProcessor<T> {

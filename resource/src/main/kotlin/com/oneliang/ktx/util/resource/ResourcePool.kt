@@ -302,9 +302,9 @@ abstract class ResourcePool<T : Any> : Runnable {
     }
 
     /**
-     * interrupt
+     * destroy
      */
-    fun interrupt() {
+    fun destroy() {
         clean()
         if (this.thread != null) {
             this.thread?.interrupt()
