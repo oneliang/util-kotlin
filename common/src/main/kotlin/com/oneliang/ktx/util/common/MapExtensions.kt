@@ -326,3 +326,13 @@ fun <K, V, R, M : MutableMap<in R, Int>> Map<K, V>.countByAndCheckTo(destination
     }
     return true
 }
+
+fun <K, V> MutableMap<K, V>.merge(key: K, value: V, existBlock: (key: K, oldValue: V) -> V) {
+    val oldValue = this[key]
+    val newValue = if (oldValue == null) {//not exist
+        value
+    } else {
+        existBlock(key, oldValue)
+    }
+    this[key] = newValue
+}
