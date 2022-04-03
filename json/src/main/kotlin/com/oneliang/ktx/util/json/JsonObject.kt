@@ -590,10 +590,10 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
      * @return The truth.
      */
     fun optBoolean(key: String, defaultValue: Boolean): Boolean {
-        try {
-            return this.getBoolean(key)
+        return try {
+            this.getBoolean(key)
         } catch (e: Exception) {
-            return defaultValue
+            defaultValue
         }
     }
 
@@ -622,10 +622,10 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
      * @return An object which is the value.
      */
     fun optDouble(key: String, defaultValue: Double): Double {
-        try {
-            return this.getDouble(key)
+        return try {
+            this.getDouble(key)
         } catch (e: Exception) {
-            return defaultValue
+            defaultValue
         }
     }
 
@@ -654,10 +654,10 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
      * @return An object which is the value.
      */
     fun optInt(key: String, defaultValue: Int): Int {
-        try {
-            return this.getInt(key)
+        return try {
+            this.getInt(key)
         } catch (e: Exception) {
-            return defaultValue
+            defaultValue
         }
     }
 
@@ -712,10 +712,10 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
      * @return An object which is the value.
      */
     fun optLong(key: String, defaultValue: Long): Long {
-        try {
-            return this.getLong(key)
+        return try {
+            this.getLong(key)
         } catch (e: Exception) {
-            return defaultValue
+            defaultValue
         }
     }
 
@@ -744,14 +744,14 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
      */
     fun optString(key: String, defaultValue: String): String {
         val value = this.opt(key)
-        return if (NULL.equals(value)) defaultValue else value.toString()
+        return if (NULL == value) defaultValue else value.toString()
     }
 
     private fun populateMap(bean: Any) {
         val klass = bean::class.java
 // If klass is a System class then set includeSuperClass to false.
         val includeSuperClass = klass.classLoader != null
-        val methods = if (includeSuperClass) klass.methods else klass.getDeclaredMethods()
+        val methods = if (includeSuperClass) klass.methods else klass.declaredMethods
         var i = 0
         while (i < methods.size) {
             try {
@@ -799,7 +799,7 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
      */
     @Throws(JsonException::class)
     fun put(key: String, value: Boolean): JsonObject {
-        this.put(key, value)
+        this.put(key, value as Any)
         return this
     }
 
@@ -833,7 +833,7 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
      */
     @Throws(JsonException::class)
     fun put(key: String, value: Double): JsonObject {
-        this.put(key, value)
+        this.put(key, value as Any)
         return this
     }
 
@@ -850,7 +850,7 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
      */
     @Throws(JsonException::class)
     fun put(key: String, value: Int): JsonObject {
-        this.put(key, value)
+        this.put(key, value as Any)
         return this
     }
 
@@ -867,7 +867,7 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
      */
     @Throws(JsonException::class)
     fun put(key: String, value: Long): JsonObject {
-        this.put(key, value)
+        this.put(key, value as Any)
         return this
     }
 
@@ -1028,7 +1028,7 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
     @Throws(JsonException::class)
     fun toString(indentFactor: Int): String {
         val w = StringWriter()
-        synchronized(w.getBuffer()) {
+        synchronized(w.buffer) {
             return this.write(w, indentFactor, 0).toString()
         }
     }
@@ -1062,13 +1062,13 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
             var commanate = false
             val length = this.length()
             val keys = this.keys()
-            writer.write('{'.toInt())
+            writer.write('{'.code)
             if (length == 1) {
                 val key = keys.next()
                 writer.write(quote(key.toString()))
-                writer.write(':'.toInt())
+                writer.write(':'.code)
                 if (indentFactor > 0) {
-                    writer.write(' '.toInt())
+                    writer.write(' '.code)
                 }
                 writeValue(writer, this.map[key] ?: NULL, indentFactor, indent, this.supportDuplicateKey)
             } else if (length != 0) {
@@ -1076,26 +1076,26 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
                 while (keys.hasNext()) {
                     val key = keys.next()
                     if (commanate) {
-                        writer.write(','.toInt())
+                        writer.write(','.code)
                     }
                     if (indentFactor > 0) {
-                        writer.write('\n'.toInt())
+                        writer.write('\n'.code)
                     }
                     indent(writer, newindent)
                     writer.write(quote(key))
-                    writer.write(':'.toInt())
+                    writer.write(':'.code)
                     if (indentFactor > 0) {
-                        writer.write(' '.toInt())
+                        writer.write(' '.code)
                     }
                     writeValue(writer, this.map[key] ?: NULL, indentFactor, newindent, this.supportDuplicateKey)
                     commanate = true
                 }
                 if (indentFactor > 0) {
-                    writer.write('\n'.toInt())
+                    writer.write('\n'.code)
                 }
                 indent(writer, indent)
             }
-            writer.write('}'.toInt())
+            writer.write('}'.code)
             return writer
         } catch (exception: IOException) {
             throw JsonException(exception)
@@ -1144,10 +1144,10 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
         fun getNames(jo: JsonObject): Array<String> {
             val length = jo.length()
             if (length == 0) {
-                return emptyArray<String>()
+                return emptyArray()
             }
             val iterator = jo.keys()
-            val names = Array<String>(length, { _ -> "" })
+            val names = Array(length) { _ -> "" }
             var i = 0
             while (iterator.hasNext()) {
                 names[i] = iterator.next()
@@ -1171,7 +1171,7 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
             val names = Array<String>(length) { _ -> "" }
             var i = 0
             while (i < length) {
-                names[i] = fields[i].getName()
+                names[i] = fields[i].name
                 i += 1
             }
             return names
@@ -1235,21 +1235,21 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
             var hhhh: String
             var i: Int
             val len = string.length
-            w.write('"'.toInt())
+            w.write('"'.code)
             i = 0
             while (i < len) {
                 b = c
-                c = string.get(i)
+                c = string[i]
                 when (c) {
                     '\\', '"' -> {
-                        w.write('\\'.toInt())
-                        w.write(c.toInt())
+                        w.write('\\'.code)
+                        w.write(c.code)
                     }
                     '/' -> {
                         if (b == '<') {
-                            w.write('\\'.toInt())
+                            w.write('\\'.code)
                         }
-                        w.write(c.toInt())
+                        w.write(c.code)
                     }
                     '\b' -> w.write("\\b")
                     '\t' -> w.write("\\t")
@@ -1257,15 +1257,15 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
                     '\u000C' -> w.write("\\f")
                     '\r' -> w.write("\\r")
                     else -> if (c < ' ' || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100')) {
-                        hhhh = "000" + c.toInt().toString(16)
+                        hhhh = "000" + c.code.toString(16)
                         w.write("\\u" + hhhh.substring(hhhh.length - 4))
                     } else {
-                        w.write(c.toInt())
+                        w.write(c.code)
                     }
                 }
                 i += 1
             }
-            w.write('"'.toInt())
+            w.write('"'.code)
             return w
         }
 
@@ -1461,7 +1461,7 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
                 } catch (e: Exception) {
                     throw JsonException(e)
                 }
-                writer.write(if (o.isNotBlank()) o else quote(value.toString()))
+                writer.write(o.ifBlank { quote(value.toString()) })
             } else {
                 quote(value.toString(), writer)
             }
@@ -1472,7 +1472,7 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
         internal fun indent(writer: Writer, indent: Int) {
             var i = 0
             while (i < indent) {
-                writer.write(' '.toInt())
+                writer.write(' '.code)
                 i += 1
             }
         }
