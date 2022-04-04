@@ -171,7 +171,7 @@ abstract class ResourcePool<T : Any> : Runnable {
                 logger.error("release stable resource, stable resource status is null or stable resource is not the same, stable resource status:%s, stable resource:%s", stableResourceStatus ?: Constants.String.NULL, stableResourceStatus?.resource ?: Constants.String.NULL)
             }
         } else {
-            logger.error("release stable resource, this stable resource haven't got from method named stableResource ? Stable resource:%s", stableResource)
+            logger.error("release stable resource, this stable resource maybe haven't got from method named stableResource ? getStableResource and releaseStableResource maybe not in same thread, or stableResource had been cleaned,  Stable resource:%s", stableResource)
         }
     }
 
