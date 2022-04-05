@@ -5,12 +5,12 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.Condition
 import java.util.concurrent.locks.ReentrantLock
 
-class AwaitAndSignal {
+class AwaitAndSignal<K : Any> {
 
     private val lock = ReentrantLock()
-    private val conditionMap = ConcurrentHashMap<String, Condition>()
+    private val conditionMap = ConcurrentHashMap<K, Condition>()
 
-    fun await(conditionKey: String, beforeAwait: () -> Unit = {}, afterAwait: () -> Unit = {}) {
+    fun await(conditionKey: K, beforeAwait: () -> Unit = {}, afterAwait: () -> Unit = {}) {
         try {
             this.lock.lock()
             beforeAwait()
@@ -22,7 +22,7 @@ class AwaitAndSignal {
         }
     }
 
-    fun await(conditionKey: String, time: Long, timeUnit: TimeUnit, beforeAwait: () -> Unit = {}, afterAwait: () -> Unit = {}) {
+    fun await(conditionKey: K, time: Long, timeUnit: TimeUnit, beforeAwait: () -> Unit = {}, afterAwait: () -> Unit = {}) {
         try {
             this.lock.lock()
             beforeAwait()
@@ -34,7 +34,7 @@ class AwaitAndSignal {
         }
     }
 
-    fun signal(conditionKey: String, beforeSignal: () -> Unit = {}, afterSignal: () -> Unit = {}) {
+    fun signal(conditionKey: K, beforeSignal: () -> Unit = {}, afterSignal: () -> Unit = {}) {
         try {
             this.lock.lock()
             beforeSignal()
@@ -46,7 +46,7 @@ class AwaitAndSignal {
         }
     }
 
-    fun signalAll(conditionKey: String, beforeSignalAll: () -> Unit = {}, afterSignalAll: () -> Unit = {}) {
+    fun signalAll(conditionKey: K, beforeSignalAll: () -> Unit = {}, afterSignalAll: () -> Unit = {}) {
         try {
             this.lock.lock()
             beforeSignalAll()
