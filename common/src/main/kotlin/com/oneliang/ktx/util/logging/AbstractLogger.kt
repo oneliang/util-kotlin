@@ -101,8 +101,9 @@ abstract class AbstractLogger(val level: Level) : Logger {
         if (level.ordinal >= this.level.ordinal) {
             val extraInfo = ExtraInfo()
             val stackTraceArray = Thread.currentThread().stackTrace
-            if (stackTraceArray.size > STACK_TRACE_BEGIN_INDEX) {
-                val stackTrace = stackTraceArray[STACK_TRACE_BEGIN_INDEX]
+            val stackTraceBeginIndex = if (throwable == null) STACK_TRACE_BEGIN_INDEX else STACK_TRACE_BEGIN_INDEX - 1
+            if (stackTraceArray.size > stackTraceBeginIndex) {
+                val stackTrace = stackTraceArray[stackTraceBeginIndex]
                 val currentThread = Thread.currentThread()
                 extraInfo.logTime = System.currentTimeMillis()
                 extraInfo.threadName = currentThread.name
