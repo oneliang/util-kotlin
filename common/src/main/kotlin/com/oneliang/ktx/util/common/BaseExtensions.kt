@@ -1,5 +1,8 @@
 package com.oneliang.ktx.util.common
 
+import com.oneliang.ktx.Constants
+import java.lang.management.ManagementFactory
+import java.net.InetAddress
 import java.util.*
 
 /**
@@ -30,3 +33,23 @@ inline fun doubleIteration(outerTimes: Int, innerTimes: Int, block: (outer: Int,
         }
     }
 }
+
+private fun splitPidFromRuntimeName(): String {
+    val runtimeName = ManagementFactory.getRuntimeMXBean().name.nullToBlank()
+    val runtimeNameSplit = runtimeName.split(Constants.Symbol.AT)
+    return when {
+        runtimeNameSplit.isNotEmpty() -> {
+            runtimeNameSplit[0]
+        }
+        else -> {
+            Constants.String.BLANK
+        }
+    }
+}
+
+val PID = splitPidFromRuntimeName()
+
+private val localhost = InetAddress.getLocalHost()
+
+val HOST_ADDRESS = localhost?.hostAddress ?: Constants.String.BLANK
+val HOST_NAME = localhost?.hostName ?: Constants.String.BLANK
