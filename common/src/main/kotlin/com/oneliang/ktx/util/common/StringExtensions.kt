@@ -329,3 +329,23 @@ inline fun String.ifNotEmpty(block: (String) -> Unit) {
 fun String.append(string: String): String {
     return this + string
 }
+
+fun String.toUpperCase(startIndex: Int, endIndex: Int): String {
+    if (this.isBlank()) {
+        return this
+    }
+    if (startIndex < 0 || endIndex < 0 || endIndex < startIndex || this.length < endIndex) {
+        error("index error, start index:%s, end index:%s".format(startIndex, endIndex))
+    }
+    return this.substring(startIndex, endIndex).uppercase(Locale.getDefault())
+}
+
+fun String.toLowerCase(startIndex: Int, endIndex: Int): String {
+    if (this.isBlank()) {
+        return this
+    }
+    if (startIndex < 0 || endIndex < 0 || endIndex < startIndex || this.length < endIndex) {
+        error("index error, start index:%s, end index:%s".format(startIndex, endIndex))
+    }
+    return this.substring(startIndex, endIndex).lowercase(Locale.getDefault())
+}
