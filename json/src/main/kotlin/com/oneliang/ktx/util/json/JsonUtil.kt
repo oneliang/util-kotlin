@@ -117,24 +117,26 @@ object JsonUtil {
     }
 
     /**
-     * Method:simple array to json
+     * Method: array to json
      * @param <T>
      * @param array
      * @param jsonProcessor
+     * @param ignoreFirstLetterCase
      * @return String
-    </T> */
-    fun <T : Any> simpleArrayToJson(array: Array<T>, jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR): String {
-        return array.toJson(jsonProcessor)
+     */
+    fun <T> arrayToJson(array: Array<T>, jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
+        return array.joinToString(
+            prefix = Constants.Symbol.MIDDLE_BRACKET_LEFT,
+            postfix = Constants.Symbol.MIDDLE_BRACKET_RIGHT,
+            separator = Constants.Symbol.COMMA
+        ) {
+            if (it != null) {
+                jsonProcessor.process<Any>(null, Constants.String.BLANK, it, ignoreFirstLetterCase)
+            } else {
+                it.toString()
+            }
+        }
     }
-
-    /**
-     * Method:object array to json
-     * @param <T>
-     * @param array
-     * @param jsonProcessor
-     * @return String
-    </T> */
-    fun <T : Any> objectArrayToJson(array: Array<T>, jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR) = simpleArrayToJson(array, jsonProcessor)
 
     /**
      * Method: iterable to json
@@ -145,36 +147,45 @@ object JsonUtil {
      * @return String
     </T> */
     fun <T> iterableToJson(iterable: Iterable<T>, jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
-        val string = StringBuilder()
-        string.append(Constants.Symbol.MIDDLE_BRACKET_LEFT)
-        val iterator = iterable.iterator()
-        while (iterator.hasNext()) {
-            val instance = iterator.next()
-            string.append(jsonProcessor.process<Any>(null, Constants.String.BLANK, instance, ignoreFirstLetterCase))
-            if (iterator.hasNext()) {
-                string.append(Constants.Symbol.COMMA)
-            }
+        return iterable.joinToString(
+            separator = Constants.Symbol.COMMA,
+            prefix = Constants.Symbol.MIDDLE_BRACKET_LEFT,
+            postfix = Constants.Symbol.MIDDLE_BRACKET_RIGHT
+        ) {
+            jsonProcessor.process<Any>(null, Constants.String.BLANK, it, ignoreFirstLetterCase)
         }
-        string.append(Constants.Symbol.MIDDLE_BRACKET_RIGHT)
-        return string.toString()
     }
 
     /**
      * Method: map to json
      * @param map
+     * @param extendValueMap can append new key and value, can replace value with same key, key is json's properties, value is value
      * @param jsonProcessor
      * @param ignoreFirstLetterCase
      * @return json string
      */
-    fun <K, V> mapToJson(map: Map<K, V>, jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
-        val string = StringBuilder()
-        string.append(Constants.Symbol.BIG_BRACKET_LEFT)
-        string.append(map.joinToString { key, instance ->
-            val value = jsonProcessor.process<Any>(null, key.toString(), instance, ignoreFirstLetterCase)
-            Constants.Symbol.DOUBLE_QUOTE + key.toString() + Constants.Symbol.DOUBLE_QUOTE + Constants.Symbol.COLON + value
-        })
-        string.append(Constants.Symbol.BIG_BRACKET_RIGHT)
-        return string.toString()
+    fun <K, V> mapToJson(map: Map<K, V>, extendValueMap: Map<String, Any> = emptyMap(), jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
+        val keyMap = mutableMapOf<Any?, Any?>()
+        map.forEach { (key, value) ->
+            keyMap += key to value
+        }
+        extendValueMap.forEach { (key, _) ->
+            keyMap += key to key
+        }
+        return keyMap.joinToString(
+            separator = Constants.Symbol.COMMA,
+            prefix = Constants.Symbol.BIG_BRACKET_LEFT,
+            postfix = Constants.Symbol.BIG_BRACKET_RIGHT
+        ) { key, _ ->
+            var extendValue = extendValueMap[key.toString()]
+            extendValue = if (extendValue == null) {
+                val instance = map[key]
+                jsonProcessor.process<Any>(null, key.toString(), instance, ignoreFirstLetterCase)
+            } else {
+                jsonProcessor.process(extendValue.javaClass.kotlin, key.toString(), extendValue, ignoreFirstLetterCase)
+            }
+            Constants.Symbol.DOUBLE_QUOTE + key + Constants.Symbol.DOUBLE_QUOTE + Constants.Symbol.COLON + extendValue
+        }
     }
 
     /**
@@ -187,10 +198,19 @@ object JsonUtil {
      * @return json string
      */
     fun <T : Any> objectToJson(instance: T, fields: Array<String> = emptyArray(), extendValueMap: Map<String, Any> = emptyMap(), jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
-        val objectJson = StringBuilder()
+        when (instance) {
+            is Array<*> -> {
+                return arrayToJson(instance, jsonProcessor, ignoreFirstLetterCase)
+            }
+            is Iterable<*> -> {
+                return iterableToJson(instance, jsonProcessor, ignoreFirstLetterCase)
+            }
+            is Map<*, *> -> {
+                return mapToJson(instance, extendValueMap, jsonProcessor, ignoreFirstLetterCase)
+            }
+        }
         val kClass = instance.javaClass.kotlin
         val fieldTreeSet: SortedSet<String>
-        objectJson.append(Constants.Symbol.BIG_BRACKET_LEFT)
         if (fields.isNotEmpty()) {
             fieldTreeSet = fields.toSortedSet()
         } else {
@@ -205,8 +225,11 @@ object JsonUtil {
             }
         }
         fieldTreeSet += extendValueMap.keys
-        val length = fieldTreeSet.size
-        fieldTreeSet.forEachIndexed { index, fieldName ->
+        return fieldTreeSet.joinToString(
+            separator = Constants.Symbol.COMMA,
+            prefix = Constants.Symbol.BIG_BRACKET_LEFT,
+            postfix = Constants.Symbol.BIG_BRACKET_RIGHT
+        ) { fieldName ->
             var extendValue = extendValueMap[fieldName]
             extendValue = if (extendValue == null) {
                 val methodReturnValue = ObjectUtil.getterOrIsMethodInvoke(instance, fieldName, ignoreFirstLetterCase)
@@ -214,13 +237,8 @@ object JsonUtil {
             } else {
                 jsonProcessor.process(extendValue.javaClass.kotlin, fieldName, extendValue, ignoreFirstLetterCase)
             }
-            objectJson.append(Constants.Symbol.DOUBLE_QUOTE + fieldName + Constants.Symbol.DOUBLE_QUOTE + Constants.Symbol.COLON + extendValue.toString())
-            if (index < length - 1) {
-                objectJson.append(Constants.Symbol.COMMA)
-            }
+            Constants.Symbol.DOUBLE_QUOTE + fieldName + Constants.Symbol.DOUBLE_QUOTE + Constants.Symbol.COLON + extendValue.toString()
         }
-        objectJson.append(Constants.Symbol.BIG_BRACKET_RIGHT)
-        return objectJson.toString()
     }
 
     /**
@@ -228,28 +246,37 @@ object JsonUtil {
      * means object field
      * @param <T>
      * @param instance
-     * @param fieldMap
+     * @param keyFieldMap
      * @param extendValueMap can append new key and value, can replace value with same key, key is json's properties, value is value
      * @param jsonProcessor
      * @param ignoreFirstLetterCase
      * @return json
     </T> */
-    fun <T : Any> objectToJson(instance: T, fieldMap: Map<String, String>, extendValueMap: Map<String, Any> = emptyMap(), jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
-        val objectJson = StringBuilder()
+    fun <T : Any> objectToJson(instance: T, keyFieldMap: Map<String, String>, extendValueMap: Map<String, Any> = emptyMap(), jsonProcessor: JsonProcessor = DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
+        when (instance) {
+            is Array<*> -> {
+                return arrayToJson(instance, jsonProcessor, ignoreFirstLetterCase)
+            }
+            is Iterable<*> -> {
+                return iterableToJson(instance, jsonProcessor, ignoreFirstLetterCase)
+            }
+            is Map<*, *> -> {
+                return mapToJson(instance, extendValueMap, jsonProcessor, ignoreFirstLetterCase)
+            }
+        }
         val kClass = instance.javaClass.kotlin
-        val mutableSet = mutableSetOf<Pair<String, String>>()
-        fieldMap.forEach { (key, field) ->
-            mutableSet += key to field
+        val keyMap = mutableMapOf<String, String>()
+        keyFieldMap.forEach { (key, field) ->
+            keyMap += key to field
         }
         extendValueMap.forEach { (key, _) ->
-            mutableSet += key to key
+            keyMap += key to key
         }
-        val iterator = mutableSet.iterator()//fieldMap.entries.iterator()
-        objectJson.append(Constants.Symbol.BIG_BRACKET_LEFT)
-        while (iterator.hasNext()) {
-            val entry = iterator.next()
-            val key = entry.first
-            val fieldName = entry.second
+        return keyMap.joinToString(
+            separator = Constants.Symbol.COMMA,
+            prefix = Constants.Symbol.BIG_BRACKET_LEFT,
+            postfix = Constants.Symbol.BIG_BRACKET_RIGHT
+        ) { key, fieldName ->
             var extendValue = extendValueMap[key]
             extendValue = if (extendValue == null) {
                 val methodReturnValue = ObjectUtil.getterOrIsMethodInvoke(instance, fieldName, ignoreFirstLetterCase)
@@ -257,13 +284,8 @@ object JsonUtil {
             } else {
                 jsonProcessor.process(extendValue.javaClass.kotlin, fieldName, extendValue, ignoreFirstLetterCase)
             }
-            objectJson.append(key + Constants.Symbol.COLON + extendValue.toString())
-            if (iterator.hasNext()) {
-                objectJson.append(Constants.Symbol.COMMA)
-            }
+            Constants.Symbol.DOUBLE_QUOTE + key + Constants.Symbol.DOUBLE_QUOTE + Constants.Symbol.COLON + extendValue.toString()
         }
-        objectJson.append(Constants.Symbol.BIG_BRACKET_RIGHT)
-        return objectJson.toString()
     }
 
     /**

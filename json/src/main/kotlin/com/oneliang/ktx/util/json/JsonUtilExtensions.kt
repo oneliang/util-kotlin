@@ -1,24 +1,17 @@
 package com.oneliang.ktx.util.json
 
-import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.KotlinClassUtil
 import kotlin.reflect.KClass
 
-fun <T : Any> T.toJson(fields: Array<String> = emptyArray(), extendValueMap: Map<String, Any> = emptyMap(), jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR): String {
-    return JsonUtil.objectToJson(this, fields, extendValueMap, jsonProcessor)
+fun <T : Any> T.toJson(fields: Array<String> = emptyArray(), extendValueMap: Map<String, Any> = emptyMap(), jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false): String {
+    return JsonUtil.objectToJson(this, fields, extendValueMap, jsonProcessor, ignoreFirstLetterCase)
 }
 
-fun Array<*>.toJson(jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR) = joinToString(prefix = Constants.Symbol.MIDDLE_BRACKET_LEFT, postfix = Constants.Symbol.MIDDLE_BRACKET_RIGHT, separator = Constants.Symbol.COMMA) {
-    if (it != null) {
-        jsonProcessor.process<Any>(null, Constants.String.BLANK, it, false)
-    } else {
-        it.toString()
-    }
-}
+fun Array<*>.toJson(jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false) = JsonUtil.arrayToJson(this, jsonProcessor, ignoreFirstLetterCase)
 
-fun <T> Iterable<T>.toJson(jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR) = JsonUtil.iterableToJson(this, jsonProcessor)
+fun <T> Iterable<T>.toJson(jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false) = JsonUtil.iterableToJson(this, jsonProcessor, ignoreFirstLetterCase)
 
-fun <K, V> Map<K, V>.toJson(jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR) = JsonUtil.mapToJson(this, jsonProcessor)
+fun <K, V> Map<K, V>.toJson(extendValueMap: Map<String, Any> = emptyMap(), jsonProcessor: JsonUtil.JsonProcessor = JsonUtil.DEFAULT_JSON_PROCESSOR, ignoreFirstLetterCase: Boolean = false) = JsonUtil.mapToJson(this, extendValueMap, jsonProcessor, ignoreFirstLetterCase)
 
 fun String.jsonToArrayBoolean(supportDuplicateKey: Boolean = false): Array<Boolean> = JsonUtil.jsonToArrayBoolean(this, supportDuplicateKey)
 

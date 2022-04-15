@@ -24,8 +24,8 @@ open class DefaultJsonProcessor : JsonUtil.JsonProcessor {
         if (valueKClazz.java.isArray) {
             result = when {
                 KotlinClassUtil.isBaseArray(valueKClazz) -> JsonUtil.baseArrayToJson(value)
-                KotlinClassUtil.isSimpleArray(valueKClazz) -> JsonUtil.simpleArrayToJson(value as Array<Any>, this)
-                else -> JsonUtil.objectArrayToJson(value as Array<Any>)
+                KotlinClassUtil.isSimpleArray(valueKClazz) -> JsonUtil.arrayToJson(value as Array<Any>, this, ignoreFirstLetterCase)
+                else -> JsonUtil.arrayToJson(value as Array<Any>, this, ignoreFirstLetterCase)
             }
         } else if (valueKClazz == Boolean::class
             || valueKClazz == Short::class
@@ -45,7 +45,7 @@ open class DefaultJsonProcessor : JsonUtil.JsonProcessor {
         } else {
             result = when (value) {
                 is Iterable<*> -> JsonUtil.iterableToJson(value as Iterable<Any>, this, ignoreFirstLetterCase)
-                is Map<*, *> -> JsonUtil.mapToJson(value, this, ignoreFirstLetterCase)
+                is Map<*, *> -> JsonUtil.mapToJson(value, emptyMap(), this, ignoreFirstLetterCase)
                 else -> JsonUtil.objectToJson(value, emptyArray(), emptyMap(), this, ignoreFirstLetterCase)
             }
         }
