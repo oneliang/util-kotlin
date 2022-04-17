@@ -36,7 +36,7 @@ object HttpUtil {
     }
 
     /**
-     * send request with return bytes by set method,most for collect data
+     * send request with return bytes by get method,most for collect data
      * return bytes means response is bytes
      * @param httpUrl
      * @param httpHeaderList
@@ -203,7 +203,7 @@ object HttpUtil {
     }
 
     /**
-     * send request with input stream,most for upload
+     * send request with input stream by post method, most for upload
      * @param httpUrl
      * @param httpHeaderList
      * @param inputStream
@@ -211,8 +211,8 @@ object HttpUtil {
      * @param advancedOption
      * @return String
      */
-    fun sendRequestWithInputStream(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), inputStream: InputStream, timeout: Int = DEFAULT_TIMEOUT, advancedOption: AdvancedOption? = null): String {
-        return sendRequestWithInputStream(httpUrl = httpUrl, httpHeaderList = httpHeaderList, inputStream = inputStream, timeout = timeout, inputStreamProcessor = object : InputStreamProcessor {
+    fun sendRequestPostWithInputStream(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), inputStream: InputStream, timeout: Int = DEFAULT_TIMEOUT, advancedOption: AdvancedOption? = null): String {
+        return sendRequestPostWithInputStream(httpUrl = httpUrl, httpHeaderList = httpHeaderList, inputStream = inputStream, timeout = timeout, inputStreamProcessor = object : InputStreamProcessor {
             @Throws(Throwable::class)
             override fun process(inputStream: InputStream, outputStream: OutputStream) {
                 val buffer = ByteArray(Constants.Capacity.BYTES_PER_KB)
@@ -227,7 +227,7 @@ object HttpUtil {
     }
 
     /**
-     * send request with input stream,most for upload
+     * send request with input stream by post method, most for upload
      * @param httpUrl
      * @param httpHeaderList
      * @param inputStream
@@ -237,9 +237,9 @@ object HttpUtil {
      * @param advancedOption
      * @return String
      */
-    fun sendRequestWithInputStream(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), inputStream: InputStream, timeout: Int = DEFAULT_TIMEOUT, inputStreamProcessor: InputStreamProcessor, returnEncoding: String = Constants.Encoding.UTF8, advancedOption: AdvancedOption? = null): String {
+    fun sendRequestPostWithInputStream(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), inputStream: InputStream, timeout: Int = DEFAULT_TIMEOUT, inputStreamProcessor: InputStreamProcessor, returnEncoding: String = Constants.Encoding.UTF8, advancedOption: AdvancedOption? = null): String {
         val byteArrayOutputStream = ByteArrayOutputStream()
-        sendRequestWithInputStream(httpUrl, httpHeaderList, inputStream, timeout, inputStreamProcessor, advancedOption, object : Callback {
+        sendRequestPostWithInputStream(httpUrl, httpHeaderList, inputStream, timeout, inputStreamProcessor, advancedOption, object : Callback {
             @Throws(Throwable::class)
             override fun httpOkCallback(headerFieldMap: Map<String, List<String>>, inputStream: InputStream, contentLength: Int) {
                 inputStream.copyTo(byteArrayOutputStream)
@@ -271,15 +271,15 @@ object HttpUtil {
     }
 
     /**
-     * send request with input stream,most for upload
+     * send request with input stream by post method, most for upload
      * @param httpUrl
      * @param httpHeaderList
      * @param inputStream
      * @param timeout
      * @param callback
      */
-    fun sendRequestWithInputStream(httpUrl: String, httpHeaderList: List<HttpNameValue>, inputStream: InputStream, timeout: Int, advancedOption: AdvancedOption, callback: Callback) {
-        sendRequestWithInputStream(httpUrl, httpHeaderList, inputStream, timeout, object : InputStreamProcessor {
+    fun sendRequestPostWithInputStream(httpUrl: String, httpHeaderList: List<HttpNameValue>, inputStream: InputStream, timeout: Int, advancedOption: AdvancedOption, callback: Callback) {
+        sendRequestPostWithInputStream(httpUrl, httpHeaderList, inputStream, timeout, object : InputStreamProcessor {
             @Throws(Throwable::class)
             override fun process(inputStream: InputStream, outputStream: OutputStream) {
                 val buffer = ByteArray(Constants.Capacity.BYTES_PER_KB)
@@ -294,7 +294,7 @@ object HttpUtil {
     }
 
     /**
-     * send request with input stream,most for upload
+     * send request with input stream by post method, most for upload
      * @param httpUrl
      * @param httpHeaderList
      * @param inputStream
@@ -303,12 +303,12 @@ object HttpUtil {
      * @param advancedOption
      * @param callback
      */
-    fun sendRequestWithInputStream(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), inputStream: InputStream, timeout: Int = DEFAULT_TIMEOUT, inputStreamProcessor: InputStreamProcessor? = null, advancedOption: AdvancedOption? = null, callback: Callback) {
+    fun sendRequestPostWithInputStream(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), inputStream: InputStream, timeout: Int = DEFAULT_TIMEOUT, inputStreamProcessor: InputStreamProcessor? = null, advancedOption: AdvancedOption? = null, callback: Callback) {
         sendRequestPost(httpUrl, httpHeaderList, emptyList(), ByteArray(0), inputStream, timeout, inputStreamProcessor, advancedOption, callback)
     }
 
     /**
-     * send request post
+     * send request by post method
      * @param httpUrl
      * @param httpHeaderList
      * @param httpParameterList
@@ -336,7 +336,7 @@ object HttpUtil {
      * @param advancedOption
      * @param callback
      */
-    private fun sendRequest(httpUrl: String, method: String, httpHeaderList: List<HttpNameValue> = emptyList(), httpParameterList: List<HttpNameValue> = emptyList(), streamByteArray: ByteArray = ByteArray(0), inputStream: InputStream? = null, timeout: Int = DEFAULT_TIMEOUT, inputStreamProcessor: InputStreamProcessor? = null, advancedOption: AdvancedOption? = null, callback: Callback? = null) {
+    fun sendRequest(httpUrl: String, method: String, httpHeaderList: List<HttpNameValue> = emptyList(), httpParameterList: List<HttpNameValue> = emptyList(), streamByteArray: ByteArray = ByteArray(0), inputStream: InputStream? = null, timeout: Int = DEFAULT_TIMEOUT, inputStreamProcessor: InputStreamProcessor? = null, advancedOption: AdvancedOption? = null, callback: Callback? = null) {
         try {
             val url = URL(httpUrl)
             var proxy = Proxy.NO_PROXY
