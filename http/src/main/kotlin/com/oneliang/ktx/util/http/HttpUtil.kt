@@ -46,24 +46,7 @@ object HttpUtil {
      */
     fun sendRequestGetWithReturnBytes(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), timeout: Int = DEFAULT_TIMEOUT, advancedOption: AdvancedOption? = null): ByteArray {
         val byteArrayOutputStream = ByteArrayOutputStream()
-        sendRequestGet(httpUrl, httpHeaderList, timeout, advancedOption, object : Callback {
-            @Throws(Throwable::class)
-            override fun httpOkCallback(headerFieldMap: Map<String, List<String>>, inputStream: InputStream, contentLength: Int) {
-                inputStream.copyTo(byteArrayOutputStream)
-                byteArrayOutputStream.close()
-            }
-
-            override fun exceptionCallback(throwable: Throwable) {
-                logger.error(Constants.String.EXCEPTION, throwable)
-            }
-
-            @Throws(Throwable::class)
-            override fun httpNotOkCallback(responseCode: Int, headerFieldMap: Map<String, List<String>>, errorInputStream: InputStream?) {
-                logger.debug("Response code:%s", responseCode)
-                errorInputStream?.copyTo(byteArrayOutputStream)
-                byteArrayOutputStream.close()
-            }
-        })
+        sendRequestGet(httpUrl, httpHeaderList, timeout, advancedOption, DefaultCallback(byteArrayOutputStream))
         return byteArrayOutputStream.toByteArray()
     }
 
@@ -90,35 +73,7 @@ object HttpUtil {
      * @return String
      */
     fun sendRequestPost(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), httpParameterList: List<HttpNameValue> = emptyList(), timeout: Int = DEFAULT_TIMEOUT, returnEncoding: String = Constants.Encoding.UTF8, advancedOption: AdvancedOption? = null): String {
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        sendRequestPost(httpUrl, httpHeaderList, httpParameterList, timeout, advancedOption, object : Callback {
-            @Throws(Throwable::class)
-            override fun httpOkCallback(headerFieldMap: Map<String, List<String>>, inputStream: InputStream, contentLength: Int) {
-                inputStream.copyTo(byteArrayOutputStream)
-                byteArrayOutputStream.close()
-            }
-
-            override fun exceptionCallback(throwable: Throwable) {
-                logger.error(Constants.String.EXCEPTION, throwable)
-            }
-
-            @Throws(Throwable::class)
-            override fun httpNotOkCallback(responseCode: Int, headerFieldMap: Map<String, List<String>>, errorInputStream: InputStream?) {
-                logger.debug("Response code:%s", responseCode)
-                errorInputStream?.copyTo(byteArrayOutputStream)
-                byteArrayOutputStream.close()
-            }
-        })
-        val byteArray = byteArrayOutputStream.toByteArray()
-        var result: String = Constants.String.BLANK
-        if (byteArray.isNotEmpty()) {
-            try {
-                result = String(byteArray, Charset.forName(returnEncoding))
-            } catch (e: UnsupportedEncodingException) {
-                logger.error(Constants.String.EXCEPTION, e)
-            }
-        }
-        return result
+        return sendRequest(httpUrl, Constants.Http.RequestMethod.POST.value, httpHeaderList, httpParameterList, timeout, returnEncoding, advancedOption)
     }
 
     /**
@@ -140,15 +95,16 @@ object HttpUtil {
      * @param httpHeaderList
      * @param byteArray
      * @param timeout
+     * @param returnEncoding
      * @param advancedOption
      * @return String
      */
-    fun sendRequestPostWithBytes(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), byteArray: ByteArray = ByteArray(0), timeout: Int = DEFAULT_TIMEOUT, advancedOption: AdvancedOption? = null): String {
-        val tempByteArray = sendRequestPostWithWholeBytes(httpUrl, httpHeaderList, byteArray, timeout, advancedOption)
+    fun sendRequestPostWithBytes(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), byteArray: ByteArray = ByteArray(0), timeout: Int = DEFAULT_TIMEOUT, returnEncoding: String = Constants.Encoding.UTF8, advancedOption: AdvancedOption? = null): String {
+        val responseByteArray = sendRequestPostWithWholeBytes(httpUrl, httpHeaderList, byteArray, timeout, advancedOption)
         var result: String = Constants.String.BLANK
-        if (tempByteArray.isNotEmpty()) {
+        if (responseByteArray.isNotEmpty()) {
             try {
-                result = String(tempByteArray, Charsets.UTF_8)
+                result = String(responseByteArray, Charset.forName(returnEncoding))
             } catch (e: UnsupportedEncodingException) {
                 logger.error(Constants.String.EXCEPTION, e)
             }
@@ -168,24 +124,7 @@ object HttpUtil {
      */
     fun sendRequestPostWithWholeBytes(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), byteArray: ByteArray = ByteArray(0), timeout: Int = DEFAULT_TIMEOUT, advancedOption: AdvancedOption? = null): ByteArray {
         val byteArrayOutputStream = ByteArrayOutputStream()
-        sendRequestPostWithBytes(httpUrl, httpHeaderList, byteArray, timeout, advancedOption, object : Callback {
-            @Throws(Throwable::class)
-            override fun httpOkCallback(headerFieldMap: Map<String, List<String>>, inputStream: InputStream, contentLength: Int) {
-                inputStream.copyTo(byteArrayOutputStream)
-                byteArrayOutputStream.close()
-            }
-
-            override fun exceptionCallback(throwable: Throwable) {
-                logger.error(Constants.String.EXCEPTION, throwable)
-            }
-
-            @Throws(Throwable::class)
-            override fun httpNotOkCallback(responseCode: Int, headerFieldMap: Map<String, List<String>>, errorInputStream: InputStream?) {
-                logger.debug("Response code:%s, errorInputStream:%s", responseCode, errorInputStream)
-                errorInputStream?.copyTo(byteArrayOutputStream)
-                byteArrayOutputStream.close()
-            }
-        })
+        sendRequestPostWithBytes(httpUrl, httpHeaderList, byteArray, timeout, advancedOption, DefaultCallback(byteArrayOutputStream))
         return byteArrayOutputStream.toByteArray()
     }
 
@@ -239,24 +178,7 @@ object HttpUtil {
      */
     fun sendRequestPostWithInputStream(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), inputStream: InputStream, timeout: Int = DEFAULT_TIMEOUT, inputStreamProcessor: InputStreamProcessor, returnEncoding: String = Constants.Encoding.UTF8, advancedOption: AdvancedOption? = null): String {
         val byteArrayOutputStream = ByteArrayOutputStream()
-        sendRequestPostWithInputStream(httpUrl, httpHeaderList, inputStream, timeout, inputStreamProcessor, advancedOption, object : Callback {
-            @Throws(Throwable::class)
-            override fun httpOkCallback(headerFieldMap: Map<String, List<String>>, inputStream: InputStream, contentLength: Int) {
-                inputStream.copyTo(byteArrayOutputStream)
-                byteArrayOutputStream.close()
-            }
-
-            override fun exceptionCallback(throwable: Throwable) {
-                logger.error(Constants.String.EXCEPTION, throwable)
-            }
-
-            @Throws(Throwable::class)
-            override fun httpNotOkCallback(responseCode: Int, headerFieldMap: Map<String, List<String>>, errorInputStream: InputStream?) {
-                logger.debug("Response code:%s", responseCode)
-                errorInputStream?.copyTo(byteArrayOutputStream)
-                byteArrayOutputStream.close()
-            }
-        })
+        sendRequestPostWithInputStream(httpUrl, httpHeaderList, inputStream, timeout, inputStreamProcessor, advancedOption, DefaultCallback(byteArrayOutputStream))
         val byteArray = byteArrayOutputStream.toByteArray()
         var result: String = Constants.String.BLANK
         if (byteArray.isNotEmpty()) {
@@ -321,6 +243,101 @@ object HttpUtil {
      */
     private fun sendRequestPost(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), httpParameterList: List<HttpNameValue> = emptyList(), streamByteArray: ByteArray = ByteArray(0), inputStream: InputStream? = null, timeout: Int = DEFAULT_TIMEOUT, inputStreamProcessor: InputStreamProcessor? = null, advancedOption: AdvancedOption?, callback: Callback) {
         sendRequest(httpUrl, Constants.Http.RequestMethod.POST.value, httpHeaderList, httpParameterList, streamByteArray, inputStream, timeout, inputStreamProcessor, advancedOption, callback)
+    }
+
+    /**
+     * send request with bytes by head/put/delete/trace/options method
+     * @param httpUrl
+     * @param method
+     * @param httpHeaderList
+     * @param byteArray
+     * @param timeout
+     * @param returnEncoding
+     * @param advancedOption
+     * @return String
+     */
+    fun sendRequestWithBytes(httpUrl: String, method: String, httpHeaderList: List<HttpNameValue> = emptyList(), byteArray: ByteArray = ByteArray(0), timeout: Int = DEFAULT_TIMEOUT, returnEncoding: String = Constants.Encoding.UTF8, advancedOption: AdvancedOption? = null): String {
+        val tempByteArray = sendRequestWithWholeBytes(httpUrl, method, httpHeaderList, byteArray, timeout, advancedOption)
+        var result: String = Constants.String.BLANK
+        if (tempByteArray.isNotEmpty()) {
+            try {
+                result = String(tempByteArray, Charset.forName(returnEncoding))
+            } catch (e: UnsupportedEncodingException) {
+                logger.error(Constants.String.EXCEPTION, e)
+            }
+        }
+        return result
+    }
+
+    /**
+     * send request with bytes by head/put/delete/trace/options method
+     * @param httpUrl
+     * @param method
+     * @param httpHeaderList
+     * @param byteArray
+     * @param timeout
+     * @param advancedOption
+     * @param callback
+     */
+    fun sendRequestWithBytes(httpUrl: String, method: String, httpHeaderList: List<HttpNameValue> = emptyList(), byteArray: ByteArray = ByteArray(0), timeout: Int = DEFAULT_TIMEOUT, advancedOption: AdvancedOption? = null, callback: Callback) {
+        sendRequest(httpUrl, method, httpHeaderList, emptyList(), byteArray, null, timeout, null, advancedOption, callback)
+    }
+
+    /**
+     * send request with whole bytes by head/put/delete/trace/options method,most for communication,whole
+     * bytes means request and response are bytes
+     * @param httpUrl
+     * @param method
+     * @param httpHeaderList
+     * @param byteArray
+     * @param timeout
+     * @param advancedOption
+     * @return byte[]
+     */
+    fun sendRequestWithWholeBytes(httpUrl: String, method: String, httpHeaderList: List<HttpNameValue> = emptyList(), byteArray: ByteArray = ByteArray(0), timeout: Int = DEFAULT_TIMEOUT, advancedOption: AdvancedOption? = null): ByteArray {
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        sendRequestWithBytes(httpUrl, method, httpHeaderList, byteArray, timeout, advancedOption, DefaultCallback(byteArrayOutputStream))
+        return byteArrayOutputStream.toByteArray()
+    }
+
+    /**
+     * send request by head/put/delete/trace/options method
+     * @param httpUrl
+     * @param method
+     * @param httpHeaderList
+     * @param httpParameterList
+     * @param timeout
+     * @param advancedOption
+     * @param callback
+     */
+    fun sendRequest(httpUrl: String, method: String, httpHeaderList: List<HttpNameValue> = emptyList(), httpParameterList: List<HttpNameValue> = emptyList(), timeout: Int = DEFAULT_TIMEOUT, advancedOption: AdvancedOption? = null, callback: Callback) {
+        sendRequest(httpUrl, method, httpHeaderList, httpParameterList, ByteArray(0), null, timeout, null, advancedOption, callback)
+    }
+
+    /**
+     * send request by head/put/delete/trace method
+     * @param httpUrl
+     * @param method
+     * @param httpHeaderList
+     * @param httpParameterList
+     * @param timeout
+     * @param returnEncoding
+     * @param advancedOption
+     * @return String
+     */
+    fun sendRequest(httpUrl: String, method: String, httpHeaderList: List<HttpNameValue> = emptyList(), httpParameterList: List<HttpNameValue> = emptyList(), timeout: Int = DEFAULT_TIMEOUT, returnEncoding: String = Constants.Encoding.UTF8, advancedOption: AdvancedOption? = null): String {
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        sendRequest(httpUrl, method, httpHeaderList, httpParameterList, timeout, advancedOption, DefaultCallback(byteArrayOutputStream))
+        val byteArray = byteArrayOutputStream.toByteArray()
+        var result: String = Constants.String.BLANK
+        if (byteArray.isNotEmpty()) {
+            try {
+                result = String(byteArray, Charset.forName(returnEncoding))
+            } catch (e: UnsupportedEncodingException) {
+                logger.error(Constants.String.EXCEPTION, e)
+            }
+        }
+        return result
     }
 
     /**
@@ -416,6 +433,25 @@ object HttpUtil {
          */
         @Throws(Throwable::class)
         fun process(inputStream: InputStream, outputStream: OutputStream)
+    }
+
+    class DefaultCallback(private val byteArrayOutputStream: ByteArrayOutputStream) : Callback {
+        @Throws(Throwable::class)
+        override fun httpOkCallback(headerFieldMap: Map<String, List<String>>, inputStream: InputStream, contentLength: Int) {
+            inputStream.copyTo(this.byteArrayOutputStream)
+            this.byteArrayOutputStream.close()
+        }
+
+        override fun exceptionCallback(throwable: Throwable) {
+            logger.error(Constants.String.EXCEPTION, throwable)
+        }
+
+        @Throws(Throwable::class)
+        override fun httpNotOkCallback(responseCode: Int, headerFieldMap: Map<String, List<String>>, errorInputStream: InputStream?) {
+            logger.debug("Response code:%s, errorInputStream:%s", responseCode, errorInputStream)
+            errorInputStream?.copyTo(this.byteArrayOutputStream)
+            this.byteArrayOutputStream.close()
+        }
     }
 
     interface Callback {
