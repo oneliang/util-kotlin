@@ -14,7 +14,7 @@ class BeanDescription {
         private const val IMPORTS = "imports:"
         private const val CLASS_NAME = "className:"
         private const val FIELDS = "fields:"
-        internal const val TEMPLATE_FIELD_TYPE_OBJECT = "OBJECT"
+        const val TEMPLATE_FIELD_TYPE_OBJECT = "OBJECT"
         internal const val FLAG_PACKAGE_NAME = 1 shl 0
         internal const val FLAG_IMPORTS = 1 shl 1
         internal const val FLAG_CLASS_NAME = 1 shl 2
