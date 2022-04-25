@@ -1,0 +1,31 @@
+begin:
+packageName:
+    com.oneliang.ktx.frame.test.bean
+className:
+    GenerateBean
+fields:
+    username string FBox 客户端账号
+    password string FBox 客户端密码
+    scope string openid offline_access fbox email profile
+    client_id string 开发者账号
+    client_secret string 开发者密码
+    grant_type string password
+    abc:
+        aa string aa description
+        bb string bb description
+
+begin:
+packageName:
+    com.oneliang.ktx.frame.test.bean
+className:
+    GenerateBeanB
+fields:
+    username string FBox 客户端账号
+    password string FBox 客户端密码
+    scope string openid offline_access fbox email profile
+    client_id string 开发者账号
+    client_secret string 开发者密码
+    grant_type string password
+    abc:
+        aa string aa description
+        bb string bb description
