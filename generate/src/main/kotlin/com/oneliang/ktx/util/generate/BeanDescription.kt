@@ -14,7 +14,7 @@ class BeanDescription {
         private const val IMPORTS = "imports:"
         private const val CLASS_NAME = "className:"
         private const val FIELDS = "fields:"
-        internal const val TEMPLATE_FIELD_TYPE_CLASS = "CLASS"
+        internal const val TEMPLATE_FIELD_TYPE_OBJECT = "OBJECT"
         internal const val FLAG_PACKAGE_NAME = 1 shl 0
         internal const val FLAG_IMPORTS = 1 shl 1
         internal const val FLAG_CLASS_NAME = 1 shl 2
@@ -73,7 +73,7 @@ fun BeanDescription.Companion.processSubClass(
                     val description = line.substring(colonIndex + 1)
                     val lastField = fieldList.last()
                     val subFieldList = lastField.subFields.toMutableList()
-                    subFieldList += BeanDescription.FieldDescription(fieldKey, TEMPLATE_FIELD_TYPE_CLASS, description)
+                    subFieldList += BeanDescription.FieldDescription(fieldKey, TEMPLATE_FIELD_TYPE_OBJECT, description)
                     lastField.subFields = subFieldList.toTypedArray()
                     return currentFlag or subClass2 to null
                 }
@@ -81,7 +81,7 @@ fun BeanDescription.Companion.processSubClass(
         } else {//first in sub class
             flagSubClassKeyMap[subClass1] = fieldKey
             val description = line.substring(colonIndex + 1)
-            fieldList += BeanDescription.FieldDescription(fieldKey, TEMPLATE_FIELD_TYPE_CLASS, description)
+            fieldList += BeanDescription.FieldDescription(fieldKey, TEMPLATE_FIELD_TYPE_OBJECT, description)
             return currentFlag or subClass1 to fieldList.toTypedArray()
         }
     } else {
