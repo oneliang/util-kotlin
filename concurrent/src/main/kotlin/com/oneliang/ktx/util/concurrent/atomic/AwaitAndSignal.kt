@@ -34,11 +34,14 @@ class AwaitAndSignal<K : Any> {
         }
     }
 
-    fun signal(conditionKey: K, beforeSignal: () -> Unit = {}, afterSignal: () -> Unit = {}) {
+    fun signal(conditionKey: K, autoRemoveConditionKey: Boolean = true, beforeSignal: () -> Unit = {}, afterSignal: () -> Unit = {}) {
         try {
             this.lock.lock()
             beforeSignal()
             val condition = this.conditionMap.getOrPut(conditionKey) { this.lock.newCondition() }
+            if (autoRemoveConditionKey) {
+                this.conditionMap.remove(conditionKey)
+            }
             condition.signal()
             afterSignal()
         } finally {
@@ -46,11 +49,14 @@ class AwaitAndSignal<K : Any> {
         }
     }
 
-    fun signalAll(conditionKey: K, beforeSignalAll: () -> Unit = {}, afterSignalAll: () -> Unit = {}) {
+    fun signalAll(conditionKey: K, autoRemoveConditionKey: Boolean = true, beforeSignalAll: () -> Unit = {}, afterSignalAll: () -> Unit = {}) {
         try {
             this.lock.lock()
             beforeSignalAll()
             val condition = this.conditionMap.getOrPut(conditionKey) { this.lock.newCondition() }
+            if (autoRemoveConditionKey) {
+                this.conditionMap.remove(conditionKey)
+            }
             condition.signalAll()
             afterSignalAll()
         } finally {
