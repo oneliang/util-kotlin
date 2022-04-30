@@ -267,6 +267,8 @@ class ThreadPool : Runnable {
                             this.beginTimeMillis = System.currentTimeMillis()
                             try {
                                 this.currentThreadTask?.runTask()
+                            } catch (t: Throwable) {
+                                logger.error(Constants.String.EXCEPTION, t)
                             } finally {
                                 this.finishedTimeMillis = System.currentTimeMillis()
                                 this.finishedCount++
@@ -281,7 +283,9 @@ class ThreadPool : Runnable {
                             }
                             this.threadPool.lock.notify()
                         }
-                        lock.wait()
+                        synchronized(lock) {
+                            lock.wait()
+                        }
                     }
                 } catch (e: InterruptedException) {
                     logger.verbose("Inner thread need to interrupt:" + Thread.currentThread().name + ",message:" + e.message)
