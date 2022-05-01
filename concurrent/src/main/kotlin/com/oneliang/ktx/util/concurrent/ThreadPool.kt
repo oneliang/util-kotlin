@@ -34,6 +34,7 @@ class ThreadPool : Runnable {
             this.allInnerThreads[i] = innerThread
             this.daemonThread?.addInnerThread(innerThread)
         }
+        this.hasBeenInitialized = true
     }
 
     override fun run() {
@@ -101,7 +102,6 @@ class ThreadPool : Runnable {
         }
         if (!this.hasBeenInitialized) {
             this.initialize()
-            this.hasBeenInitialized = true
         }
     }
 
