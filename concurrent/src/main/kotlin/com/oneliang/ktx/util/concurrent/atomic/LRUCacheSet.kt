@@ -1,8 +1,12 @@
 package com.oneliang.ktx.util.concurrent.atomic
 
-class LRUCacheSet<V : Any>(private val maxSize: Int) : Iterable<LRUCacheSet.ItemCounter<V>> {
+class LRUCacheSet<V : Any>(private val maxSize: Int, type: Type = Type.DESCENT) : Iterable<LRUCacheSet.ItemCounter<V>> {
 
-    private val dataAtomicTreeSet = AtomicTreeSet<ItemCounter<V>> { o1, o2 ->
+    enum class Type {
+        ASCENT, DESCENT
+    }
+
+    private val descentComparator: Comparator<ItemCounter<V>> = Comparator { o1, o2 ->
         when {
             o1.value == o2.value -> {
                 0
@@ -22,6 +26,30 @@ class LRUCacheSet<V : Any>(private val maxSize: Int) : Iterable<LRUCacheSet.Item
             }
         }
     }
+
+    private val ascentComparator: Comparator<ItemCounter<V>> = Comparator { o1, o2 ->
+        when {
+            o1.value == o2.value -> {
+                0
+            }
+            o1.lastUsedTime > o2.lastUsedTime -> {
+                1
+            }
+            o1.lastUsedTime == o2.lastUsedTime -> {
+                if (o1.count >= o2.count) {
+                    1
+                } else {
+                    -1
+                }
+            }
+            else -> {
+                -1
+            }
+        }
+    }
+
+    private val dataAtomicTreeSet: AtomicTreeSet<ItemCounter<V>> = AtomicTreeSet(if (type == Type.ASCENT) this.ascentComparator else this.descentComparator)
+
     private val dataAtomicMap = AtomicMap<V, ItemCounter<V>>(this.maxSize)
 
     override fun iterator(): Iterator<ItemCounter<V>> {
@@ -55,6 +83,7 @@ class LRUCacheSet<V : Any>(private val maxSize: Int) : Iterable<LRUCacheSet.Item
             newItemCounter
         }, removeWhenFull = {
             val itemCounter = this.dataAtomicTreeSet.last()
+            removeWhenFull?.invoke(itemCounter)
             this.dataAtomicTreeSet -= itemCounter
             itemCounter.value
         })

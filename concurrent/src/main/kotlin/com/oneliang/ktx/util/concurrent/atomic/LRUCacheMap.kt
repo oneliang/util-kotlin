@@ -1,8 +1,12 @@
 package com.oneliang.ktx.util.concurrent.atomic
 
-class LRUCacheMap<K : Any, V>(private val maxSize: Int) : Iterable<LRUCacheMap.ItemCounter<K, V>> {
+class LRUCacheMap<K : Any, V>(private val maxSize: Int, type: Type = Type.DESCENT) : Iterable<LRUCacheMap.ItemCounter<K, V>> {
 
-    private val dataAtomicTreeSet = AtomicTreeSet<ItemCounter<K, V>> { o1, o2 ->
+    enum class Type {
+        ASCENT, DESCENT
+    }
+
+    private val descentComparator: Comparator<ItemCounter<K, V>> = Comparator { o1, o2 ->
         when {
             o1.key == o2.key -> {//same item
                 0
@@ -22,6 +26,28 @@ class LRUCacheMap<K : Any, V>(private val maxSize: Int) : Iterable<LRUCacheMap.I
             }
         }
     }
+    private val ascentComparator: Comparator<ItemCounter<K, V>> = Comparator { o1, o2 ->
+        when {
+            o1.key == o2.key -> {//same item
+                0
+            }
+            o1.lastUsedTime > o2.lastUsedTime -> {
+                1
+            }
+            o1.lastUsedTime == o2.lastUsedTime -> {
+                if (o1.count >= o2.count) {
+                    1
+                } else {
+                    -1
+                }
+            }
+            else -> {
+                -1
+            }
+        }
+    }
+    private val dataAtomicTreeSet: AtomicTreeSet<ItemCounter<K, V>> = AtomicTreeSet(if (type == Type.ASCENT) this.ascentComparator else this.descentComparator)
+
     private val dataAtomicMap = AtomicMap<K, ItemCounter<K, V>>(this.maxSize)
 
     override fun iterator(): Iterator<ItemCounter<K, V>> {

@@ -12,6 +12,8 @@ fun main() {
     lruSet.operate("A")
     lruSet.operate("B")
     lruSet.operate("A")
+    Thread.sleep(1000)
+    lruSet.operate("B")
     lruSet.forEach {
         println("${it.value}, last used time:" + it.lastUsedTime.toUtilDate().toFormatString() + ", count:" + it.count)
     }
