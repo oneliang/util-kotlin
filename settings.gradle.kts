@@ -21,6 +21,7 @@ include(":math")
 include(":validator")
 include(":reflect")
 include(":jwt")
+include(":packet")
 
 //libraries
 apply(from = "${rootDir}/libraries/libraries.gradle")
