@@ -8,7 +8,7 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 
-class TlvPacketProcessor(private val typeByteArrayLength: Int = 4, private val bodyLengthByteArrayLength: Int = 4) {
+class TlvPacketProcessor(val typeByteArrayLength: Int = 4, val bodyLengthByteArrayLength: Int = 4) {
 
     @Throws(Throwable::class)
     fun sendTlvPacket(outputStream: OutputStream, tlvPacket: TlvPacket) {
