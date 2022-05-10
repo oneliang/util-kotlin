@@ -9,6 +9,7 @@ open class TlvPacket constructor(var type: ByteArray = ByteArray(0), var body: B
     }
 
     constructor(subTlvPackets: Array<TlvPacket>) : this(TYPE_TLV_PACKAGE) {
+        subTlvPackets.ifEmpty { error("parameter(subTlvPackets) can not be empty") }
         this.subTlvPackets = subTlvPackets
     }
 
@@ -29,7 +30,9 @@ open class TlvPacket constructor(var type: ByteArray = ByteArray(0), var body: B
                 bodyByteArrayOutputStream.write(it.toByteArray())
             }
         } else {
-            error("parameter(body) and parameter(subTlvPackets) are all empty or not empty, body empty?:%s, subTlvPackets empty?:%s".format(this.body.isEmpty(), this.subTlvPackets.isEmpty()))
+            if (this.type.contentEquals(TYPE_TLV_PACKAGE)) {
+                error("parameter(body) and parameter(subTlvPackets) are all empty or not empty, body empty?:%s, subTlvPackets empty?:%s".format(this.body.isEmpty(), this.subTlvPackets.isEmpty()))
+            }
         }
         val bodyByteArray = bodyByteArrayOutputStream.toByteArray()
         val bodyLengthByteArray = bodyByteArray.size.toByteArray()
