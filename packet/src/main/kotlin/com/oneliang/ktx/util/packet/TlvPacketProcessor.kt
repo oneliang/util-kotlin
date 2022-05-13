@@ -16,24 +16,24 @@ class TlvPacketProcessor(val typeByteArrayLength: Int = 4, val bodyLengthByteArr
     }
 
     @Throws(Throwable::class)
-    private fun send(outputStream: OutputStream, byteArray: ByteArray) {
+    fun send(outputStream: OutputStream, byteArray: ByteArray) {
         outputStream.writeWithBuffer(byteArray)
     }
 
     @Throws(Throwable::class)
-    private fun receiveType(inputStream: InputStream): ByteArray {
+    fun receiveType(inputStream: InputStream): ByteArray {
         return inputStream.readWithBuffer(this.typeByteArrayLength)
     }
 
     @Throws(Throwable::class)
-    private fun receiveBody(inputStream: InputStream): ByteArray {
+    fun receiveBody(inputStream: InputStream): ByteArray {
         val bodyOutputStream = ByteArrayOutputStream()
         this.receiveBody(inputStream, bodyOutputStream)
         return bodyOutputStream.toByteArray()
     }
 
     @Throws(Throwable::class)
-    private fun receiveBody(inputStream: InputStream, outputStream: OutputStream) {
+    fun receiveBody(inputStream: InputStream, outputStream: OutputStream) {
         val bodyLengthByteArray = inputStream.readWithBuffer(this.bodyLengthByteArrayLength)
         val bodyLength: Int = bodyLengthByteArray.toInt()
         inputStream.readWithBuffer(bodyLength, outputStream)
