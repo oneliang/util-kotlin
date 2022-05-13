@@ -15,6 +15,7 @@ class BeanDescription {
         private const val CLASS_NAME = "className:"
         private const val FIELDS = "fields:"
         const val TEMPLATE_FIELD_TYPE_OBJECT = "OBJECT"
+        const val TEMPLATE_FIELD_TYPE_OBJECT_ARRAY = "OBJECT_ARRAY"
         internal const val FLAG_PACKAGE_NAME = 1 shl 0
         internal const val FLAG_IMPORTS = 1 shl 1
         internal const val FLAG_CLASS_NAME = 1 shl 2
@@ -61,7 +62,11 @@ fun BeanDescription.Companion.processSubClass(
     val colonIndex = line.lastIndexOf(Constants.Symbol.COLON)
     //space priority higher than colon
     if (spaceIndex < 0 && colonIndex > 0 || colonIndex in 1 until spaceIndex) {//no space but has colon or colon index less than space, has array
-        val fieldKey = line.substring(0, colonIndex)
+        var fieldKey = line.substring(0, colonIndex)
+        val objectArraySign = fieldKey.lastIndexOf(Constants.Symbol.MIDDLE_BRACKET_LEFT + Constants.Symbol.MIDDLE_BRACKET_RIGHT) > 0
+        if (objectArraySign) {
+            fieldKey = fieldKey.replace(Constants.Symbol.MIDDLE_BRACKET_LEFT + Constants.Symbol.MIDDLE_BRACKET_RIGHT, Constants.String.BLANK)
+        }
         if (currentFlag and subClass1 == subClass1) {//sub class flag has open, reset sub class flag
             if (fieldKey == flagSubClassKeyMap[subClass1].nullToBlank()) {//the same key, so finished sub class 1
                 return currentFlag and subClass1.inv() to null//remove sub class 1 flag
@@ -73,7 +78,7 @@ fun BeanDescription.Companion.processSubClass(
                     val description = line.substring(colonIndex + 1)
                     val lastField = fieldList.last()
                     val subFieldList = lastField.subFields.toMutableList()
-                    subFieldList += BeanDescription.FieldDescription(fieldKey, TEMPLATE_FIELD_TYPE_OBJECT, description)
+                    subFieldList += BeanDescription.FieldDescription(fieldKey, if (objectArraySign) TEMPLATE_FIELD_TYPE_OBJECT_ARRAY else TEMPLATE_FIELD_TYPE_OBJECT, description)
                     lastField.subFields = subFieldList.toTypedArray()
                     return currentFlag or subClass2 to null
                 }
@@ -81,7 +86,7 @@ fun BeanDescription.Companion.processSubClass(
         } else {//first in sub class
             flagSubClassKeyMap[subClass1] = fieldKey
             val description = line.substring(colonIndex + 1)
-            fieldList += BeanDescription.FieldDescription(fieldKey, TEMPLATE_FIELD_TYPE_OBJECT, description)
+            fieldList += BeanDescription.FieldDescription(fieldKey, if (objectArraySign) TEMPLATE_FIELD_TYPE_OBJECT_ARRAY else TEMPLATE_FIELD_TYPE_OBJECT, description)
             return currentFlag or subClass1 to fieldList.toTypedArray()
         }
     } else {

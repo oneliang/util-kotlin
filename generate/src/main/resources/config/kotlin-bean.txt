@@ -1,31 +1,36 @@
 begin:
 packageName:
-    com.oneliang.ktx.frame.test.bean
+    com.oneliang.ktx.util.test.bean
 className:
     GenerateBean
 fields:
-    username string FBox 客户端账号
-    password string FBox 客户端密码
-    scope string openid offline_access fbox email profile
-    client_id string 开发者账号
-    client_secret string 开发者密码
-    grant_type string password
-    abc:
+    field_string string string类型
+    field_boolean boolean boolean类型
+    field_short short short类型
+    field_int int int类型
+    field_long long long类型
+    field_float float float类型
+    field_double double double类型
+    field_string_array string[] string[]类型
+    field_boolean_array boolean[] boolean[]类型
+    field_short_array short[] short[]类型
+    field_int_array int[] int[]类型
+    field_long_array long[] long[]类型
+    field_float_array float[] float[]类型
+    field_double_array double[] double[]类型
+    field_object:
         aa string aa description
         bb string bb description
-
-begin:
-packageName:
-    com.oneliang.ktx.frame.test.bean
-className:
-    GenerateBeanB
-fields:
-    username string FBox 客户端账号
-    password string FBox 客户端密码
-    scope string openid offline_access fbox email profile
-    client_id string 开发者账号
-    client_secret string 开发者密码
-    grant_type string password
-    abc:
+        field_subObject:
+            cc string cc description
+            dd string dd description
+        field_subObject:
+    field_object:
+    field_object_array[]:
         aa string aa description
         bb string bb description
+        field_subObject_array[]:
+            cc string cc description
+            dd string dd description
+        field_subObject_array[]:
+    field_object_array[]:

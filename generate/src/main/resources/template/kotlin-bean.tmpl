@@ -19,25 +19,29 @@ class <%=className%> {
     <%} else if (fieldType == 'INT') {%>
     var <%=fieldName%>: Int = 0//<%=field.description%>
     <%} else if (fieldType == 'LONG') {%>
-    var <%=fieldName%>: Long = 0l//<%=field.description%>
+    var <%=fieldName%>: Long = 0L//<%=field.description%>
     <%} else if (fieldType == 'FLOAT') {%>
     var <%=fieldName%>: Float = 0f//<%=field.description%>
     <%} else if (fieldType == 'DOUBLE') {%>
     var <%=fieldName%>: Double = 0.0//<%=field.description%>
-    <%} else if (fieldType.startsWith('ARRAY')) {%>
-        <%var genericType = fieldType.replace('ARRAY','').replace('<','').replace('>','');%>
+    <%} else if (fieldType.endsWith('[]')) {%>
+        <%var genericType = fieldType.replace('[','').replace(']','');%>
         <%genericType = genericType.substring(0, 1).toUpperCase() + genericType.substring(1).toLowerCase();%>
     var <%=fieldName%>: Array<<%=genericType%>> = emptyArray()//<%=field.description%>
-    <%} else if (fieldType == 'OBJECT') {%>
+    <%} else if (fieldType == 'OBJECT' || fieldType == 'OBJECT_ARRAY') {%>
+    <%var objectArraySign = (fieldType == 'OBJECT_ARRAY');%>
     <%var subClassName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);%>
+        <%if (objectArraySign) {%>
+    var <%=fieldName%>: Array<<%=subClassName%>Bean> = emptyArray()//<%=field.description%>
+        <%} else {%>
     var <%=fieldName%>: <%=subClassName%>Bean? = null//<%=field.description%>
+        <%}%>
     class <%=subClassName%>Bean {
         <%if (field.subFields!=null){%>
             <%for(var j=0;j<field.subFields.length;j++){%>
                 <%var subClassField=field.subFields[j];%>
                 <%var subClassFieldName=subClassField.key;%>
                 <%var subClassFieldType=subClassField.value.toUpperCase();%>
-                <%var subSubClassName = subClassFieldName.substring(0, 1).toUpperCase() + subClassFieldName.substring(1);%>
                 <%if (subClassFieldType == 'STRING'){%>
         var <%=subClassFieldName%>: String = ""//<%=subClassField.description%>
                 <%} else if (subClassFieldType == 'BOOLEAN') {%>
@@ -47,17 +51,23 @@ class <%=className%> {
                 <%} else if (subClassFieldType == 'INT') {%>
         var <%=subClassFieldName%>: Int = 0//<%=subClassField.description%>
                 <%} else if (subClassFieldType == 'LONG') {%>
-        var <%=subClassFieldName%>: LONG = 0l//<%=subClassField.description%>
+        var <%=subClassFieldName%>: LONG = 0L//<%=subClassField.description%>
                 <%} else if (subClassFieldType == 'FLOAT') {%>
         var <%=subClassFieldName%>: Float = 0f//<%=subClassField.description%>
                 <%} else if (subClassFieldType == 'DOUBLE') {%>
         var <%=subClassFieldName%>: Double = 0.0//<%=subClassField.description%>
-                <%} else if (subClassFieldType.startsWith('ARRAY')) {%>
-                    <%var subClassGenericType = subClassFieldType.replace('ARRAY','').replace('<','').replace('>','');%>
+                <%} else if (subClassFieldType.endsWith('[]')) {%>
+                    <%var subClassGenericType = subClassFieldType.replace('[','').replace(']','');%>
                     <%subClassGenericType = subClassGenericType.substring(0, 1).toUpperCase() + subClassGenericType.substring(1).toLowerCase();%>
         var <%=subClassFieldName%>: Array<<%=subClassGenericType%>> = emptyArray()//<%=subClassField.description%>
-                <%} else if (subClassFieldType == 'OBJECT') {%>
+                <%} else if (subClassFieldType == 'OBJECT' || subClassFieldType == 'OBJECT_ARRAY') {%>
+        <%var subClassObjectArraySign = (fieldType == 'OBJECT_ARRAY');%>
+        <%var subSubClassName = subClassFieldName.substring(0, 1).toUpperCase() + subClassFieldName.substring(1);%>
+            <%if (subClassObjectArraySign) {%>
+        var <%=subClassFieldName%>: Array<<%=subSubClassName%>Bean> = emptyArray()//<%=subClassField.description%>
+            <%} else {%>
         var <%=subClassFieldName%>: <%=subSubClassName%>Bean? = null//<%=subClassField.description%>
+            <%}%>
         class <%=subSubClassName%>Bean {
             <%if (subClassField.subFields!=null){%>
                 <%for(var k=0;k<subClassField.subFields.length;k++){%>
@@ -73,13 +83,13 @@ class <%=className%> {
                     <%} else if (subSubClassFieldType == 'INT') {%>
             var <%=subSubClassFieldName%>: Int = 0//<%=subSubClassField.description%>
                     <%} else if (subSubClassFieldType == 'LONG') {%>
-            var <%=subSubClassFieldName%>: LONG = 0l//<%=subSubClassField.description%>
+            var <%=subSubClassFieldName%>: LONG = 0L//<%=subSubClassField.description%>
                     <%} else if (subSubClassFieldType == 'FLOAT') {%>
             var <%=subSubClassFieldName%>: Float = 0f//<%=subSubClassField.description%>
                     <%} else if (subSubClassFieldType == 'DOUBLE') {%>
             var <%=subSubClassFieldName%>: Double = 0.0//<%=subSubClassField.description%>
-                    <%} else if (subSubClassFieldType.startsWith('ARRAY')) {%>
-                        <%var subSubClassGenericType = subSubClassFieldType.replace('ARRAY','').replace('<','').replace('>','');%>
+                    <%} else if (subSubClassFieldType.endsWith('[]')) {%>
+                        <%var subSubClassGenericType = subSubClassFieldType.replace('[','').replace(']','');%>
                         <%subSubClassGenericType = subSubClassGenericType.substring(0, 1).toUpperCase() + subSubClassGenericType.substring(1).toLowerCase();%>
             var <%=subSubClassFieldName%>: Array<<%=subSubClassGenericType%>> = emptyArray()//<%=subSubClassField.description%>
                     <%}%>
