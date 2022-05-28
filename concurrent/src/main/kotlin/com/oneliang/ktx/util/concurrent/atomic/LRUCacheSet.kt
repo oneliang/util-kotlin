@@ -97,6 +97,18 @@ class LRUCacheSet<V : Any>(private val maxSize: Int = 0, type: Type = Type.DESCE
         return itemCounter
     }
 
+    fun first(): V {
+        return this.dataAtomicTreeSet.first().value
+    }
+
+    fun last(): V {
+        return this.dataAtomicTreeSet.last().value
+    }
+
+    fun isEmpty(): Boolean {
+        return this.dataAtomicTreeSet.isEmpty()
+    }
+
     fun clear() {
         this.dataAtomicTreeSet.clear()
         this.dataAtomicMap.clear()
