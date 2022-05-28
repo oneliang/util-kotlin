@@ -1,6 +1,6 @@
 package com.oneliang.ktx.util.concurrent.atomic
 
-class LRUCacheSet<V : Any>(private val maxSize: Int, type: Type = Type.DESCENT) : Iterable<LRUCacheSet.ItemCounter<V>> {
+class LRUCacheSet<V : Any>(private val maxSize: Int = 0, type: Type = Type.DESCENT) : Iterable<LRUCacheSet.ItemCounter<V>> {
 
     enum class Type {
         ASCENT, DESCENT

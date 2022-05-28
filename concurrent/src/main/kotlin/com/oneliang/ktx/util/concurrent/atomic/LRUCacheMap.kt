@@ -1,6 +1,6 @@
 package com.oneliang.ktx.util.concurrent.atomic
 
-class LRUCacheMap<K : Any, V>(private val maxSize: Int, type: Type = Type.DESCENT) : Iterable<LRUCacheMap.ItemCounter<K, V>> {
+class LRUCacheMap<K : Any, V>(private val maxSize: Int = 0, type: Type = Type.DESCENT) : Iterable<LRUCacheMap.ItemCounter<K, V>> {
 
     enum class Type {
         ASCENT, DESCENT
