@@ -103,6 +103,12 @@ object Generator {
         return result
     }
 
+    fun generateGlobalThreadId(): String {
+        val tid = Thread.currentThread().id.toString()
+        //tid@pid@hostAddress, threadId+jvmId+IP
+        return tid + Constants.Symbol.AT + PID + Constants.Symbol.AT + HOST_ADDRESS
+    }
+
     /**
      * random string
      * @param size
