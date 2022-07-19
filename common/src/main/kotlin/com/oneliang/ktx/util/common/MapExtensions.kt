@@ -116,26 +116,38 @@ inline fun <K, V> Map<K, V>.forEachWithIndex(block: (index: Int, key: K, value: 
     }
 }
 
-fun <K, V> Map<K, V>.differs(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { _, value, mapValue -> value == mapValue }): List<K> {
+@Suppress("UNCHECKED_CAST")
+fun <K, V : Any?> Map<K, V>.differs(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { _, value, mapValue -> value == mapValue }): List<K> {
     val list = mutableListOf<K>()
     this.forEach { (key, value) ->
-        val mapValue = map[key]
-        if (mapValue == null || !valueComparator(key, value, mapValue)) {
+        if (!map.containsKey(key)) {//not contains key
             list += key
+        } else {//contains key
+            val mapValue = map[key]
+            if (mapValue == null && value == null) {//but value == null and mapValue == null
+                //nothing to do
+            } else if (!valueComparator(key, value, mapValue as V)) {
+                list += key
+            }
         }
     }
     return list
 }
 
-fun <K, V> Map<K, V>.differsAccurate(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { _, value, mapValue -> value == mapValue }): Pair<List<K>, List<K>> {
+@Suppress("UNCHECKED_CAST")
+fun <K, V : Any?> Map<K, V>.differsAccurate(map: Map<K, V>, valueComparator: (key: K, value: V, mapValue: V) -> Boolean = { _, value, mapValue -> value == mapValue }): Pair<List<K>, List<K>> {
     val list = mutableListOf<K>()
     val valueCompareKeyList = mutableListOf<K>()
     this.forEach { (key, value) ->
-        val mapValue = map[key]
-        if (mapValue == null) {
+        if (!map.containsKey(key)) {
             list += key
-        } else if (!valueComparator(key, value, mapValue)) {
-            valueCompareKeyList += key
+        } else {
+            val mapValue = map[key]
+            if (mapValue == null && value == null) {//but value == null and mapValue == null
+                //nothing to do
+            } else if (!valueComparator(key, value, mapValue as V)) {
+                valueCompareKeyList += key
+            }
         }
     }
     return list to valueCompareKeyList
@@ -250,7 +262,7 @@ fun <K, V, A : Appendable> Map<out K, V>.joinTo(
     return buffer
 }
 
-fun <K, V> Map<K, V>.merge(
+fun <K, V : Any?> Map<K, V>.merge(
     mergeMap: Map<K, V>, existBlock: (key: K, value: V, mergeValue: V) -> V = { _, value, _ -> value },
     mergeNotExistBlock: (key: K, value: V) -> V = { _, value -> value },
     notExistBlock: (key: K, mergeValue: V) -> V = { _, mergeValue -> mergeValue }
@@ -258,24 +270,24 @@ fun <K, V> Map<K, V>.merge(
     return this.mergeToNewValue(mergeMap, existBlock, mergeNotExistBlock, notExistBlock)
 }
 
-fun <K, V, NV> Map<K, V>.mergeToNewValue(
+@Suppress("UNCHECKED_CAST")
+fun <K, V : Any?, NV : Any?> Map<K, V>.mergeToNewValue(
     mergeMap: Map<K, V>, existBlock: (key: K, value: V, mergeValue: V) -> NV,
     mergeNotExistBlock: (key: K, value: V) -> NV,
     notExistBlock: (key: K, mergeValue: V) -> NV
 ): Map<K, NV> {
     val mutableMap = mutableMapOf<K, NV>()
     this.forEach { (key, value) ->
-        val mergeValue = mergeMap[key]
-        val newValue = if (mergeValue != null) {
-            existBlock(key, value, mergeValue)
-        } else {
+        val newValue = if (mergeMap.containsKey(key)) {//exist
+            val mergeValue = mergeMap[key]
+            existBlock(key, value, mergeValue as V)
+        } else {//not exist
             mergeNotExistBlock(key, value)
         }
         mutableMap[key] = newValue
     }
     mergeMap.forEach { (key, mergeValue) ->
-        val value = this[key]
-        if (value == null) {
+        if (!this.containsKey(key)) {
             val newValue = notExistBlock(key, mergeValue)
             mutableMap[key] = newValue
         } else {
@@ -327,12 +339,13 @@ fun <K, V, R, M : MutableMap<in R, Int>> Map<K, V>.countByAndCheckTo(destination
     return true
 }
 
-fun <K, V> MutableMap<K, V>.merge(key: K, value: V, existBlock: (key: K, oldValue: V) -> V) {
-    val oldValue = this[key]
-    val newValue = if (oldValue == null) {//not exist
+@Suppress("UNCHECKED_CAST")
+fun <K, V : Any?> MutableMap<K, V>.merge(key: K, value: V, existBlock: (key: K, oldValue: V) -> V) {
+    val newValue = if (this.containsKey(key)) {// exist
+        val oldValue = this[key]
+        existBlock(key, oldValue as V)
+    } else {//not exist
         value
-    } else {
-        existBlock(key, oldValue)
     }
     this[key] = newValue
 }
