@@ -300,7 +300,7 @@ object FileUtil {
      */
     fun readFileContentIgnoreLine(file: File, encoding: String = Constants.Encoding.UTF8, append: String = Constants.String.BLANK): String {
         val stringBuilder = StringBuilder()
-        readFileContentIgnoreLine(file, encoding) { line ->
+        readFileContentEachLine(file, encoding) { line ->
             stringBuilder.append(line)
             stringBuilder.append(append)
             true
@@ -309,26 +309,26 @@ object FileUtil {
     }
 
     /**
-     * read file content ignore line
+     * read file content each line
      * @param fullFilename
      * @param encoding
-     * @param readFileContentProcessor
+     * @param readLineProcessor
      */
-    fun readFileContentIgnoreLine(fullFilename: String, encoding: String = Constants.Encoding.UTF8, readFileContentProcessor: (line: String) -> Boolean) {
-        readFileContentIgnoreLine(File(fullFilename), encoding, readFileContentProcessor)
+    fun readFileContentEachLine(fullFilename: String, encoding: String = Constants.Encoding.UTF8, readLineProcessor: (line: String) -> Boolean) {
+        readFileContentEachLine(File(fullFilename), encoding, readLineProcessor)
     }
 
     /**
-     * read file content ignore line
+     * read file content each line
      * @param file
      * @param encoding
-     * @param readFileContentProcessor
+     * @param readLineProcessor
      */
-    fun readFileContentIgnoreLine(file: File, encoding: String = Constants.Encoding.UTF8, readFileContentProcessor: (line: String) -> Boolean) {
+    fun readFileContentEachLine(file: File, encoding: String = Constants.Encoding.UTF8, readLineProcessor: (line: String) -> Boolean) {
         var inputStream: InputStream? = null
         try {
             inputStream = FileInputStream(file)
-            StreamUtil.readInputStreamContentIgnoreLine(inputStream, encoding, readFileContentProcessor)
+            StreamUtil.readInputStreamContentEachLine(inputStream, encoding, readLineProcessor)
         } catch (e: Exception) {
             throw FileUtilException(e)
         } finally {

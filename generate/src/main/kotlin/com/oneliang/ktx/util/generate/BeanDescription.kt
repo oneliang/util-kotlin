@@ -4,7 +4,7 @@ import com.oneliang.ktx.Constants
 import com.oneliang.ktx.pojo.KeyValue
 import com.oneliang.ktx.util.common.nullToBlank
 import com.oneliang.ktx.util.common.toFile
-import com.oneliang.ktx.util.file.readContentIgnoreLine
+import com.oneliang.ktx.util.file.readContentEachLine
 import java.io.FileNotFoundException
 
 class BeanDescription {
@@ -126,10 +126,10 @@ fun BeanDescription.Companion.buildListFromFile(fullFilename: String): List<Bean
     if (file.exists() && file.isFile) {
         var currentFlag = 0
         val flagSubClassKeyMap = mutableMapOf<Int, String>()
-        file.readContentIgnoreLine {
+        file.readContentEachLine {
             val line = it.trim()
             if (line.isBlank() || line.startsWith(Constants.Symbol.POUND_KEY)) {
-                return@readContentIgnoreLine true//continue
+                return@readContentEachLine true//continue
             }
             when {
                 line.startsWith(BEGIN, true) -> {
@@ -149,10 +149,10 @@ fun BeanDescription.Companion.buildListFromFile(fullFilename: String): List<Bean
                         }
                     }
                     if (keywordSign) {
-                        return@readContentIgnoreLine true
+                        return@readContentEachLine true
                     }
                     //data process
-                    val currentBeanDescription = beanDescription ?: return@readContentIgnoreLine true
+                    val currentBeanDescription = beanDescription ?: return@readContentEachLine true
                     when {
                         currentFlag and FLAG_PACKAGE_NAME == FLAG_PACKAGE_NAME -> {
                             currentBeanDescription.packageName = line

@@ -7,19 +7,19 @@ import java.io.InputStreamReader
 
 object StreamUtil {
     /**
-     * read input stream content ignore line
+     * read input stream content each line
      *
      * @param inputStream
      * @param encoding
-     * @param readContentProcessor
+     * @param readLineProcessor
      */
-    fun readInputStreamContentIgnoreLine(inputStream: InputStream, encoding: String = Constants.Encoding.UTF8, readContentProcessor: (line: String) -> Boolean) {
+    fun readInputStreamContentEachLine(inputStream: InputStream, encoding: String = Constants.Encoding.UTF8, readLineProcessor: (line: String) -> Boolean) {
         var bufferedReader: BufferedReader? = null
         try {
             bufferedReader = BufferedReader(InputStreamReader(inputStream, encoding))
             var line: String? = bufferedReader.readLine()
             while (line != null) {
-                val continueRead = readContentProcessor(line)
+                val continueRead = readLineProcessor(line)
                 if (!continueRead) {
                     break
                 }
@@ -47,7 +47,7 @@ object StreamUtil {
      */
     fun readInputStreamContentIgnoreLine(inputStream: InputStream, encoding: String = Constants.Encoding.UTF8, append: String = Constants.String.BLANK): String {
         val stringBuilder = StringBuilder()
-        readInputStreamContentIgnoreLine(inputStream, encoding) { line ->
+        readInputStreamContentEachLine(inputStream, encoding) { line ->
             stringBuilder.append(line)
             stringBuilder.append(append)
             true
@@ -63,7 +63,7 @@ object StreamUtil {
      */
     fun readInputStreamLines(inputStream: InputStream, encoding: String = Constants.Encoding.UTF8): List<String> {
         val list = mutableListOf<String>()
-        readInputStreamContentIgnoreLine(inputStream, encoding) { line ->
+        readInputStreamContentEachLine(inputStream, encoding) { line ->
             list += line
             true
         }

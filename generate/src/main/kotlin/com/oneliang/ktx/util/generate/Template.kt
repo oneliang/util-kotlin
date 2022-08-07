@@ -2,7 +2,7 @@ package com.oneliang.ktx.util.generate
 
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.MD5String
-import com.oneliang.ktx.util.common.readContentIgnoreLine
+import com.oneliang.ktx.util.common.readContentEachLine
 import com.oneliang.ktx.util.file.FileUtil
 import com.oneliang.ktx.util.file.fileExists
 import com.oneliang.ktx.util.json.JsonUtil
@@ -51,7 +51,7 @@ object Template {
             }
             if (option.removeBlankLine) {
                 val resultBuilder = StringBuilder()
-                result.byteInputStream().readContentIgnoreLine {
+                result.byteInputStream().readContentEachLine {
                     if (it.isNotBlank()) {
                         resultBuilder.append(it)
                         resultBuilder.append(Constants.String.CRLF_STRING)
@@ -79,7 +79,7 @@ object Template {
         }
         try {
             val stringBuilder = StringBuilder()
-            FileUtil.readFileContentIgnoreLine(template, Constants.Encoding.UTF8) { line ->
+            FileUtil.readFileContentEachLine(template, Constants.Encoding.UTF8) { line ->
                 stringBuilder.append(line)
                 stringBuilder.append(Constants.String.CRLF_STRING)
                 true

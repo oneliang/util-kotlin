@@ -7,7 +7,7 @@ import java.util.*
 
 fun File.readContentIgnoreLine(encoding: String = Constants.Encoding.UTF8, append: String = Constants.String.BLANK) = FileUtil.readFileContentIgnoreLine(this, encoding, append)
 
-fun File.readContentIgnoreLine(encoding: String = Constants.Encoding.UTF8, readFileContentProcessor: (line: String) -> Boolean) = FileUtil.readFileContentIgnoreLine(this, encoding, readFileContentProcessor)
+fun File.readContentEachLine(encoding: String = Constants.Encoding.UTF8, readLineProcessor: (line: String) -> Boolean) = FileUtil.readFileContentEachLine(this, encoding, readLineProcessor)
 
 fun File.deleteAll() = FileUtil.deleteAllFile(this)
 

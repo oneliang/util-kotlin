@@ -1,7 +1,7 @@
 package com.oneliang.ktx.util.file
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.util.common.readContentIgnoreLine
+import com.oneliang.ktx.util.common.readContentEachLine
 import java.io.File
 import java.io.FileOutputStream
 
@@ -12,7 +12,7 @@ object FileSeparator {
         val directory = file.parentFile.absolutePath
         var lineCount = 0
         var newFileOutputStream: FileOutputStream? = null
-        file.inputStream().readContentIgnoreLine {
+        file.inputStream().readContentEachLine {
             //first create new file
             if (lineCount % maxLineCountPerFile == 0) {
                 //close old file
