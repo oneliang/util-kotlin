@@ -48,9 +48,9 @@ object Constants {
         const val LF_STRING = "\n"
         const val LF_TRANSFER_STRING = "\\n"
         const val TAB_STRING = "\t"
-        const val CR = '\r'.toByte()
-        const val LF = '\n'.toByte()
-        const val TAB = '\t'.toByte()
+        const val CR = '\r'.code.toByte()
+        const val LF = '\n'.code.toByte()
+        const val TAB = '\t'.code.toByte()
         const val NULL = "null"
         const val ZERO = "0"
         val CRLF: ByteArray = ByteArray(2) { index ->
