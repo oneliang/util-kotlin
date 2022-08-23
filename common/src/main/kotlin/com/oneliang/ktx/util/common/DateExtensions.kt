@@ -193,8 +193,13 @@ fun Date.getSecondZeroTimeDatePrevious(offset: Int = 1): Date {
     return this.getSecondZeroTimePrevious(offset).toUtilDate()
 }
 
-fun Date.getCurrentDayOfMonth(): Int {
+fun Date.toCalendar(): Calendar {
     val calendar = Calendar.getInstance()
     calendar.time = this
+    return calendar
+}
+
+fun Date.getCurrentDayOfMonth(): Int {
+    val calendar = this.toCalendar()
     return calendar.getCurrentDayOfMonth()
 }
