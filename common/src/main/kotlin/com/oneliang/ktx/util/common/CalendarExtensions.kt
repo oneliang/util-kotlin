@@ -26,6 +26,10 @@ fun Calendar.getDayCountOfMonth(): Int {
     return this[Calendar.DATE]
 }
 
+fun Calendar.getCurrentDayOfWeek(): Int {
+    return this[Calendar.DAY_OF_WEEK]
+}
+
 fun Calendar.getCurrentDayOfMonth(): Int {
     return this[Calendar.DAY_OF_MONTH]
 }
