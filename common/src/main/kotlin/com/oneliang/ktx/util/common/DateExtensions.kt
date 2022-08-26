@@ -199,7 +199,12 @@ fun Date.toCalendar(): Calendar {
     return calendar
 }
 
-fun Date.getCurrentDayOfMonth(): Int {
+fun Date.getDayOfWeek(): Int {
     val calendar = this.toCalendar()
-    return calendar.getCurrentDayOfMonth()
+    return calendar.getDayOfWeek()
+}
+
+fun Date.getDayOfMonth(): Int {
+    val calendar = this.toCalendar()
+    return calendar.getDayOfMonth()
 }

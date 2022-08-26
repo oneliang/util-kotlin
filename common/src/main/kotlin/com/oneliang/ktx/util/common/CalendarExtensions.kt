@@ -26,16 +26,16 @@ fun Calendar.getDayCountOfMonth(): Int {
     return this[Calendar.DATE]
 }
 
-fun Calendar.getCurrentDayOfWeek(): Int {
+fun Calendar.getDayOfWeek(): Int {
     return this[Calendar.DAY_OF_WEEK]
 }
 
-fun Calendar.getCurrentDayOfMonth(): Int {
+fun Calendar.getDayOfMonth(): Int {
     return this[Calendar.DAY_OF_MONTH]
 }
 
 fun main() {
     println(Calendar.getInstance().getFirstDayOfMonth(-1).time)
     println(Calendar.getInstance().getDayCountOfMonth())
-    println(Calendar.getInstance().getCurrentDayOfMonth())
+    println(Calendar.getInstance().getDayOfMonth())
 }
