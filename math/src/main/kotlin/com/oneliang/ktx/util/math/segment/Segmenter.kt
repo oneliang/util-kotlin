@@ -150,7 +150,7 @@ object Segmenter {
             return emptyList()
         }
         if (begin >= lastSegment.end || (begin + sumLength) > lastSegment.end) {
-            error("out of range(${lastSegment.end})")
+            error("out of range(%s), begin:%s, (begin + sumLength):%s".format(lastSegment.end, begin, (begin + sumLength)))
         }
         val splitSegmentList = mutableListOf<Segment<T>>()
         val fixBegin = if (begin <= firstSegment.begin) {
@@ -295,7 +295,7 @@ object Segmenter {
         for (i in segmentList.indices) {
             val segment = segmentList[i]
             if (segment.end <= segment.begin) {
-                error("segment end must greater than segment begin, begin:${segment.begin}, end:${segment.end}")
+                error("segment end must greater than segment begin, begin:%s, end:%s".format(segment.begin, segment.end))
             }
             val nextSegment = if (i + 1 < segmentListSize) {//check not the last
                 segmentList[i + 1]
