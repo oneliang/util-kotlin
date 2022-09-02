@@ -25,7 +25,7 @@ fun File.hasFile(fileSuffix: String = Constants.String.BLANK): Boolean = FileUti
 
 fun File.write(byteArray: ByteArray, append: Boolean = false) = FileUtil.writeFile(this, byteArray, append)
 
-fun File.writeContent(charsetName: String = Constants.Encoding.UTF8, append: Boolean = false, writeFileContentProcessor: ((bufferedWriter: BufferedWriter) -> Unit)? = null) = FileUtil.writeFileContent(this, charsetName, append, writeFileContentProcessor)
+fun File.writeContent(encoding: String = Constants.Encoding.UTF8, append: Boolean = false, writeFileContentProcessor: ((bufferedWriter: BufferedWriter) -> Unit)? = null) = FileUtil.writeFileContent(this, encoding, append, writeFileContentProcessor)
 
 fun String.toProperties(): Properties = FileUtil.getProperties(this)
 
