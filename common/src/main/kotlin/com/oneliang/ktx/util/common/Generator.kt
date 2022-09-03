@@ -103,10 +103,20 @@ object Generator {
         return result
     }
 
+    /**
+     * generate global thread id
+     */
     fun generateGlobalThreadId(): String {
         val tid = Thread.currentThread().id.toString()
         //tid@pid@hostAddress, threadId+jvmId+IP
         return tid + Constants.Symbol.AT + PID + Constants.Symbol.AT + HOST_ADDRESS
+    }
+
+    /**
+     * generate global id
+     */
+    fun generateGlobalId(): String {
+        return generateGlobalThreadId() + Constants.Symbol.AT + ID()
     }
 
     /**
