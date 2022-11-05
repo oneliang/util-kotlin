@@ -429,4 +429,8 @@ object Constants {
     object Date {
         val DEFAULT = Date(0)
     }
+
+    object Data {
+        val EMPTY_BYTE_ARRAY = ByteArray(0)
+    }
 }
