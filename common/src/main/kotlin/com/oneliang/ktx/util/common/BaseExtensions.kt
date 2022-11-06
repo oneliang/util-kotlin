@@ -53,3 +53,5 @@ private val localhost = InetAddress.getLocalHost()
 
 val HOST_ADDRESS = localhost?.hostAddress ?: Constants.String.BLANK
 val HOST_NAME = localhost?.hostName ?: Constants.String.BLANK
+
+val EMPTY_BYTE_ARRAY = Constants.Data.EMPTY_BYTE_ARRAY
