@@ -24,17 +24,17 @@ object Encoder {
                 }
             }
             if (!excludeSign) {
-                if (character.isDigit() || character.isLowerCaseLetter() || character.isUpperCaseLetter()) {
+                if (character.isDigit() || character.isLowerCase() || character.isUpperCase()) {
                     stringBuilder.append(character)
-                } else if (character.toInt() < 0x100) {
+                } else if (character.code < 0x100) {
                     stringBuilder.append("%")
-                    if (character.toInt() < 0x10) {
+                    if (character.code < 0x10) {
                         stringBuilder.append("0")
                     }
-                    stringBuilder.append(character.toInt().toString(radix = 16).toUpperCase())
+                    stringBuilder.append(character.code.toString(radix = 16).toUpperCase())
                 } else {
                     stringBuilder.append("%u")
-                    stringBuilder.append(character.toInt().toString(radix = 16).toUpperCase())
+                    stringBuilder.append(character.code.toString(radix = 16).toUpperCase())
                 }
             }
         }

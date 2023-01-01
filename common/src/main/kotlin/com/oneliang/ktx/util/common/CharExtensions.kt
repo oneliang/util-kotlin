@@ -1,7 +1,12 @@
 package com.oneliang.ktx.util.common
 
-fun Char.isDigit(): Boolean = this in '0'..'9'
-
-fun Char.isLowerCaseLetter(): Boolean = this in 'a'..'z'
-
-fun Char.isUpperCaseLetter(): Boolean = this in 'A'..'Z'
+/**
+ * is chinese
+ */
+fun Char.isChinese(): Boolean {
+    val unicodeBlock: Character.UnicodeBlock = Character.UnicodeBlock.of(this)
+//            println(unicodeBlock)
+    return (unicodeBlock === Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+            || unicodeBlock === Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+            || unicodeBlock === Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A)
+}
