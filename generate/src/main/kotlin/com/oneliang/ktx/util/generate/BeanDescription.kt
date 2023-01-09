@@ -128,7 +128,7 @@ fun BeanDescription.Companion.buildListFromFile(fullFilename: String): List<Bean
         val flagSubClassKeyMap = mutableMapOf<Int, String>()
         file.readContentEachLine {
             val line = it.trim()
-            if (line.isBlank() || line.startsWith(Constants.Symbol.POUND_KEY)) {
+            if (line.isBlank() || line.startsWith(Constants.Symbol.POUND)) {
                 return@readContentEachLine true//continue
             }
             when {

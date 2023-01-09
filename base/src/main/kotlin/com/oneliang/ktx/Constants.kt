@@ -58,9 +58,11 @@ object Constants {
                 0 -> {
                     CR
                 }
+
                 1 -> {
                     LF
                 }
+
                 else -> {
                     0.toByte()
                 }
@@ -232,7 +234,7 @@ object Constants {
         /**
          * pound key "#"
          */
-        const val POUND_KEY = "#"
+        const val POUND = "#"
     }
 
     object Encoding {
@@ -251,13 +253,7 @@ object Constants {
 
     object Http {
         enum class RequestMethod(val value: kotlin.String) {
-            PUT("PUT"),
-            DELETE("DELETE"),
-            GET("GET"),
-            POST("POST"),
-            HEAD("HEAD"),
-            OPTIONS("OPTIONS"),
-            TRACE("TRACE")
+            PUT("PUT"), DELETE("DELETE"), GET("GET"), POST("POST"), HEAD("HEAD"), OPTIONS("OPTIONS"), TRACE("TRACE")
         }
 
         object HeaderKey {
@@ -432,5 +428,136 @@ object Constants {
 
     object Data {
         val EMPTY_BYTE_ARRAY = ByteArray(0)
+    }
+
+    object Ascii {
+        const val NUL = 0x00.toChar()//(null)
+        const val SOH = 0x01.toChar()//(start of headline)
+        const val STX = 0x02.toChar()//(start of text)
+        const val ETX = 0x03.toChar()//(end of text)
+        const val EOT = 0x04.toChar()//(end of transmission)
+        const val ENQ = 0x05.toChar()//(enquiry)
+        const val ACK = 0x06.toChar()//(acknowledge)
+        const val BEL = 0x07.toChar()//(bell)
+        const val BS = 0x08.toChar()//(backspace)
+        const val HT = 0x09.toChar()//(horizontal tab)
+        const val LF = 0x0A.toChar()//(NL line feed, new line)
+        const val VT = 0x0B.toChar()//(vertical tab)
+        const val FF = 0x0C.toChar()//(NP form feed, new page)
+        const val CR = 0x0D.toChar()//(carriage return)
+        const val SO = 0x0E.toChar()//(shift out)
+        const val SI = 0x0F.toChar()//(shift in)
+        const val DLE = 0x10.toChar()//(data link escape)
+        const val DC1 = 0x11.toChar()//(device control 1)
+        const val DC2 = 0x12.toChar()//(device control 2)
+        const val DC3 = 0x13.toChar()//(device control 3)
+        const val DC4 = 0x14.toChar()//(device control 4)
+        const val NAK = 0x15.toChar()//(negative acknowledge)
+        const val SYN = 0x16.toChar()//(synchronous idle)
+        const val ETB = 0x17.toChar()//(end of trans. block)
+        const val CAN = 0x18.toChar()//(cancel)
+        const val EM = 0x19.toChar()//(end of medium)
+        const val SUB = 0x1A.toChar()//(substitute)
+        const val ESC = 0x1B.toChar()//(escape)
+        const val FS = 0x1C.toChar()//(file separator)
+        const val GS = 0x1D.toChar()//(group separator)
+        const val RS = 0x1E.toChar()//(record separator)
+        const val US = 0x1F.toChar()//(unit separator)
+        const val SPACE = 0x20.toChar()//(space)
+        const val EXCLAMATION_MARK = 0x21.toChar()//!//!
+        const val DOUBLE_QUOTE = 0x22.toChar()//"//"
+        const val POUND = 0x23.toChar()//#//#
+        const val DOLLAR = 0x24.toChar()//$//$
+        const val PERCENT = 0x25.toChar()//%//%
+        const val AND = 0x26.toChar()//&//&
+        const val SINGLE_QUOTE = 0x27.toChar()//'//'
+        const val BRACKET_LEFT = 0x28.toChar()//(//(
+        const val BRACKET_RIGHT = 0x29.toChar()//)//)
+        const val WILDCARD = 0x2A.toChar()//*//*
+        const val PLUS = 0x2B.toChar()//+//+
+        const val COMMA = 0x2C.toChar()//,//,
+        const val MINUS = 0x2D.toChar()//-//-
+        const val DOT = 0x2E.toChar()//.//.
+        const val DOUBLE_SLASH_LEFT = 0x2F.toChar()//////
+        const val ZERO = 0x30.toChar()//0//0
+        const val ONE = 0x31.toChar()//1//1
+        const val TWO = 0x32.toChar()//2//2
+        const val THREE = 0x33.toChar()//3//3
+        const val FOUR = 0x34.toChar()//4//4
+        const val FIVE = 0x35.toChar()//5//5
+        const val SIX = 0x36.toChar()//6//6
+        const val SEVEN = 0x37.toChar()//7//7
+        const val EIGHT = 0x38.toChar()//8//8
+        const val NIGHT = 0x39.toChar()//9//9
+        const val THEN = 0x3A.toChar()//://:
+        const val SEMICOLON = 0x3B.toChar()//;//;
+        const val LESS_THAN = 0x3C.toChar()//<//<
+        const val EQUAL = 0x3D.toChar()//=//=
+        const val GREATER_THAN = 0x3E.toChar()//>//>
+        const val QUESTION_MARK = 0x3F.toChar()//?//?
+        const val AT = 0x40.toChar()//@//@
+        const val UPPERCASE_A = 0x41.toChar()//A//A
+        const val UPPERCASE_B = 0x42.toChar()//B//B
+        const val UPPERCASE_C = 0x43.toChar()//C//C
+        const val UPPERCASE_D = 0x44.toChar()//D//D
+        const val UPPERCASE_E = 0x45.toChar()//E//E
+        const val UPPERCASE_F = 0x46.toChar()//F//F
+        const val UPPERCASE_G = 0x47.toChar()//G//G
+        const val UPPERCASE_H = 0x48.toChar()//H//H
+        const val UPPERCASE_I = 0x49.toChar()//I//I
+        const val UPPERCASE_J = 0x4A.toChar()//J//J
+        const val UPPERCASE_K = 0x4B.toChar()//K//K
+        const val UPPERCASE_L = 0x4C.toChar()//L//L
+        const val UPPERCASE_M = 0x4D.toChar()//M//M
+        const val UPPERCASE_N = 0x4E.toChar()//N//N
+        const val UPPERCASE_O = 0x4F.toChar()//O//O
+        const val UPPERCASE_P = 0x50.toChar()//P//P
+        const val UPPERCASE_Q = 0x51.toChar()//Q//Q
+        const val UPPERCASE_R = 0x52.toChar()//R//R
+        const val UPPERCASE_S = 0x53.toChar()//S//S
+        const val UPPERCASE_T = 0x54.toChar()//T//T
+        const val UPPERCASE_U = 0x55.toChar()//U//U
+        const val UPPERCASE_V = 0x56.toChar()//V//V
+        const val UPPERCASE_W = 0x57.toChar()//W//W
+        const val UPPERCASE_X = 0x58.toChar()//X//X
+        const val UPPERCASE_Y = 0x59.toChar()//Y//Y
+        const val UPPERCASE_Z = 0x5A.toChar()//Z//Z
+        const val MIDDLE_BRACKET_LEFT = 0x5B.toChar()//[//[
+        const val SLASH_RIGHT = 0x5C.toChar()//\//\
+        const val MIDDLE_BRACKET_RIGHT = 0x5D.toChar()//]//]
+        const val XOR = 0x5E.toChar()//^//^
+        const val UNDERLINE = 0x5F.toChar()//_//_
+        const val ACCENT = 0x60.toChar()//`//`
+        const val LOWERCASE_A = 0x61.toChar()//a//a
+        const val LOWERCASE_B = 0x62.toChar()//b//b
+        const val LOWERCASE_C = 0x63.toChar()//c//c
+        const val LOWERCASE_D = 0x64.toChar()//d//d
+        const val LOWERCASE_E = 0x65.toChar()//e//e
+        const val LOWERCASE_F = 0x66.toChar()//f//f
+        const val LOWERCASE_G = 0x67.toChar()//g//g
+        const val LOWERCASE_H = 0x68.toChar()//h//h
+        const val LOWERCASE_I = 0x69.toChar()//i//i
+        const val LOWERCASE_J = 0x6A.toChar()//j//j
+        const val LOWERCASE_K = 0x6B.toChar()//k//k
+        const val LOWERCASE_L = 0x6C.toChar()//l//l
+        const val LOWERCASE_M = 0x6D.toChar()//m//m
+        const val LOWERCASE_N = 0x6E.toChar()//n//n
+        const val LOWERCASE_O = 0x6F.toChar()//o//o
+        const val LOWERCASE_P = 0x70.toChar()//p//p
+        const val LOWERCASE_Q = 0x71.toChar()//q//q
+        const val LOWERCASE_R = 0x72.toChar()//r//r
+        const val LOWERCASE_S = 0x73.toChar()//s//s
+        const val LOWERCASE_T = 0x74.toChar()//t//t
+        const val LOWERCASE_U = 0x75.toChar()//u//u
+        const val LOWERCASE_V = 0x76.toChar()//v//v
+        const val LOWERCASE_W = 0x77.toChar()//w//w
+        const val LOWERCASE_X = 0x78.toChar()//x//x
+        const val LOWERCASE_Y = 0x79.toChar()//y//y
+        const val LOWERCASE_Z = 0x7A.toChar()//z//z
+        const val BIG_BRACKET_LEFT = 0x7B.toChar()//{//{
+        const val SINGLE_VERTICAL_LINE = 0x7C.toChar()//|//|
+        const val BIG_BRACKET_RIGHT = 0x7D.toChar()//}//}
+        const val TILDE = 0x7E.toChar()//~//~
+        const val DELETE = 0x7F.toChar()//DEL//(delete)
     }
 }
