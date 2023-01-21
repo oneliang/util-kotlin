@@ -12,6 +12,7 @@ fun File.readContentEachLine(encoding: String = Constants.Encoding.UTF8, readLin
 fun File.deleteAll() = FileUtil.deleteAllFile(this)
 
 fun File.findMatchFile(matchOption: FileUtil.MatchOption, onMatch: (file: File) -> String = { it.absolutePath }) = FileUtil.findMatchFile(this, matchOption, onMatch)
+
 /**
  * create file and parent directory, full filename, single empty file.
  */
@@ -38,3 +39,9 @@ fun File.toPropertiesAutoCreate(): Properties = FileUtil.getPropertiesAutoCreate
 fun File.saveProperties(properties: Properties) = FileUtil.saveProperties(properties, this)
 
 fun Properties.saveTo(file: File) = FileUtil.saveProperties(this, file)
+
+fun Properties.saveTo(fullFilename: String) = FileUtil.saveProperties(this, fullFilename)
+
+fun <K : Any, V> Map<K, V>.saveTo(file: File, gcCount: Int = -1) = FileUtil.saveMap(this, file, gcCount)
+
+fun <K : Any, V> Map<K, V>.saveTo(fullFilename: String, gcCount: Int = -1) = FileUtil.saveMap(this, fullFilename, gcCount)

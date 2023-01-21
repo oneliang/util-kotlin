@@ -3,6 +3,7 @@ package com.oneliang.ktx.util.file
 import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.common.MD5String
 import com.oneliang.ktx.util.common.StreamUtil
+import com.oneliang.ktx.util.common.forEachWithIndex
 import java.io.*
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -49,7 +50,7 @@ object FileUtil {
                     queue.addAll(fileArray)
                 }
             } else if (file.isFile) {
-                if (file.name.toLowerCase().endsWith(fileSuffix.toLowerCase())) {
+                if (file.name.lowercase().endsWith(fileSuffix.lowercase())) {
                     result = true
                     break
                 }
@@ -531,7 +532,7 @@ object FileUtil {
                     if (matchOption.findType === MatchOption.FindType.DIRECTORY) {
                         if (singleFile.isDirectory && matchOption.deepMatch) {
                             queue.add(singleFile)
-                            if (!singleFile.name.toLowerCase().endsWith(matchOption.fileSuffix.toLowerCase())) {
+                            if (!singleFile.name.lowercase().endsWith(matchOption.fileSuffix.lowercase())) {
                                 continue
                             }
                             list.add(singleFile.absolutePath)
@@ -545,7 +546,7 @@ object FileUtil {
                     }
                 }
             } else if (file.isFile) {
-                if (!file.name.toLowerCase().endsWith(matchOption.fileSuffix.toLowerCase())) {
+                if (!file.name.lowercase().endsWith(matchOption.fileSuffix.lowercase())) {
                     continue
                 }
                 if (matchOption.findType === MatchOption.FindType.FILE) {
@@ -663,10 +664,7 @@ object FileUtil {
      * @param outputFullFilename
      */
     fun saveProperties(properties: Properties, outputFullFilename: String) {
-        val outputStream = FileOutputStream(outputFullFilename)
-        outputStream.use {
-            properties.store(it, null)
-        }
+        saveProperties(properties, File(outputFullFilename))
     }
 
     /**
@@ -719,6 +717,117 @@ object FileUtil {
         return sourceList
     }
 
+
+    private fun toHex(nibble: Int): Char {
+        return hexDigit[nibble and 0xF]
+    }
+
+    /** A table of hex digits  */
+    private val hexDigit = charArrayOf(
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+    )
+
+    private fun saveConvert(theString: String,
+                            escapeSpace: Boolean,
+                            escapeUnicode: Boolean): String {
+        val len = theString.length
+        var bufLen = len * 2
+        if (bufLen < 0) {
+            bufLen = Int.MAX_VALUE
+        }
+        val outBuffer = StringBuffer(bufLen)
+        for (x in 0 until len) {
+            val aChar = theString[x]
+            // Handle common case first, selecting largest block that
+            // avoids the specials below
+            if (aChar.code > 61 && aChar.code < 127) {
+                if (aChar == '\\') {
+                    outBuffer.append('\\')
+                    outBuffer.append('\\')
+                    continue
+                }
+                outBuffer.append(aChar)
+                continue
+            }
+            when (aChar) {
+                ' ' -> {
+                    if (x == 0 || escapeSpace) outBuffer.append('\\')
+                    outBuffer.append(' ')
+                }
+
+                '\t' -> {
+                    outBuffer.append('\\')
+                    outBuffer.append('t')
+                }
+
+                '\n' -> {
+                    outBuffer.append('\\')
+                    outBuffer.append('n')
+                }
+
+                '\r' -> {
+                    outBuffer.append('\\')
+                    outBuffer.append('r')
+                }
+
+                '\u000c' -> {
+                    outBuffer.append('\\')
+                    outBuffer.append('f')
+                }
+
+                '=', ':', '#', '!' -> {
+                    outBuffer.append('\\')
+                    outBuffer.append(aChar)
+                }
+
+                else -> if ((aChar.code < 0x0020 || aChar.code > 0x007e) and escapeUnicode) {
+                    outBuffer.append('\\')
+                    outBuffer.append('u')
+                    outBuffer.append(toHex(aChar.code shr 12 and 0xF))
+                    outBuffer.append(toHex(aChar.code shr 8 and 0xF))
+                    outBuffer.append(toHex(aChar.code shr 4 and 0xF))
+                    outBuffer.append(toHex(aChar.code and 0xF))
+                } else {
+                    outBuffer.append(aChar)
+                }
+            }
+        }
+        return outBuffer.toString()
+    }
+
+    /**
+     * save map
+     * @param map
+     * @param outputFile
+     * @param gcCount no gc when less than zero
+     */
+    fun <K : Any, V> saveMap(map: Map<K, V>, outputFile: File, gcCount: Int = -1) {
+        val bufferedWriter = BufferedWriter(OutputStreamWriter(FileOutputStream(outputFile)), Constants.Capacity.BYTES_PER_MB)
+        bufferedWriter.use {
+            map.forEachWithIndex { index, key, value ->
+                it.write(saveConvert(key.toString(), escapeSpace = true, escapeUnicode = true) + Constants.Symbol.EQUAL + saveConvert(value.toString(), escapeSpace = false, escapeUnicode = true))
+                it.newLine()
+                if (gcCount > 0 && index % gcCount == 0) {
+                    it.flush()
+                    Runtime.getRuntime().gc()
+                } else {
+                    //no gc
+                }
+            }
+            it.flush()
+        }
+    }
+
+    /**
+     * save map
+     * @param map
+     * @param outputFullFilename
+     * @param gcCount
+     */
+    fun <K : Any, V> saveMap(map: Map<K, V>, outputFullFilename: String, gcCount: Int = -1) {
+        saveMap(map, File(outputFullFilename), gcCount)
+    }
+
     class FileUtilException(cause: Throwable) : RuntimeException(cause)
 
     enum class CopyType {
@@ -737,6 +846,23 @@ object FileUtil {
          */
         fun copyFileToFileProcess(fromFile: File, toFile: File): Boolean
 
+        class FileCopyException : RuntimeException {
+            /**
+             * @param message
+             */
+            constructor(message: String) : super(message)
+
+            /**
+             * @param cause
+             */
+            constructor(cause: Throwable) : super(cause)
+
+            /**
+             * @param message
+             * @param cause
+             */
+            constructor(message: String, cause: Throwable) : super(message, cause)
+        }
     }
 
     /**

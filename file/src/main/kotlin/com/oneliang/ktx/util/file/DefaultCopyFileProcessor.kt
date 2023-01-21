@@ -33,7 +33,7 @@ open class DefaultCopyFileProcessor : CopyFileProcessor {
                 FileUtil.createDirectory(toFile)
             }
         } catch (e: Exception) {
-            throw FileCopyException(e)
+            throw CopyFileProcessor.FileCopyException(e)
         }
         return true
     }
