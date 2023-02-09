@@ -478,7 +478,7 @@ object Constants {
         const val COMMA = 0x2C.toChar()//,//,
         const val MINUS = 0x2D.toChar()//-//-
         const val DOT = 0x2E.toChar()//.//.
-        const val DOUBLE_SLASH_LEFT = 0x2F.toChar()//////
+        const val SLASH_LEFT = 0x2F.toChar()//////
         const val ZERO = 0x30.toChar()//0//0
         const val ONE = 0x31.toChar()//1//1
         const val TWO = 0x32.toChar()//2//2
