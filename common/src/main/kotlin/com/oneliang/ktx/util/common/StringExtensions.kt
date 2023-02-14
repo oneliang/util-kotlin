@@ -355,3 +355,22 @@ fun String.toLowerCaseRange(startIndex: Int, endIndex: Int): String {
         error("index error, start index:%s, end index:%s, length:%s".format(startIndex, endIndex, this.length))
     }
 }
+
+/**
+ * extract keyword
+ * @param keywordSize
+ */
+fun String.extractKeyword(keywordSize: Int): Set<String> {
+    if (keywordSize < 1) {
+        error("separate keyword error, parameter[keywordSize] must be bigger than 0")
+    }
+    val keywordSet = mutableSetOf<String>()
+    var currentBeginIndex = 0
+    val maxBeginIndex = this.length - keywordSize
+    while (currentBeginIndex <= maxBeginIndex) {
+        val key = this.substring(currentBeginIndex, currentBeginIndex + keywordSize)
+        keywordSet += key
+        currentBeginIndex += 1
+    }
+    return keywordSet
+}
