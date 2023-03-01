@@ -18,12 +18,13 @@ object HttpUtil {
      * send request by get method
      * @param httpUrl
      * @param httpHeaderList
+     * @param httpParameterList
      * @param returnEncoding
      * @param advancedOption
      * @return String
      */
-    fun sendRequestGet(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), timeout: Int = DEFAULT_TIMEOUT, returnEncoding: String = Constants.Encoding.UTF8, advancedOption: AdvancedOption? = null): String {
-        val byteArray = sendRequestGetWithReturnBytes(httpUrl, httpHeaderList, timeout, advancedOption)
+    fun sendRequestGet(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), httpParameterList: List<HttpNameValue> = emptyList(), timeout: Int = DEFAULT_TIMEOUT, returnEncoding: String = Constants.Encoding.UTF8, advancedOption: AdvancedOption? = null): String {
+        val byteArray = sendRequestGetWithReturnBytes(httpUrl, httpHeaderList, httpParameterList, timeout, advancedOption)
         var result: String = Constants.String.BLANK
         if (byteArray.isNotEmpty()) {
             try {
@@ -40,13 +41,14 @@ object HttpUtil {
      * return bytes means response is bytes
      * @param httpUrl
      * @param httpHeaderList
+     * @param httpParameterList
      * @param timeout
      * @param advancedOption
      * @return byte[]
      */
-    fun sendRequestGetWithReturnBytes(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), timeout: Int = DEFAULT_TIMEOUT, advancedOption: AdvancedOption? = null): ByteArray {
+    fun sendRequestGetWithReturnBytes(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), httpParameterList: List<HttpNameValue> = emptyList(), timeout: Int = DEFAULT_TIMEOUT, advancedOption: AdvancedOption? = null): ByteArray {
         val byteArrayOutputStream = ByteArrayOutputStream()
-        sendRequestGet(httpUrl, httpHeaderList, timeout, advancedOption, DefaultCallback(byteArrayOutputStream))
+        sendRequestGet(httpUrl, httpHeaderList, httpParameterList, timeout, advancedOption, DefaultCallback(byteArrayOutputStream))
         return byteArrayOutputStream.toByteArray()
     }
 
@@ -54,12 +56,13 @@ object HttpUtil {
      * send request by get method
      * @param httpUrl
      * @param httpHeaderList
+     * @param httpParameterList
      * @param timeout
      * @param advancedOption
      * @param callback
      */
-    fun sendRequestGet(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), timeout: Int = DEFAULT_TIMEOUT, advancedOption: AdvancedOption? = null, callback: Callback) {
-        sendRequest(httpUrl, Constants.Http.RequestMethod.GET.value, httpHeaderList, emptyList(), ByteArray(0), null, timeout, null, advancedOption, callback)
+    fun sendRequestGet(httpUrl: String, httpHeaderList: List<HttpNameValue> = emptyList(), httpParameterList: List<HttpNameValue> = emptyList(), timeout: Int = DEFAULT_TIMEOUT, advancedOption: AdvancedOption? = null, callback: Callback) {
+        sendRequest(httpUrl, Constants.Http.RequestMethod.GET.value, httpHeaderList, httpParameterList, ByteArray(0), null, timeout, null, advancedOption, callback)
     }
 
     /**
@@ -355,7 +358,18 @@ object HttpUtil {
      */
     fun sendRequest(httpUrl: String, method: String, httpHeaderList: List<HttpNameValue> = emptyList(), httpParameterList: List<HttpNameValue> = emptyList(), streamByteArray: ByteArray = ByteArray(0), inputStream: InputStream? = null, timeout: Int = DEFAULT_TIMEOUT, inputStreamProcessor: InputStreamProcessor? = null, advancedOption: AdvancedOption? = null, callback: Callback? = null) {
         try {
-            val url = URL(httpUrl)
+            val parameterContent = StringBuilder()
+            if (httpParameterList.isNotEmpty()) {
+                parameterContent.append(httpParameterList.joinToString(Constants.Symbol.AND) {
+                    it.name + Constants.Symbol.EQUAL + URLEncoder.encode(it.value, Constants.Encoding.UTF8)
+                })
+            }
+            val fixHttpUrl = httpUrl + if (httpUrl.endsWith(Constants.Symbol.QUESTION_MARK)) {
+                parameterContent.toString()
+            } else {
+                Constants.Symbol.QUESTION_MARK + parameterContent.toString()
+            }
+            val url = URL(fixHttpUrl)
             var proxy = Proxy.NO_PROXY
             if (advancedOption != null && advancedOption.proxyHostname.isNotBlank() && advancedOption.proxyPort > 0) {
                 val inetSocketAddress = InetSocketAddress(advancedOption.proxyHostname, advancedOption.proxyPort)
@@ -374,16 +388,9 @@ object HttpUtil {
                     httpUrlConnection.setRequestProperty(httpParameter.name, httpParameter.value)
                 }
             }
-            val content = StringBuilder()
-            if (httpParameterList.isNotEmpty()) {
-                content.append(httpParameterList.joinToString(Constants.Symbol.AND) {
-                    it.name + Constants.Symbol.EQUAL + URLEncoder.encode(it.value, Constants.Encoding.UTF8)
-                })
-            }
             httpUrlConnection.connect()
             if (method.isNotBlank() && method.equals(Constants.Http.RequestMethod.POST.value, ignoreCase = true)) {
                 val outputStream = httpUrlConnection.outputStream
-                outputStream.write(content.toString().toByteArray(Charsets.UTF_8))
                 if (streamByteArray.isNotEmpty()) {
                     outputStream.write(streamByteArray)
                     outputStream.flush()
