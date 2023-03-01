@@ -358,16 +358,17 @@ object HttpUtil {
      */
     fun sendRequest(httpUrl: String, method: String, httpHeaderList: List<HttpNameValue> = emptyList(), httpParameterList: List<HttpNameValue> = emptyList(), streamByteArray: ByteArray = ByteArray(0), inputStream: InputStream? = null, timeout: Int = DEFAULT_TIMEOUT, inputStreamProcessor: InputStreamProcessor? = null, advancedOption: AdvancedOption? = null, callback: Callback? = null) {
         try {
-            val parameterContent = StringBuilder()
-            if (httpParameterList.isNotEmpty()) {
-                parameterContent.append(httpParameterList.joinToString(Constants.Symbol.AND) {
+            val fixHttpUrl = if (httpParameterList.isNotEmpty()) {
+                val parameterContent = httpParameterList.joinToString(Constants.Symbol.AND) {
                     it.name + Constants.Symbol.EQUAL + URLEncoder.encode(it.value, Constants.Encoding.UTF8)
-                })
-            }
-            val fixHttpUrl = httpUrl + if (httpUrl.endsWith(Constants.Symbol.QUESTION_MARK)) {
-                parameterContent.toString()
+                }
+                httpUrl + if (httpUrl.endsWith(Constants.Symbol.QUESTION_MARK)) {
+                    parameterContent
+                } else {
+                    Constants.Symbol.QUESTION_MARK + parameterContent
+                }
             } else {
-                Constants.Symbol.QUESTION_MARK + parameterContent.toString()
+                httpUrl
             }
             logger.info("Http url:%s, method:%s", fixHttpUrl, method)
             val url = URL(fixHttpUrl)
