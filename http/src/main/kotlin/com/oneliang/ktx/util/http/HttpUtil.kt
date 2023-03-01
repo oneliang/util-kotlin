@@ -369,6 +369,7 @@ object HttpUtil {
             } else {
                 Constants.Symbol.QUESTION_MARK + parameterContent.toString()
             }
+            logger.info("Http url:%s, method:%s", fixHttpUrl, method)
             val url = URL(fixHttpUrl)
             var proxy = Proxy.NO_PROXY
             if (advancedOption != null && advancedOption.proxyHostname.isNotBlank() && advancedOption.proxyPort > 0) {
