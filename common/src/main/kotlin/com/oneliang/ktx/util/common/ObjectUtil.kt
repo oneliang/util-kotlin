@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream
 import java.io.OutputStream
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.reflect.KClass
 
@@ -33,7 +34,7 @@ object ObjectUtil {
             if (ignoreFirstLetterCase) {
                 methodPrefix + fieldName
             } else {
-                methodPrefix + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1)
+                methodPrefix + fieldName.substring(0, 1).uppercase() + fieldName.substring(1)
             }
         } else {
             methodPrefix
@@ -53,7 +54,7 @@ object ObjectUtil {
             if (ignoreFirstLetterCase) {
                 methodName.substring(front, front + 1) + methodName.substring(front + 1)
             } else {
-                methodName.substring(front, front + 1).toLowerCase() + methodName.substring(front + 1)
+                methodName.substring(front, front + 1).lowercase() + methodName.substring(front + 1)
             }
         } else {
             Constants.String.BLANK

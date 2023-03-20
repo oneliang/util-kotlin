@@ -127,9 +127,9 @@ class JsonArray(private val supportDuplicateKey: Boolean = false) {
     @Throws(JsonException::class)
     fun getBoolean(index: Int): Boolean {
         val value = this.get(index)
-        if ((value is Boolean && value.equals(false) || ((value is String && value.equals("false", true))))) {
+        if ((value is Boolean && value == false || ((value is String && value.equals("false", true))))) {
             return false
-        } else if ((value is Boolean && value.equals(true) || ((value is String && value.equals("true", true))))) {
+        } else if ((value is Boolean && value == true || ((value is String && value.equals("true", true))))) {
             return true
         }
         throw JsonException("JsonArray[$index] is not a boolean.")
@@ -256,7 +256,7 @@ class JsonArray(private val supportDuplicateKey: Boolean = false) {
         if (value is String) {
             return value
         }
-        throw JsonException("JsonArray[" + index + "] not a string.")
+        throw JsonException("JsonArray[$index] not a string.")
     }
 
     /**
@@ -265,7 +265,7 @@ class JsonArray(private val supportDuplicateKey: Boolean = false) {
      * @return true if the value at the index is null, or if there is no value.
      */
     fun isNull(index: Int): Boolean {
-        return JsonObject.NULL.equals(this.opt(index))
+        return JsonObject.NULL == this.opt(index)
     }
 
     /**
@@ -335,10 +335,10 @@ class JsonArray(private val supportDuplicateKey: Boolean = false) {
      * @return The truth.
      */
     fun optBoolean(index: Int, defaultValue: Boolean): Boolean {
-        try {
-            return this.getBoolean(index)
+        return try {
+            this.getBoolean(index)
         } catch (e: Exception) {
-            return defaultValue
+            defaultValue
         }
     }
 
@@ -364,10 +364,10 @@ class JsonArray(private val supportDuplicateKey: Boolean = false) {
      * @return The value.
      */
     fun optDouble(index: Int, defaultValue: Double): Double {
-        try {
-            return this.getDouble(index)
+        return try {
+            this.getDouble(index)
         } catch (e: Exception) {
-            return defaultValue
+            defaultValue
         }
     }
 
@@ -392,10 +392,10 @@ class JsonArray(private val supportDuplicateKey: Boolean = false) {
      * @return The value.
      */
     fun optInt(index: Int, defaultValue: Int): Int {
-        try {
-            return this.getInt(index)
+        return try {
+            this.getInt(index)
         } catch (e: Exception) {
-            return defaultValue
+            defaultValue
         }
     }
 
@@ -444,10 +444,10 @@ class JsonArray(private val supportDuplicateKey: Boolean = false) {
      * @return The value.
      */
     fun optLong(index: Int, defaultValue: Long): Long {
-        try {
-            return this.getLong(index)
+        return try {
+            this.getLong(index)
         } catch (e: Exception) {
-            return defaultValue
+            defaultValue
         }
     }
 
@@ -473,7 +473,7 @@ class JsonArray(private val supportDuplicateKey: Boolean = false) {
      */
     fun optString(index: Int, defaultValue: String): String {
         val value = this.opt(index)
-        return if (JsonObject.NULL.equals(value))
+        return if (JsonObject.NULL == value)
             defaultValue
         else
             value.toString()
@@ -510,9 +510,8 @@ class JsonArray(private val supportDuplicateKey: Boolean = false) {
      */
     @Throws(JsonException::class)
     fun put(value: Double): JsonArray {
-        val d = value
-        JsonObject.testValidity(d)
-        this.put(d)
+        JsonObject.testValidity(value)
+        this.put(value)
         return this
     }
 
@@ -728,10 +727,10 @@ class JsonArray(private val supportDuplicateKey: Boolean = false) {
      * representation of the array.
      */
     override fun toString(): String {
-        try {
-            return ('[' + this.join(",") + ']')
+        return try {
+            ('[' + this.join(",") + ']')
         } catch (e: Exception) {
-            return super.toString()
+            super.toString()
         }
     }
 
@@ -786,7 +785,7 @@ class JsonArray(private val supportDuplicateKey: Boolean = false) {
         try {
             var commanate = false
             val length = this.length()
-            writer.write('['.toInt())
+            writer.write('['.code)
             if (length == 1) {
                 JsonObject.writeValue(
                     writer, this.myArrayList[0],
@@ -798,10 +797,10 @@ class JsonArray(private val supportDuplicateKey: Boolean = false) {
                 var i = 0
                 while (i < length) {
                     if (commanate) {
-                        writer.write(','.toInt())
+                        writer.write(','.code)
                     }
                     if (indentFactor > 0) {
-                        writer.write('\n'.toInt())
+                        writer.write('\n'.code)
                     }
                     JsonObject.indent(writer, newindent)
                     JsonObject.writeValue(
@@ -813,11 +812,11 @@ class JsonArray(private val supportDuplicateKey: Boolean = false) {
                     i += 1
                 }
                 if (indentFactor > 0) {
-                    writer.write('\n'.toInt())
+                    writer.write('\n'.code)
                 }
                 JsonObject.indent(writer, indent)
             }
-            writer.write(']'.toInt())
+            writer.write(']'.code)
             return writer
         } catch (e: IOException) {
             throw JsonException(e)

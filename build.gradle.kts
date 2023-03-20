@@ -1,5 +1,15 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-apply(from = "${rootDir}/gradle/dependencies.gradle.kts")
+import com.oneliang.gradle.applyFeatureDependencies
+import com.oneliang.gradle.applyTestDependencies
+import com.oneliang.ktx.gradle.applyMavenPublish
+import com.oneliang.ktx.gradle.generateJarName
+import java.text.SimpleDateFormat
+import java.util.*
+
+plugins {
+    kotlin("jvm") version Constants.kotlinVersion
+}
+
 val GROUP by extra(Constants.group)
 val VERSION by extra(Constants.version)
 
@@ -13,6 +23,7 @@ buildscript {
     }
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Constants.kotlinVersion}")
+        classpath("com.oneliang.ktx:gradle-ext:1.0")
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -28,12 +39,56 @@ allprojects {
     }
 }
 
-tasks.register("clean", type = Delete::class, configurationAction = {
-    this.delete(rootProject.buildDir)
-})
+subprojects {
+    if (this.subprojects.isEmpty()) {
+        apply(plugin = "java")
+        apply(plugin = "kotlin")
+        apply(plugin = "maven-publish")
+        applyFeatureDependencies()
+        applyTestDependencies()
+        applyMavenPublish(Constants.group, this.generateJarName(), Constants.version)
+        java {
+            sourceSets {
+                main {
+                    java {
+//                    setSrcDirs(listOf("src"))
+                    }
+                }
+
+                test {
+                    java {
+//                    setSrcDirs(listOf("test"))
+                    }
+                }
+            }
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
+            withSourcesJar()
+//            withJavadocJar()
+        }
+        kotlin {
+            sourceSets {
+                main {
+                }
+
+                test {
+                }
+            }
+        }
+    } else {
+        //project directory
+    }
+}
+
+val cleanTask = tasks.findByName("clean")
+if (cleanTask == null) {
+    tasks.register("clean", type = Delete::class, configurationAction = {
+        this.delete(rootProject.buildDir)
+    })
+}
 
 fun getCurrentFormatTime(): String {
-    val date = java.util.Date()
-    val simpleDateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    val date = Date()
+    val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
     return simpleDateFormat.format(date)
 }

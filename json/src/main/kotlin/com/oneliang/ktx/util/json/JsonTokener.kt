@@ -92,7 +92,7 @@ class JsonTokener(reader: Reader) {
         var c: Int
         if (this.usePrevious) {
             this.usePrevious = false
-            c = this.previous.toInt()
+            c = this.previous.code
         } else {
             try {
                 c = this.reader.read()
@@ -107,8 +107,8 @@ class JsonTokener(reader: Reader) {
         this.index += 1
         if (this.previous == '\r') {
             this.line += 1
-            this.character = (if (c == '\n'.toInt()) 0 else 1).toLong()
-        } else if (c == '\n'.toInt()) {
+            this.character = (if (c == '\n'.code) 0 else 1).toLong()
+        } else if (c == '\n'.code) {
             this.line += 1
             this.character = 0
         } else {
@@ -172,7 +172,7 @@ class JsonTokener(reader: Reader) {
     fun nextClean(): Char {
         while (true) {
             val c = this.next()
-            if (c.toInt() == 0 || c > ' ') {
+            if (c.code == 0 || c > ' ') {
                 return c
             }
         }
@@ -231,8 +231,8 @@ class JsonTokener(reader: Reader) {
         val sb = StringBuffer()
         while (true) {
             val c = this.next()
-            if (c == delimiter || c.toInt() == 0 || c == '\n' || c == '\r') {
-                if (c.toInt() != 0) {
+            if (c == delimiter || c.code == 0 || c == '\n' || c == '\r') {
+                if (c.code != 0) {
                     this.back()
                 }
                 return sb.toString().trim()
@@ -253,10 +253,10 @@ class JsonTokener(reader: Reader) {
         val sb = StringBuffer()
         while (true) {
             c = this.next()
-            if ((delimiters.indexOf(c) >= 0 || c.toInt() == 0 ||
+            if ((delimiters.indexOf(c) >= 0 || c.code == 0 ||
                         c == '\n' || c == '\r')
             ) {
-                if (c.toInt() != 0) {
+                if (c.code != 0) {
                     this.back()
                 }
                 return sb.toString().trim()
@@ -326,7 +326,7 @@ class JsonTokener(reader: Reader) {
             this.reader.mark(1000000)
             do {
                 c = this.next()
-                if (c.toInt() == 0) {
+                if (c.code == 0) {
                     this.reader.reset()
                     this.index = startIndex
                     this.character = startCharacter
@@ -369,14 +369,14 @@ class JsonTokener(reader: Reader) {
          * @return An int between 0 and 15, or -1 if c was not a hex digit.
          */
         fun dehexchar(c: Char): Int {
-            if (c >= '0' && c <= '9') {
+            if (c in '0'..'9') {
                 return c - '0'
             }
-            if (c >= 'A' && c <= 'F') {
-                return c.toInt() - ('A'.toInt() - 10)
+            if (c in 'A'..'F') {
+                return c.code - ('A'.code - 10)
             }
-            if (c >= 'a' && c <= 'f') {
-                return c.toInt() - ('a'.toInt() - 10)
+            if (c in 'a'..'f') {
+                return c.code - ('a'.code - 10)
             }
             return -1
         }

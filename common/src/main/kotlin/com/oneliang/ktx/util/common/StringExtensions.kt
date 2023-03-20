@@ -132,7 +132,7 @@ fun String.toUnicode(): String {
     val stringBuilder = StringBuilder()
     val charArray = this
     for (char in charArray) {
-        stringBuilder.append("\\u" + char.toInt().toString(radix = 16).toUpperCase())
+        stringBuilder.append("\\u" + char.code.toString(radix = 16).uppercase())
     }
     return stringBuilder.toString()
 }

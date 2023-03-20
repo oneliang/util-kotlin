@@ -1,4 +1,0 @@
-dependencies {
-    testImplementation rootProject.ext.dependencies["kotlin-test"]
-    testImplementation rootProject.ext.dependencies["kotlin-test-junit"]
-}

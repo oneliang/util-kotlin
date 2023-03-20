@@ -1,3 +1,0 @@
-def big_module_name = ':libraries'
-//include "$big_module_name:3rd-jxl"
-include "$big_module_name:3rd-kabeja"

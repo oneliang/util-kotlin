@@ -1,5 +1,7 @@
 package com.oneliang.ktx.util.common
 
+import java.util.*
+
 object Encoder {
 
     /**
@@ -31,10 +33,10 @@ object Encoder {
                     if (character.code < 0x10) {
                         stringBuilder.append("0")
                     }
-                    stringBuilder.append(character.code.toString(radix = 16).toUpperCase())
+                    stringBuilder.append(character.code.toString(radix = 16).uppercase())
                 } else {
                     stringBuilder.append("%u")
-                    stringBuilder.append(character.code.toString(radix = 16).toUpperCase())
+                    stringBuilder.append(character.code.toString(radix = 16).uppercase())
                 }
             }
         }

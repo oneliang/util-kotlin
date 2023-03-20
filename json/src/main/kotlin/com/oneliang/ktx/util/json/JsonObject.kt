@@ -770,9 +770,9 @@ class JsonObject(private val supportDuplicateKey: Boolean = false) {
                     }
                     if (key.isNotEmpty() && Character.isUpperCase(key[0]) && method.parameterTypes.isEmpty()) {
                         if (key.length == 1) {
-                            key = key.toLowerCase()
+                            key = key.lowercase()
                         } else if (!Character.isUpperCase(key.get(1))) {
-                            key = key.substring(0, 1).toLowerCase() + key.substring(1)
+                            key = key.substring(0, 1).lowercase() + key.substring(1)
                         }
                         val result = method.invoke(bean, null)
                         if (result != null) {

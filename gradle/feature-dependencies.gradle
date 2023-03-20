@@ -1,4 +1,0 @@
-dependencies {
-    api fileTree(dir: 'libs', include: ['*.jar'])
-    implementation rootProject.ext.dependencies['kotlin-reflect']
-}

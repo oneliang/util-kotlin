@@ -102,8 +102,8 @@ object Rsa {
         return try {
             return simplePipeline(firstBlock, {
                 cryptoDigest(it, byteArray, maxLength)
-            }, { _, byteArray ->
-                byteArray
+            }, { _, inputByteArray ->
+                inputByteArray
             })
         } catch (e: Throwable) {
             ByteArray(0)

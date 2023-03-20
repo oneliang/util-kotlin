@@ -24,4 +24,4 @@ include(":jwt")
 include(":packet")
 
 //libraries
-apply(from = "${rootDir}/libraries/libraries.gradle")
+apply(from = "${rootDir}/libraries/libraries.gradle.kts")
