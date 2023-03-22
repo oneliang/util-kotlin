@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 import com.oneliang.gradle.applyFeatureDependencies
 import com.oneliang.gradle.applyTestDependencies
-import com.oneliang.ktx.gradle.applyMavenPublish
+import com.oneliang.ktx.gradle.applyMavenPublishPlugin
 import com.oneliang.ktx.gradle.generateJarName
 import java.text.SimpleDateFormat
 import java.util.*
@@ -43,10 +43,9 @@ subprojects {
     if (this.subprojects.isEmpty()) {
         apply(plugin = "java")
         apply(plugin = "kotlin")
-        apply(plugin = "maven-publish")
         applyFeatureDependencies()
         applyTestDependencies()
-        applyMavenPublish(Constants.group, this.generateJarName(), Constants.version)
+        applyMavenPublishPlugin(Constants.group, this.generateJarName(), Constants.version)
         java {
             sourceSets {
                 main {

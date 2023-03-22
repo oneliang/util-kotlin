@@ -10,11 +10,15 @@ import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.the
 import java.io.File
 
-fun Project.generateJarName(): String {
+fun Project.generateJarName(includeRootProject:Boolean = true): String {
     val jarName = StringBuilder()
     val parentProject = this.parent
     if (parentProject != null) {//&& parentProject != rootProject) {
-        jarName.append(parentProject.generateJarName() + Constants.Symbol.MINUS)
+        if(includeRootProject) {
+            jarName.append(parentProject.generateJarName(includeRootProject) + Constants.Symbol.MINUS)
+        }else if(parentProject != rootProject){
+            jarName.append(parentProject.generateJarName(includeRootProject) + Constants.Symbol.MINUS)
+        }
     }
     jarName.append(this.name)
     return jarName.toString()
@@ -26,10 +30,10 @@ fun Project.applyDependencies(configurationList: List<Pair<String, Any>>) {
     }
 }
 
-fun Project.applyMavenPublish(groupId: String, artifactId: String, version: String) {
+fun Project.applyMavenPublishPlugin(groupId: String, artifactId: String, version: String) {
     val project = this
     project.apply<MavenPublishPlugin>()
-    project.extensions.configure<PublishingExtension>("publishing") {
+    project.extensions.configure<PublishingExtension>(PublishingExtension.NAME) {
         publications {
             create("mavenJava", MavenPublication::class.java) {
                 this.groupId = groupId
