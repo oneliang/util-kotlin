@@ -2,13 +2,9 @@ package com.oneliang.gradle
 
 import Dependencies
 import org.gradle.api.Project
-import org.gradle.api.publish.PublishingExtension
-import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
-import org.gradle.kotlin.dsl.apply
 
 
-fun Project.applyTestDependencies() {
+fun Project.applyTestFeatureDependencies() {
     this.dependencies.add("implementation", Dependencies["kotlin-test"])
     this.dependencies.add("implementation", Dependencies["kotlin-test-junit"])
 }
