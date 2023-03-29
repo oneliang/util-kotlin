@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 plugins {
-    kotlin("jvm")
+    kotlin("jvm") version Constants.kotlinVersion
 }
 
 val GROUP by extra(Constants.group)
