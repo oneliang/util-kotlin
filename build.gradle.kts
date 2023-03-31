@@ -76,6 +76,9 @@ subprojects {
                 }
             }
         }
+        dependencies {
+            implementation(Dependencies["kotlin-stdlib"])
+        }
     } else {
         //project directory
     }

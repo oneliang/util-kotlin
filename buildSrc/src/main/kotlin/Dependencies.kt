@@ -3,6 +3,7 @@ object Dependencies {
     private val dependencies = mapOf(
         "junit" to "junit:junit:4.12",
         "kotlin-reflect" to "org.jetbrains.kotlin:kotlin-reflect:${Constants.kotlinVersion}",
+        "kotlin-stdlib" to "org.jetbrains.kotlin:kotlin-stdlib:${Constants.kotlinVersion}",
         "kotlin-stdlib-js" to "org.jetbrains.kotlin:kotlin-stdlib-js:${Constants.kotlinVersion}",
         "kotlin-test" to "org.jetbrains.kotlin:kotlin-test",
         "kotlin-test-junit" to "org.jetbrains.kotlin:kotlin-test-junit",
