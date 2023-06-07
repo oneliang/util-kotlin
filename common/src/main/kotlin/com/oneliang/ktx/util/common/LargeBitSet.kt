@@ -30,8 +30,6 @@ class LargeBitSet(private val bitSetCount: Long) {
         val position: Int = (index shr 6).toInt() // div 64
         // signed shift will keep a negative index and force an
         // array-index-out-of-bounds-exception, removing the need for an explicit check.
-        // signed shift will keep a negative index and force an
-        // array-index-out-of-bounds-exception, removing the need for an explicit check.
         val bitmask = 1L shl index.toInt()
         return bitSet[position] and bitmask != 0L
     }
