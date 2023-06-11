@@ -16,8 +16,9 @@ fun main() {
     println("cost:%s".format(System.nanoTime() - begin))
     println("memory:%s".format(Runtime.getRuntime().totalMemory() - beginTotalMemory))
     begin = System.nanoTime()
-    sort(originalArray)
+    val bitSetSortedArray = sort(originalArray)
     println("sort cost:%s".format(System.nanoTime() - begin))
+    println(bitSetSortedArray[0])
     begin = System.nanoTime()
     val sortedArray = originalArray.sortedArray()
     println("java sort cost:%s".format(System.nanoTime() - begin))
@@ -62,7 +63,7 @@ fun main() {
 //    }
 //}
 
-fun sort(originalArray: Array<Int>) {
+fun sort(originalArray: Array<Int>): IntArray {
     val timerRecord = TimeRecord(System::nanoTime, System::nanoTime) { category, recordTime ->
         println("category:%s, cost time:%s".format(category, recordTime))
     }
@@ -80,12 +81,15 @@ fun sort(originalArray: Array<Int>) {
     }
     timerRecord.stepRecord()
     val sortedArray = IntArray(originalArray.size)
+    timerRecord.stepRecord()
     var sortedArrayIndex = 0
     for (it in 1..max) {
         if (largeBitSet.get(it.toLong())) {
-            sortedArray.set(sortedArrayIndex, it)
+            sortedArray[sortedArrayIndex] = it
             sortedArrayIndex++
         }
     }
+    timerRecord.stepRecord()
     timerRecord.record()
+    return sortedArray
 }
