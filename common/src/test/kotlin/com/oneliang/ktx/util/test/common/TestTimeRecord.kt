@@ -3,7 +3,7 @@ package com.oneliang.ktx.util.test.common
 import com.oneliang.ktx.util.common.TimeRecord
 
 fun main() {
-    val timeRecord = TimeRecord(System::nanoTime, System::nanoTime) { category, recordTime ->
+    val timeRecord = TimeRecord(System::nanoTime, System::nanoTime) { category, recordTime, _ ->
         println("%s, cost:%s".format(category, recordTime))
     }
     timeRecord.start()

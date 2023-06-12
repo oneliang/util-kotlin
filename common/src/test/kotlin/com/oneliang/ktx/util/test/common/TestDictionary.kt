@@ -7,7 +7,7 @@ import com.oneliang.ktx.util.common.toByteArray
 import java.util.concurrent.atomic.AtomicInteger
 
 fun main() {
-    val arraySize = 100000000
+    val arraySize = 10000000
     var begin = System.nanoTime()
     var beginTotalMemory = Runtime.getRuntime().totalMemory()
     val originalArray = Array(arraySize) { it ->
@@ -20,9 +20,11 @@ fun main() {
     println("sort cost:%s".format(System.nanoTime() - begin))
     println(bitSetSortedArray[0])
     begin = System.nanoTime()
-    val sortedArray = originalArray.sortedArray()
+    beginTotalMemory = Runtime.getRuntime().totalMemory()
+    val sortedArray = originalArray.sort()
     println("java sort cost:%s".format(System.nanoTime() - begin))
-    println(sortedArray[0])
+    println("memory:%s".format(Runtime.getRuntime().totalMemory() - beginTotalMemory))
+    println(originalArray[0])
     return
     val dictionaryIndexMap = mutableMapOf<String, Int>(
         "你" to 1,
@@ -64,8 +66,12 @@ fun main() {
 //}
 
 fun sort(originalArray: Array<Int>): IntArray {
-    val timerRecord = TimeRecord(System::nanoTime, System::nanoTime) { category, recordTime ->
-        println("category:%s, cost time:%s".format(category, recordTime))
+    val timerRecord = TimeRecord(System::nanoTime, System::nanoTime) { category, recordTime, stepKey ->
+        if (stepKey.isNotEmpty()) {
+            println("category:%s, cost time:%s, %s".format(category, recordTime, stepKey))
+        } else {
+            println("category:%s, cost time:%s".format(category, recordTime))
+        }
     }
     timerRecord.start()
     var max: Int = Int.MIN_VALUE
@@ -74,14 +80,14 @@ fun sort(originalArray: Array<Int>): IntArray {
             max = it
         }
     }
-    timerRecord.stepRecord()
+    timerRecord.stepRecord("[find max]")
     val largeBitSet = LargeBitSet((max + 1).toLong())
     for (it in originalArray) {
         largeBitSet.set(it.toLong())
     }
-    timerRecord.stepRecord()
+    timerRecord.stepRecord("[bit set]")
     val sortedArray = IntArray(originalArray.size)
-    timerRecord.stepRecord()
+    timerRecord.stepRecord("[new instance]")
     var sortedArrayIndex = 0
     for (it in 1..max) {
         if (largeBitSet.get(it.toLong())) {
@@ -89,7 +95,7 @@ fun sort(originalArray: Array<Int>): IntArray {
             sortedArrayIndex++
         }
     }
-    timerRecord.stepRecord()
+    timerRecord.stepRecord("[collect]")
     timerRecord.record()
     return sortedArray
 }
