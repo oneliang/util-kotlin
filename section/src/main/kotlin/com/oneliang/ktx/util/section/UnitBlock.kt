@@ -1,13 +1,23 @@
 package com.oneliang.ktx.util.section
 
+import com.oneliang.ktx.Constants
+import com.oneliang.ktx.util.logging.LoggerManager
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
-open class UnitBlock constructor(val endian: Endian = Endian.BIG) : Block {
+open class UnitBlock constructor(
+    val endian: Endian = Endian.BIG,
+    override var initialSize: Int = 0
+) : Block {
+
+    companion object {
+        private val logger = LoggerManager.getLogger(UnitBlock::class)
+    }
+
     enum class Endian {
         BIG, LITTLE
     }
 
-    override var initialSize: Int = 0
     override var value: ByteArray = ByteArray(0)
 
     /**
@@ -18,10 +28,10 @@ open class UnitBlock constructor(val endian: Endian = Endian.BIG) : Block {
 
     @Throws(Exception::class)
     override fun parse(inputStream: InputStream) {
-        var buffer = ByteArray(initialSize)
+        var buffer = ByteArray(this.initialSize)
         val length = inputStream.read(buffer)
         if (length == buffer.size) {
-            when (endian) {
+            when (this.endian) {
                 Endian.LITTLE -> buffer = buffer.reversedArray()
                 else -> {
                 }

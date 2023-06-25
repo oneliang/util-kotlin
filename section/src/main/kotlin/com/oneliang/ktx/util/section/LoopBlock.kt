@@ -1,16 +1,14 @@
 package com.oneliang.ktx.util.section
 
-import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 
-abstract class ComplexBlock() : UnitBlock() {
+abstract class LoopBlock() : UnitBlock() {
     companion object {
-        private val logger = LoggerManager.getLogger(ComplexBlock::class)
+        private val logger = LoggerManager.getLogger(LoopBlock::class)
     }
 
     protected var beforeByteArray: ByteArray = ByteArray(0)
@@ -21,29 +19,34 @@ abstract class ComplexBlock() : UnitBlock() {
     }
 
     override fun parse(inputStream: InputStream) {
-        var index = 0
         val byteArrayInputStream = ByteArrayInputStream(this.beforeByteArray)
-        val blockWrapperQueue = this.parseBlockWrapperQueue
-        while (!blockWrapperQueue.isEmpty()) {
-            val blockWrapper = blockWrapperQueue.poll()
-            val id = blockWrapper.id
-            val block = blockWrapper.block
-            beforeRead(index, id, block)
-            try {
-                if (byteArrayInputStream.available() > 0) {
-                    block.parse(byteArrayInputStream)
-                } else {
-                    block.parse(inputStream)
+        val blockWrapperList = this.parseBlockWrapperList
+        var canReadNext = true
+        var index = 0
+        this.totalSize = 0
+        do {
+            for ((blockIndex, blockWrapper) in blockWrapperList.withIndex()) {
+                val id = blockWrapper.id
+                val block = blockWrapper.block
+                try {
+                    if (byteArrayInputStream.available() > 0) {
+                        block.parse(byteArrayInputStream)
+                    } else {
+                        block.parse(inputStream)
+                    }
+                } catch (e: Exception) {
+                    logger.error(this.toString(), e)
+                    throw e
                 }
-            } catch (e: Exception) {
-                logger.error(this.toString(), e)
-                throw e
+                afterRead(index, id, block)
+                if (inputStream.available() <= 0) {
+                    canReadNext = false
+                    break
+                }
             }
-            this.totalSize += block.totalSize
-            afterRead(index, id, block)
-            //				log("index:"+index+",value:"+StringUtil.byteToHexString(buffer));
+            this.totalSize++
             index++
-        }
+        } while (canReadNext)
     }
 
     /**
@@ -55,19 +58,10 @@ abstract class ComplexBlock() : UnitBlock() {
     }
 
     /**
-     * get parse block queue
+     * get parse block list
      * @return Queue<BlockWrapper>
     </BlockWrapper> */
-    protected abstract val parseBlockWrapperQueue: Queue<BlockWrapper>
-
-    /**
-     * before read default empty method
-     * @param currentIndex
-     * @param currentId
-     * @param currentBlock
-     */
-    protected open fun beforeRead(currentIndex: Int, currentId: Int, currentBlock: Block?) {
-    }
+    protected abstract val parseBlockWrapperList: List<BlockWrapper>
 
     /**
      * after read
@@ -76,7 +70,7 @@ abstract class ComplexBlock() : UnitBlock() {
      * @param currentBlock
      */
     protected open fun afterRead(currentIndex: Int, currentId: Int, currentBlock: Block) {
-        this.generateBlockList.add(currentBlock)
+        generateBlockList.add(currentBlock)
     }
     /**
      * get value,just implement in UnitBlock,please use method toByteArray();

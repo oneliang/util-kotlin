@@ -50,6 +50,7 @@ fun main() {
     println((1 shl bIndex).toByteArray().toBinaryString())
     val nextIndexArray = arrayOf(2, 2345, 3, 4, 5)
 
+
 //    insertSort(arrayOf(1), 1)
 //
 //    val emptyList = mutableListOf<Int>()
