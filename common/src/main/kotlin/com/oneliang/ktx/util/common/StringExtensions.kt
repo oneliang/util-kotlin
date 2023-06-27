@@ -11,6 +11,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.ceil
 
+fun String?.toShortSafely(defaultValue: Short = 0): Short = try {
+    this?.toShort() ?: defaultValue
+} catch (e: Throwable) {
+    defaultValue
+}
+
 fun String?.toIntSafely(defaultValue: Int = 0): Int = try {
     this?.toInt() ?: defaultValue
 } catch (e: Throwable) {
