@@ -1,6 +1,6 @@
 package com.oneliang.ktx.util.common
 
-class CircleIterator<out T>(elements: Array<T>) : Iterator<T> {
+class CircleIterator<out T>(elements: Array<T>, initialIndex: Int = 0) : Iterator<T> {
 
     private val headNode: Node<T>
     private var currentNode: Node<T>
@@ -18,6 +18,9 @@ class CircleIterator<out T>(elements: Array<T>) : Iterator<T> {
             val node = Node(element).also { it.nextNode = this.headNode }
             previousNode.nextNode = node
             previousNode = node
+            if (i == initialIndex) {
+                this.currentNode = node
+            }
         }
     }
 
