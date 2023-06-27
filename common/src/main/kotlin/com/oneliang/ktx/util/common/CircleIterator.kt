@@ -39,7 +39,7 @@ class CircleIterator<out T>(elements: Array<T>, initialIndex: Int = 0) : Iterato
      * @return Boolean always true in circle iterator
      */
     override fun hasNext(): Boolean {
-        return true
+        return true // this.currentNode != null
     }
 
     /**
