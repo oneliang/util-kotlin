@@ -293,11 +293,18 @@ object JsonUtil {
      * @param jsonObject
      * @param kClass
      * @param classProcessor
+     * @param fieldNameKClassMapping
      * @param ignoreFirstLetterCase
      * @param ignoreFieldNames
      * @return T
      */
-    fun <T : Any> jsonObjectToObject(jsonObject: JsonObject, kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, fieldNameKClassMapping: Map<String, Pair<DefaultJsonKotlinClassProcessor.Type, KClass<*>>> = emptyMap(), ignoreFirstLetterCase: Boolean = false, ignoreFieldNames: Array<String> = emptyArray()): T {
+    fun <T : Any> jsonObjectToObject(
+        jsonObject: JsonObject,
+        kClass: KClass<T>,
+        classProcessor: KotlinClassUtil.KotlinClassProcessor = DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR,
+        fieldNameKClassMapping: Map<String, Pair<DefaultJsonKotlinClassProcessor.Type, KClass<*>>> = emptyMap(),
+        ignoreFirstLetterCase: Boolean = false,
+        ignoreFieldNames: Array<String> = emptyArray()): T {
         val instance: T
         val methods = kClass.java.methods
         try {
@@ -373,12 +380,19 @@ object JsonUtil {
      * @param jsonArray
      * @param kClass may be array component class
      * @param classProcessor
+     * @param fieldNameKClassMapping
      * @param ignoreFirstLetterCase
      * @param ignoreFieldNames
      * @return List<T>
     </T></T> */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> jsonArrayToList(jsonArray: JsonArray, kClass: KClass<T>, classProcessor: KotlinClassUtil.KotlinClassProcessor = DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR, fieldNameKClassMapping: Map<String, Pair<DefaultJsonKotlinClassProcessor.Type, KClass<*>>> = emptyMap(), ignoreFirstLetterCase: Boolean = false, ignoreFieldNames: Array<String> = emptyArray()): List<T> {
+    fun <T : Any> jsonArrayToList(
+        jsonArray: JsonArray,
+        kClass: KClass<T>,
+        classProcessor: KotlinClassUtil.KotlinClassProcessor = DEFAULT_JSON_KOTLIN_CLASS_PROCESSOR,
+        fieldNameKClassMapping: Map<String, Pair<DefaultJsonKotlinClassProcessor.Type, KClass<*>>> = emptyMap(),
+        ignoreFirstLetterCase: Boolean = false,
+        ignoreFieldNames: Array<String> = emptyArray()): List<T> {
         val length = jsonArray.length()
         val list = mutableListOf<T>()
         for (i in 0 until length) {

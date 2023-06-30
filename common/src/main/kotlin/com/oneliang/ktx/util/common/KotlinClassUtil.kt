@@ -183,6 +183,7 @@ object KotlinClassUtil {
      * @param values
      * @param fieldName is null if not exist
      * @param classProcessor
+     * @param specialParameter for special use
      * @return Object
     </T> */
     @Suppress("UNCHECKED_CAST")
