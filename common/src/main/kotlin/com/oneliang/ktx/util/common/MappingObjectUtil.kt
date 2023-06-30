@@ -26,7 +26,7 @@ object MappingObjectUtil {
             if (declaredField.isAnnotationPresent(MappingObject.Key::class.java)) {
                 val fieldType = declaredField.type.kotlin
                 val mappingKey = declaredField.getAnnotation(MappingObject.Key::class.java).value
-                val mappingValue = mappingKeyVisitor(mappingKey, fieldType)
+                val mappingValue = mappingKeyVisitor(mappingKey, fieldType) ?: continue//when null keep the instance value, no need to set
                 declaredField.isAccessible = true
                 declaredField.set(instance, mappingValue)
             }
