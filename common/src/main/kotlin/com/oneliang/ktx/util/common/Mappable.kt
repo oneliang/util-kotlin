@@ -3,7 +3,7 @@ package com.oneliang.ktx.util.common
 @MustBeDocumented
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class MappingObject {
+annotation class Mappable {
 
     @MustBeDocumented
     @Target(AnnotationTarget.FIELD, AnnotationTarget.FILE)
