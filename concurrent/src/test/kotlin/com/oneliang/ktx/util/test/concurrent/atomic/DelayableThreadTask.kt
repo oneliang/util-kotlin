@@ -39,7 +39,7 @@ open class DelayableThreadTask : ThreadTask {
     }
 
     private fun innerDelayExecute() {
-        delayMap -= this.executeFlag
+        this.delayMap -= this.executeFlag
         val finishedFlag = innerNormalExecute()
         if (finishedFlag) {
             return
@@ -78,6 +78,8 @@ open class DelayableThreadTask : ThreadTask {
     }
 
     override fun runTask() {
+        println(System.currentTimeMillis().toString() + "," + 0)
+        this.delay(3000)
         execute {
             println(System.currentTimeMillis().toString() + "," + 1)
         }
