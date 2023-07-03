@@ -28,6 +28,7 @@ class CircleIterator<out T>(elements: Array<T>, initialIndex: Int = 0) : Iterato
      * next
      * @return T
      */
+    @Synchronized
     override fun next(): T {
         val value = this.currentNode.value
         this.currentNode = this.currentNode.nextNode
