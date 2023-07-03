@@ -38,7 +38,8 @@ fun <T> Collection<T>.matches(collection: Collection<T>): Boolean = this.include
  * @param joinSymbol
  * @return Map<String, Pair<T, T>>
  */
-fun <T : Any> Collection<T>.toElementRelativeMap(joinSymbol: String = (Constants.Symbol.MINUS + Constants.Symbol.GREATER_THAN)): Map<String, Pair<T, T>> {
+@Suppress("UNCHECKED_CAST")
+fun <T> Collection<T>.toElementRelativeMap(joinSymbol: String = (Constants.Symbol.MINUS + Constants.Symbol.GREATER_THAN)): Map<String, Pair<T, T>> {
     if (this.size == 1) {
         return this.toMap {
             val key = it.toString() + joinSymbol + it.toString()
@@ -54,7 +55,7 @@ fun <T : Any> Collection<T>.toElementRelativeMap(joinSymbol: String = (Constants
         } else {
             currentElement = value
             val key = previousElement.toString() + joinSymbol + currentElement.toString()
-            map[key] = previousElement!! to currentElement
+            map[key] = previousElement as T to currentElement
             previousElement = currentElement
         }
     }
