@@ -3,6 +3,8 @@ package com.oneliang.ktx.util.common
 import java.io.ByteArrayOutputStream
 import java.math.BigDecimal
 import java.nio.charset.Charset
+import java.util.*
+import kotlin.collections.HashSet
 
 
 inline fun <T, K, V, M : MutableMap<in K, in V>> Iterable<T>.toMap(destinationMap: M, transform: (item: T) -> Pair<K, V>): M = this.associateTo(destinationMap, transform)
@@ -308,4 +310,23 @@ fun <T, K, M : MutableMap<in K, Int>> Iterable<T>.countByKeyAndCheckTo(destinati
         destination[key] = keyCount
     }
     return true
+}
+
+
+/**
+ * for tree node data
+ */
+fun <T : Any> Iterable<T>.findAllChild(isChild: (T) -> Boolean, hasChild: (T) -> Boolean, whenHasChild: (T) -> T): List<T> {
+    val list = mutableListOf<T>()
+    val queue = LinkedList<T>()
+    queue += this
+    while (queue.isNotEmpty()) {
+        val item = queue.poll()
+        if (isChild(item)) {
+            list += item
+        } else if (hasChild(item)) {
+            queue += whenHasChild(item)
+        }
+    }
+    return list
 }
