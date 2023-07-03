@@ -315,6 +315,9 @@ fun <T, K, M : MutableMap<in K, Int>> Iterable<T>.countByKeyAndCheckTo(destinati
 
 /**
  * for tree node data
+ * @param isChild
+ * @param hasChild
+ * @param whenHasChild
  */
 fun <T : Any> Iterable<T>.findAllChild(isChild: (T) -> Boolean, hasChild: (T) -> Boolean, whenHasChild: (T) -> T): List<T> {
     val list = mutableListOf<T>()
@@ -330,3 +333,5 @@ fun <T : Any> Iterable<T>.findAllChild(isChild: (T) -> Boolean, hasChild: (T) ->
     }
     return list
 }
+
+
