@@ -39,18 +39,18 @@ fun <T> Collection<T>.matches(collection: Collection<T>): Boolean = this.include
  * @return Map<String, Pair<T, T>>
  */
 @Suppress("UNCHECKED_CAST")
-fun <T> Collection<T>.toElementRelativeMap(joinSymbol: String = (Constants.Symbol.MINUS + Constants.Symbol.GREATER_THAN)): Map<String, Pair<T, T>> {
-    if (this.size == 1) {
-        return this.toMap {
-            val key = it.toString() + joinSymbol + it.toString()
-            key to (it to it)
-        }
-    }
+fun <T> Collection<T>.toElementRelativeMap(
+    joinSymbol: String = (Constants.Symbol.MINUS + Constants.Symbol.GREATER_THAN),
+    filter: (T) -> Boolean = { true }
+): Map<String, Pair<T, T>> {
     val map = mutableMapOf<String, Pair<T, T>>()
-    var currentElement: T
+    var currentElement: T? = null
     var previousElement: T? = null
-    for ((index, value) in withIndex()) {
-        if (index == 0) {
+    for (value in this) {
+        if (!filter(value)) {
+            continue
+        }
+        if (previousElement == null) {
             previousElement = value
         } else {
             currentElement = value
@@ -58,6 +58,11 @@ fun <T> Collection<T>.toElementRelativeMap(joinSymbol: String = (Constants.Symbo
             map[key] = previousElement as T to currentElement
             previousElement = currentElement
         }
+    }
+    //check case about the single element
+    if (previousElement != null && currentElement == null) {
+        val key = previousElement.toString() + joinSymbol + previousElement.toString()
+        map[key] = previousElement to previousElement
     }
     return map
 }
