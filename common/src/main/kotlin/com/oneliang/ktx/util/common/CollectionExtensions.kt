@@ -36,14 +36,19 @@ fun <T> Collection<T>.matches(collection: Collection<T>): Boolean = this.include
  * key: PreviousElement -> NextElement
  * value: Pair<PreviousElement, NextElement>
  * @param joinSymbol
+ * @param keyTransform
+ * @param valueTransform
+ * @param filter
  * @return Map<String, Pair<T, T>>
  */
 @Suppress("UNCHECKED_CAST")
-fun <T> Collection<T>.toElementRelativeMap(
+fun <T, R> Collection<T>.toElementRelativeMap(
     joinSymbol: String = (Constants.Symbol.MINUS + Constants.Symbol.GREATER_THAN),
+    keyTransform: (T) -> String = { it.toString() },
+    valueTransform: (T) -> R,
     filter: (T) -> Boolean = { true }
-): Map<String, Pair<T, T>> {
-    val map = mutableMapOf<String, Pair<T, T>>()
+): Map<String, Pair<R, R>> {
+    val map = mutableMapOf<String, Pair<R, R>>()
     var currentElement: T? = null
     var previousElement: T? = null
     for (value in this) {
@@ -54,15 +59,33 @@ fun <T> Collection<T>.toElementRelativeMap(
             previousElement = value
         } else {
             currentElement = value
-            val key = previousElement.toString() + joinSymbol + currentElement.toString()
-            map[key] = previousElement as T to currentElement
+            val key = keyTransform(previousElement) + joinSymbol + keyTransform(currentElement)
+            map[key] = valueTransform(previousElement) to valueTransform(currentElement)
             previousElement = currentElement
         }
     }
     //check case about the single element
     if (previousElement != null && currentElement == null) {
-        val key = previousElement.toString() + joinSymbol + previousElement.toString()
-        map[key] = previousElement to previousElement
+        val key = keyTransform(previousElement) + joinSymbol + keyTransform(previousElement)
+        map[key] = valueTransform(previousElement) to valueTransform(previousElement)
     }
     return map
+}
+
+/**
+ * to element relative map
+ * key: PreviousElement -> NextElement
+ * value: Pair<PreviousElement, NextElement>
+ * @param joinSymbol
+ * @param keyTransform
+ * @param filter
+ * @return Map<String, Pair<T, T>>
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T> Collection<T>.toElementRelativeMap(
+    joinSymbol: String = (Constants.Symbol.MINUS + Constants.Symbol.GREATER_THAN),
+    keyTransform: (T) -> String = { it.toString() },
+    filter: (T) -> Boolean = { true }
+): Map<String, Pair<T, T>> {
+    return this.toElementRelativeMap(joinSymbol, keyTransform, valueTransform = { it }, filter)
 }
