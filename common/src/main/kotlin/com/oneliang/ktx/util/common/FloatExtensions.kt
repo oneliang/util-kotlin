@@ -11,3 +11,11 @@ fun Float.fixNaN(defaultValue: Float = 0f): Float {
         this
     }
 }
+
+fun Float.toIntBits(): Int {
+    return java.lang.Float.floatToIntBits(this)
+}
+
+fun Float.toRawIntBits(): Int {
+    return java.lang.Float.floatToRawIntBits(this)
+}
