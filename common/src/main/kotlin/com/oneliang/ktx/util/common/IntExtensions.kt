@@ -9,3 +9,7 @@ fun Int.toByteArray(): ByteArray = ByteArray(4) {
 infix fun Int.remove(other: Int): Int {
     return this and (other.inv())
 }
+
+fun Int.bitsToFloat(): Float {
+    return java.lang.Float.intBitsToFloat(this)
+}

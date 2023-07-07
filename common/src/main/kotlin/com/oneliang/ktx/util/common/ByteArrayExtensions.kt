@@ -42,6 +42,9 @@ private val toInt: ((bytes: Array<Byte>) -> Int) = {
 fun ByteArray.toInt(): Int = toInt(this.toTypedArray())
 fun Array<Byte>.toInt(): Int = toInt(this)
 
+fun ByteArray.toFloat(): Float = toInt(this.toTypedArray()).bitsToFloat()
+fun Array<Byte>.toFloat(): Float = toInt(this).bitsToFloat()
+
 private val toLong: ((bytes: Array<Byte>) -> Long) = {
     if (it.isNotEmpty() && it.size == 8) {
         var result = 0L
@@ -56,3 +59,6 @@ private val toLong: ((bytes: Array<Byte>) -> Long) = {
 
 fun ByteArray.toLong(): Long = toLong(this.toTypedArray())
 fun Array<Byte>.toLong(): Long = toLong(this)
+
+fun ByteArray.toDouble(): Double = toLong(this.toTypedArray()).bitsToDouble()
+fun Array<Byte>.toDouble(): Double = toLong(this).bitsToDouble()
