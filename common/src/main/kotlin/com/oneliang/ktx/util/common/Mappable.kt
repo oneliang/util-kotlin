@@ -5,6 +5,7 @@ import java.lang.annotation.Inherited
 @MustBeDocumented
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 @Retention(AnnotationRetention.RUNTIME)
+@Inherited
 annotation class Mappable {
 
     @MustBeDocumented
