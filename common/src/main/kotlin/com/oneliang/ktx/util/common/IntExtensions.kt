@@ -1,5 +1,7 @@
 package com.oneliang.ktx.util.common
 
+import kotlin.math.pow
+
 fun Int.toUnsigned(): Long = this.toLong() and 0xFFFFFFFFL
 
 fun Int.toByteArray(): ByteArray = ByteArray(4) {
@@ -12,4 +14,8 @@ infix fun Int.remove(other: Int): Int {
 
 fun Int.bitsToFloat(): Float {
     return java.lang.Float.intBitsToFloat(this)
+}
+
+fun Int.pow(num: Int): Int {
+    return this.toDouble().pow(num).toInt()
 }
