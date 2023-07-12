@@ -16,6 +16,6 @@ fun Int.bitsToFloat(): Float {
     return java.lang.Float.intBitsToFloat(this)
 }
 
-fun Int.pow(num: Int): Int {
-    return this.toDouble().pow(num).toInt()
+fun Int.pow(num: Int): Long {
+    return this.toDouble().pow(num).toLong()
 }
