@@ -4,7 +4,7 @@ import java.util.concurrent.locks.ReentrantLock
 
 class OperationLock {
 
-    private val lock = ReentrantLock()
+    val lock = ReentrantLock()
 
     fun <T> operate(operate: () -> T): T {
         return try {
