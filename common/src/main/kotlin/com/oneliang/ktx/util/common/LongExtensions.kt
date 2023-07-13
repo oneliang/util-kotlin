@@ -13,3 +13,7 @@ fun Long.toUtilDate(): Date {
 fun Long.bitsToDouble(): Double {
     return java.lang.Double.longBitsToDouble(this)
 }
+
+infix fun Long.bitContains(other: Long): Boolean {
+    return (this and other == other)
+}

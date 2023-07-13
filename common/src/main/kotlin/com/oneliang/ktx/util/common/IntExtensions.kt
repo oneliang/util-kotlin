@@ -19,3 +19,7 @@ fun Int.bitsToFloat(): Float {
 fun Int.pow(num: Int): Long {
     return this.toDouble().pow(num).toLong()
 }
+
+infix fun Int.bitContains(other: Int): Boolean {
+    return (this and other == other)
+}
