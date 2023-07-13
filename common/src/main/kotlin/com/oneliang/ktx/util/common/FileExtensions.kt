@@ -3,6 +3,7 @@ package com.oneliang.ktx.util.common
 import com.oneliang.ktx.Constants
 import java.io.File
 import java.io.RandomAccessFile
+import java.util.concurrent.locks.ReentrantLock
 
 
 fun File.read(start: Long, end: Long, afterReadBlock: (buffer: ByteArray, length: Int) -> Unit) {
@@ -24,7 +25,7 @@ fun File.read(start: Long, end: Long, afterReadBlock: (buffer: ByteArray, length
     }
 }
 
-fun File.replace(start: Long, end: Long, data: ByteArray) {
+fun File.replace(start: Long, end: Long, data: ByteArray, readLock: ReentrantLock? = null) {
     val newFile = File(this.parent, "%s_%s".format(this.name, "replacing"))
     val newFileOutputStream = newFile.outputStream()
     newFileOutputStream.use {
@@ -36,6 +37,17 @@ fun File.replace(start: Long, end: Long, data: ByteArray) {
             it.write(buffer, 0, length)
         }
     }
-    this.delete()
-    newFile.renameTo(this)
+    //this code is ugly
+    if (readLock != null) {//lock read this file
+        try {
+            readLock.lock()
+            this.delete()
+            newFile.renameTo(this)
+        } finally {
+            readLock.unlock()
+        }
+    } else {//do not use lock, simple single thread
+        this.delete()
+        newFile.renameTo(this)
+    }
 }
