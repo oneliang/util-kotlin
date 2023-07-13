@@ -1,5 +1,6 @@
 package com.oneliang.ktx.util.common
 
+import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.reflect.KClass
 
 object MappableUtil {
@@ -22,16 +23,26 @@ object MappableUtil {
         if (!isMappableObject(instance)) {
             throw MappableUtilException("The instance must be a mappable object")
         }
-        val declaredFields = instance::class.java.declaredFields
-        for (declaredField in declaredFields) {
-            if (declaredField.isAnnotationPresent(Mappable.Key::class.java)) {
-                val fieldType = declaredField.type.kotlin
-                val mappableKey = declaredField.getAnnotation(Mappable.Key::class.java).value
-                val mappableValue = mappableKeyVisitor(mappableKey, fieldType) ?: continue//when null keep the instance value, no need to set
-                declaredField.isAccessible = true
-                declaredField.set(instance, mappableValue)
+        val queue = ConcurrentLinkedQueue<Class<*>>()
+        queue.add(instance::class.java)
+        while (queue.isNotEmpty()) {
+            val clazz = queue.poll()
+            val declaredFields = clazz.declaredFields
+            for (declaredField in declaredFields) {
+                if (declaredField.isAnnotationPresent(Mappable.Key::class.java)) {
+                    val fieldType = declaredField.type.kotlin
+                    val mappableKey = declaredField.getAnnotation(Mappable.Key::class.java).value
+                    val mappableValue = mappableKeyVisitor(mappableKey, fieldType) ?: continue//when null keep the instance value, no need to set
+                    declaredField.isAccessible = true
+                    declaredField.set(instance, mappableValue)
+                }
+            }
+            val superClass = clazz.superclass
+            if (superClass != null && superClass != Object::class.java) {
+                queue.add(superClass)
             }
         }
+
     }
 
     /**
@@ -43,13 +54,22 @@ object MappableUtil {
         if (!isMappableObject(instance)) {
             throw MappableUtilException("The instance must be a mappable object")
         }
-        val declaredFields = instance::class.java.declaredFields
-        for (declaredField in declaredFields) {
-            if (declaredField.isAnnotationPresent(Mappable.Key::class.java)) {
-                val mappableKey = declaredField.getAnnotation(Mappable.Key::class.java).value
-                declaredField.isAccessible = true
-                val fieldValue = declaredField.get(instance)
-                mappableKeyVisitor(mappableKey, fieldValue)
+        val queue = ConcurrentLinkedQueue<Class<*>>()
+        queue.add(instance::class.java)
+        while (queue.isNotEmpty()) {
+            val clazz = queue.poll()
+            val declaredFields = clazz.declaredFields
+            for (declaredField in declaredFields) {
+                if (declaredField.isAnnotationPresent(Mappable.Key::class.java)) {
+                    val mappableKey = declaredField.getAnnotation(Mappable.Key::class.java).value
+                    declaredField.isAccessible = true
+                    val fieldValue = declaredField.get(instance)
+                    mappableKeyVisitor(mappableKey, fieldValue)
+                }
+            }
+            val superClass = clazz.superclass
+            if (superClass != null && superClass != Object::class.java) {
+                queue.add(superClass)
             }
         }
     }
