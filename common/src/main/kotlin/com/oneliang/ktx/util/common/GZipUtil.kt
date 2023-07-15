@@ -4,7 +4,6 @@ import com.oneliang.ktx.Constants
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
@@ -21,7 +20,7 @@ object GZipUtil {
             gzipOutputStream.close()
             outputStream.toByteArray()
         } catch (e: Throwable) {
-            logger.error(String.format("gzip compress exception:%s", e.message))
+            logger.error(String.format("gzip compress exception:%s", e, e.message))
             ByteArray(0)
         }
     }
@@ -39,7 +38,7 @@ object GZipUtil {
             }
             byteArrayOutputStream.toByteArray()
         } catch (e: Throwable) {
-            logger.error(String.format("gzip uncompress error. message:%s", e.message))
+            logger.error(String.format("gzip uncompress error. message:%s", e, e.message))
             ByteArray(0)
         }
     }
