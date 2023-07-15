@@ -20,7 +20,7 @@ object GZipUtil {
             gzipOutputStream.close()
             outputStream.toByteArray()
         } catch (e: Throwable) {
-            logger.error(String.format("gzip compress exception:%s", e, e.message))
+            logger.error(String.format("gzip compress exception:%s", e.message), e)
             ByteArray(0)
         }
     }
@@ -38,7 +38,7 @@ object GZipUtil {
             }
             byteArrayOutputStream.toByteArray()
         } catch (e: Throwable) {
-            logger.error(String.format("gzip uncompress error. message:%s", e, e.message))
+            logger.error(String.format("gzip uncompress error. message:%s", e.message), e)
             ByteArray(0)
         }
     }
