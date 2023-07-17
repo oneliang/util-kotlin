@@ -69,7 +69,7 @@ class FileWrapper(private val fullFilename: String, private val accessMode: Acce
             } else {
                 this.file.length()
             }
-//            logger.verbose("write, start:%s, length:%s, data.size:%s, file:%s, hashcode:%s", startPosition, this.file.length(), data.size, fullFilename, this.hashCode())
+            logger.verbose("write, start:%s, length:%s, data.size:%s, file:%s, hashcode:%s", startPosition, this.file.length(), data.size, fullFilename, this.hashCode())
             val byteBuffer = ByteBuffer.wrap(data)
             this.file.channel.write(byteBuffer, startPosition)
             val end = this.file.length()
