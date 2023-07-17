@@ -1,11 +1,18 @@
 package com.oneliang.ktx.util.common
 
 import com.oneliang.ktx.Constants
+import com.oneliang.ktx.annotation.ThreadUnsafe
 import java.io.File
 import java.io.RandomAccessFile
 import java.util.concurrent.locks.ReentrantLock
 
-
+/**
+ * read
+ * @param start
+ * @param end
+ * @param afterReadBlock
+ */
+@ThreadUnsafe
 fun File.read(start: Long, end: Long, afterReadBlock: (buffer: ByteArray, length: Int) -> Unit) {
     val randomAccessFile = RandomAccessFile(this, "r")
     val fileLength = randomAccessFile.length()
@@ -25,7 +32,16 @@ fun File.read(start: Long, end: Long, afterReadBlock: (buffer: ByteArray, length
     }
 }
 
-fun File.replace(start: Long, end: Long, data: ByteArray, readLock: ReentrantLock? = null) {
+/**
+ * replace file, thread
+ * @param start
+ * @param end
+ * @param data
+ * @param readLock
+ * @param afterReplacedBlock
+ */
+@ThreadUnsafe("suggest you use param[readLook] when use in multi thread")
+fun File.replace(start: Long, end: Long, data: ByteArray, readLock: ReentrantLock? = null, afterReplacedBlock: () -> Unit = {}) {
     val newFile = File(this.parent, "%s_%s".format(this.name, "replacing"))
     val newFileOutputStream = newFile.outputStream()
     newFileOutputStream.use {
@@ -37,17 +53,19 @@ fun File.replace(start: Long, end: Long, data: ByteArray, readLock: ReentrantLoc
             it.write(buffer, 0, length)
         }
     }
-    //this code is ugly
-    if (readLock != null) {//lock read this file
+    val block: () -> Unit = {
+        this.delete()
+        newFile.renameTo(this)
+        afterReplacedBlock()
+    }
+    if (readLock != null) {
         try {
             readLock.lock()
-            this.delete()
-            newFile.renameTo(this)
+            block()
         } finally {
             readLock.unlock()
         }
-    } else {//do not use lock, simple single thread
-        this.delete()
-        newFile.renameTo(this)
+    } else {
+        block()
     }
 }

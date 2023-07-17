@@ -6,6 +6,7 @@ import com.oneliang.ktx.util.concurrent.atomic.OperationLock
 import com.oneliang.ktx.util.logging.LoggerManager
 import java.io.File
 import java.io.RandomAccessFile
+import java.nio.ByteBuffer
 
 class FileWrapper(private val fullFilename: String, private val accessMode: AccessMode = AccessMode.RW) {
     companion object {
@@ -16,6 +17,8 @@ class FileWrapper(private val fullFilename: String, private val accessMode: Acce
     private val readLock = OperationLock()
     private val writeLock = OperationLock()
 
+    @Volatile
+    private var replacing = false
 
     enum class AccessMode(val value: String) {
         R("r"), RW("rw"), RWS("rws"), RWD("rwd")
@@ -39,33 +42,38 @@ class FileWrapper(private val fullFilename: String, private val accessMode: Acce
      * @return ByteArray
      */
     fun read(start: Long, end: Long): ByteArray {
-        return this.readLock.operate {
+        val block: () -> ByteArray = {
             val length = (end - start).toInt()
-            val data = ByteArray(length)
-            this.file.seek(start)
-            this.file.readFully(data, 0, length)
-            data
+            val byteBuffer = ByteBuffer.allocate(length)
+            this.file.channel.read(byteBuffer, start)
+            byteBuffer.array()
         }
-
+        if (this.replacing) {//when replacing, lock replace and read
+            return this.readLock.operate {
+                block()
+            }
+        }
+        return block()
     }
 
     /**
      * write
      * @param data
-     * @param startPosition, specify the start, use in some special business scene
+     * @param position, specify the start, use in some special business scene
      * @return Pair<Long, Long>
      */
-    fun write(data: ByteArray, startPosition: Long = -1): Pair<Long, Long> {
+    fun write(data: ByteArray, position: Long = -1): Pair<Long, Long> {
         return this.writeLock.operate {
-            val start = if (startPosition > -1) {
-                startPosition
+            val startPosition = if (position > -1) {
+                position
             } else {
                 this.file.length()
             }
-            this.file.seek(start)
-            this.file.write(data)
+            logger.info("write, start:%s, length:%s, data.size:%s, file:%s, hashcode:%s", startPosition, this.file.length(), data.size, fullFilename, this.hashCode())
+            val byteBuffer = ByteBuffer.wrap(data)
+            this.file.channel.write(byteBuffer, startPosition)
             val end = this.file.length()
-            start to end
+            startPosition to end
         }
     }
 
@@ -77,9 +85,15 @@ class FileWrapper(private val fullFilename: String, private val accessMode: Acce
      */
     fun replace(start: Long, end: Long, data: ByteArray) {
         this.writeLock.operate {
-            val file = File(this.fullFilename)
-            file.replace(start, end, data, this.readLock.lock)
-            resetFile()
+            try {
+                this.replacing = true
+                val file = File(this.fullFilename)
+                file.replace(start, end, data, this.readLock.lock) {
+                    resetFile()
+                }
+            } finally {//finally finished replacing
+                this.replacing = false
+            }
         }
     }
 
