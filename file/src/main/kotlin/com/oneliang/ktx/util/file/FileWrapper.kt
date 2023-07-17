@@ -69,7 +69,7 @@ class FileWrapper(private val fullFilename: String, private val accessMode: Acce
             } else {
                 this.file.length()
             }
-            logger.verbose("write, start:%s, length:%s, data.size:%s, file:%s, hashcode:%s", startPosition, this.file.length(), data.size, fullFilename, this.hashCode())
+            logger.verbose("write, start:%s, length:%s, data.size:%s, file:%s, hashcode:%s", startPosition, this.file.length(), data.size, this.fullFilename, this.hashCode())
             val byteBuffer = ByteBuffer.wrap(data)
             this.file.channel.write(byteBuffer, startPosition)
             val end = this.file.length()
@@ -82,9 +82,10 @@ class FileWrapper(private val fullFilename: String, private val accessMode: Acce
      * @param start
      * @param end
      * @param data
+     * @return Pair<Long, Long>
      */
-    fun replace(start: Long, end: Long, data: ByteArray) {
-        this.writeLock.operate {
+    fun replace(start: Long, end: Long, data: ByteArray): Pair<Long, Long> {
+        return this.writeLock.operate {
             try {
                 this.replacing = true
                 val file = File(this.fullFilename)
@@ -94,6 +95,7 @@ class FileWrapper(private val fullFilename: String, private val accessMode: Acce
             } finally {//finally finished replacing
                 this.replacing = false
             }
+            start to start + data.size
         }
     }
 
