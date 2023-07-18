@@ -60,5 +60,5 @@ private val toLong: ((bytes: Array<Byte>) -> Long) = {
 fun ByteArray.toLong(): Long = toLong(this.toTypedArray())
 fun Array<Byte>.toLong(): Long = toLong(this)
 
-fun ByteArray.toDouble(): Double = toLong(this.toTypedArray()).bitsToDouble()
-fun Array<Byte>.toDouble(): Double = toLong(this).bitsToDouble()
+fun ByteArray.toDouble(): Double = this.toLong().bitsToDouble()
+fun Array<Byte>.toDouble(): Double = this.toLong().bitsToDouble()
