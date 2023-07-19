@@ -1,6 +1,5 @@
 package com.oneliang.ktx.util.concurrent
 
-import java.util.Queue
 import java.util.concurrent.ConcurrentLinkedQueue
 
 class WaitingLatch {
@@ -34,34 +33,20 @@ class WaitingLatch {
     }
 }
 
-fun main(args: Array<String>) {
+fun main() {
     val pool = WaitingLatch()
-    pool.addRunnable(object : Runnable {
-        override fun run() {
-            try {
-                Thread.sleep(5000)
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-            }
-            System.out.println("run 1")
+    pool.addRunnable {
+        try {
+            Thread.sleep(5000)
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
         }
-    })
-    pool.addRunnable(object : Runnable {
-        override fun run() {
-            System.out.println("run 2")
-        }
-    })
-    pool.addRunnable(object : Runnable {
-        override fun run() {
-            System.out.println("run 3")
-        }
-    })
-    pool.addRunnable(object : Runnable {
-        override fun run() {
-            System.out.println("run 4")
-        }
-    })
+        System.out.println("run 1")
+    }
+    pool.addRunnable { System.out.println("run 2") }
+    pool.addRunnable { System.out.println("run 3") }
+    pool.addRunnable { System.out.println("run 4") }
     pool.startAll()
     pool.waiting()
-    System.out.println("---all finish---")
+    println("---all finish---")
 }
