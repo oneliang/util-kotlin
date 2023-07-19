@@ -33,7 +33,7 @@ class FileWrapper(private val fullFilename: String, private val accessMode: Acce
      */
     private fun resetFile() {
         val file = File(this.fullFilename)
-        if (file.exists()) {
+        if (!file.exists()) {
             file.createFileIncludeDirectory()
         }
         this.file = RandomAccessFile(file, this.accessMode.value)
