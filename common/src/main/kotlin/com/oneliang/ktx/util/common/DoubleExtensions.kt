@@ -48,3 +48,7 @@ fun Double.fixNaN(defaultValue: Double = 0.0): Double {
 fun Double.roundToFix(value: Int = 0): String {
     return "%.${value}f".format(this)
 }
+
+fun Double.toByteArray(): ByteArray {
+    return this.toLongBits().toByteArray()
+}
