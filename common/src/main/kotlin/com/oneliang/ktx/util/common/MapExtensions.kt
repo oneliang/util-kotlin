@@ -172,12 +172,15 @@ inline fun <K, V, reified R> Map<K, V>.toArray(arrayMaxSize: Int, indexMapping: 
     return array
 }
 
-inline fun <K, V, NK, NV> Map<K, V>.toMap(transform: (key: K, value: V) -> Pair<NK, NV>): Map<NK, NV> {
-    val mutableMap = mutableMapOf<NK, NV>()
+inline fun <K, V, NK, NV, M : MutableMap<NK, NV>> Map<K, V>.toMap(destinationMap: M, transform: (key: K, value: V) -> Pair<NK, NV>): M {
     this.forEach { (key, value) ->
-        mutableMap += transform(key, value)
+        destinationMap += transform(key, value)
     }
-    return mutableMap
+    return destinationMap
+}
+
+inline fun <K, V, NK, NV> Map<K, V>.toMap(transform: (key: K, value: V) -> Pair<NK, NV>): Map<NK, NV> {
+    return this.toMap(mutableMapOf(), transform)
 }
 
 inline fun <K, V, NK> Map<K, V>.toMapWithNewKey(transformKey: (key: K) -> NK): Map<NK, V> = this.toMap { key, value -> transformKey(key) to value }
