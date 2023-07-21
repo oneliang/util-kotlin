@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
 open class DefaultJsonKotlinClassProcessor : DefaultKotlinClassProcessor() {
 
     enum class Type {
-        OBJECT, ARRAY, STRING_MAP
+        OBJECT, ARRAY, STRING_MAP, STRING_ARRAY_MAP
     }
 
     private fun <T : Any> simplyChangeClassProcess(kClass: KClass<T>, values: Array<String>, fieldName: String, fieldNameKClassMapping: Map<String, Pair<Type, KClass<*>>> = emptyMap()): Any? {
@@ -41,6 +41,7 @@ open class DefaultJsonKotlinClassProcessor : DefaultKotlinClassProcessor() {
                         Type.OBJECT -> JsonUtil.jsonToObject(values[0], fieldNameKClass, this, specialParameter)
                         Type.ARRAY -> JsonUtil.jsonToObjectList(values[0], fieldNameKClass, this, specialParameter)
                         Type.STRING_MAP -> values[0].jsonToMap()
+                        Type.STRING_ARRAY_MAP -> values[0].jsonToMap { _, value -> value.jsonToArrayString() }
                     }
                 } else {
                     this.simplyChangeClassProcess(kClass, values, fieldName, fieldNameKClassMapping)
