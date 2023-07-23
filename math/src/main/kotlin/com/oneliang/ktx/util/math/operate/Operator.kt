@@ -5,7 +5,7 @@ import com.oneliang.ktx.util.common.toDoubleSafely
 
 object Operator {
 
-    enum class Operate(val value: String, val regex: String) {
+    private enum class OperateType(val value: String, val regex: String) {
         ADD("ADD", "^ADD\\(([\\w]+)\\+([\\w]+)\\)$"),
         MINUS("MINUS", "^MINUS\\(([\\w]+)\\-([\\w]+)\\)$"),
         MULTIPLY("MULTIPLY", "^MULTIPLY\\(([\\w]+)\\*([\\w]+)\\)$"),
@@ -14,8 +14,8 @@ object Operator {
 
     fun <K : Any, V : Any, R : Any> operate(dataMap: Map<K, V>, operateString: String, operateKeyTransform: (key: String) -> K, operateValueTransform: (value: V) -> R): Double {
         when {
-            operateString.startsWith(Operate.ADD.value) -> {
-                val keyList = operateString.parseRegexGroup(Operate.ADD.regex)
+            operateString.startsWith(OperateType.ADD.value) -> {
+                val keyList = operateString.parseRegexGroup(OperateType.ADD.regex)
                 val parseKeyPair = parseKeyList(dataMap, keyList, operateKeyTransform, operateValueTransform)
                 return if (parseKeyPair == null) {
                     0.0
@@ -23,8 +23,9 @@ object Operator {
                     parseKeyPair.first.toString().toDoubleSafely() + parseKeyPair.second.toString().toDoubleSafely()
                 }
             }
-            operateString.startsWith(Operate.MINUS.value) -> {
-                val keyList = operateString.parseRegexGroup(Operate.MINUS.regex)
+
+            operateString.startsWith(OperateType.MINUS.value) -> {
+                val keyList = operateString.parseRegexGroup(OperateType.MINUS.regex)
                 val parseKeyPair = parseKeyList(dataMap, keyList, operateKeyTransform, operateValueTransform)
                 return if (parseKeyPair == null) {
                     0.0
@@ -32,8 +33,9 @@ object Operator {
                     parseKeyPair.first.toString().toDoubleSafely() - parseKeyPair.second.toString().toDoubleSafely()
                 }
             }
-            operateString.startsWith(Operate.MULTIPLY.value) -> {
-                val keyList = operateString.parseRegexGroup(Operate.MULTIPLY.regex)
+
+            operateString.startsWith(OperateType.MULTIPLY.value) -> {
+                val keyList = operateString.parseRegexGroup(OperateType.MULTIPLY.regex)
                 val parseKeyPair = parseKeyList(dataMap, keyList, operateKeyTransform, operateValueTransform)
                 return if (parseKeyPair == null) {
                     0.0
@@ -41,8 +43,9 @@ object Operator {
                     parseKeyPair.first.toString().toDoubleSafely() * parseKeyPair.second.toString().toDoubleSafely()
                 }
             }
-            operateString.startsWith(Operate.DIVIDE.value) -> {
-                val keyList = operateString.parseRegexGroup(Operate.DIVIDE.regex)
+
+            operateString.startsWith(OperateType.DIVIDE.value) -> {
+                val keyList = operateString.parseRegexGroup(OperateType.DIVIDE.regex)
                 val parseKeyPair = parseKeyList(dataMap, keyList, operateKeyTransform, operateValueTransform)
                 return if (parseKeyPair == null) {
                     0.0

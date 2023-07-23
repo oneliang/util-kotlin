@@ -26,6 +26,14 @@ fun Double.multiplyByBigDecimal(bigDecimal: BigDecimal): BigDecimal {
     return this.toBigDecimal().times(bigDecimal)
 }
 
+fun Double.divideByBigDecimal(double: Double): BigDecimal {
+    return this.toBigDecimal().div(double.toBigDecimal())
+}
+
+fun Double.divideByBigDecimal(bigDecimal: BigDecimal): BigDecimal {
+    return this.toBigDecimal().div(bigDecimal)
+}
+
 fun Double.toLongBits(): Long {
     return java.lang.Double.doubleToLongBits(this)
 }

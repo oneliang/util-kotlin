@@ -359,7 +359,7 @@ fun main() {
 //    }
     println("-----single multiply double-----")
     val oneDMatrix = arrayOf(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.0f)
-    val towDMatrix = arrayOf(
+    val twoDMatrix = arrayOf(
         arrayOf(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
         arrayOf(2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
         arrayOf(3.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
@@ -371,7 +371,7 @@ fun main() {
         arrayOf(9.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f),
         arrayOf(10.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f)
     )
-    val a = oneDMatrix.multiply(towDMatrix)
+    val a = oneDMatrix.multiply(twoDMatrix)
     a.forEach {
         print(it.toString() + Constants.String.TAB_STRING)
     }
