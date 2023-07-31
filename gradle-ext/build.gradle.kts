@@ -33,7 +33,6 @@ allprojects {
 
 dependencies {
     implementation(gradleApi())
-    implementation("com.oneliang.ktx:util-kotlin-base:1.0")
 }
 
 java {

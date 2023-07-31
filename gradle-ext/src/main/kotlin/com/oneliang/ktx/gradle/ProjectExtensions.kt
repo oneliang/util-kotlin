@@ -1,6 +1,5 @@
 package com.oneliang.ktx.gradle
 
-import com.oneliang.ktx.Constants
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -15,9 +14,9 @@ fun Project.generateJarName(includeRootProject:Boolean = true): String {
     val parentProject = this.parent
     if (parentProject != null) {//&& parentProject != rootProject) {
         if(includeRootProject) {
-            jarName.append(parentProject.generateJarName(includeRootProject) + Constants.Symbol.MINUS)
+            jarName.append(parentProject.generateJarName(includeRootProject) + "-")
         }else if(parentProject != rootProject){
-            jarName.append(parentProject.generateJarName(includeRootProject) + Constants.Symbol.MINUS)
+            jarName.append(parentProject.generateJarName(includeRootProject) + "-")
         }
     }
     jarName.append(this.name)
@@ -57,7 +56,7 @@ fun Project.applyCheckKotlinCode() {
             }
             val lines = kotlinFile.readLines()
             if (lines.isNotEmpty()) {
-                var packageName = Constants.String.BLANK
+                var packageName = ""
                 for (line in lines) {
                     if (line.indexOf("package ") == 0) {
                         packageName = line
@@ -65,8 +64,8 @@ fun Project.applyCheckKotlinCode() {
                     }
                 }
                 if (packageName.isNotBlank()) {
-                    packageName = packageName.replace("package ", Constants.String.BLANK).replace(Constants.Symbol.SEMICOLON, Constants.String.BLANK)
-                    val fileString = kotlinFile.absolutePath.replace(Constants.Symbol.SLASH_RIGHT, Constants.Symbol.DOT).replace(Constants.Symbol.SLASH_LEFT, Constants.Symbol.DOT)
+                    packageName = packageName.replace("package ", "").replace(";", "")
+                    val fileString = kotlinFile.absolutePath.replace("\\", ".").replace("/", ".")
                     val kotlinPackageFilePath = "$packageName.${kotlinFile.name}"
                     if (fileString.lastIndexOf(kotlinPackageFilePath) < 0) {
                         wrongPackageKotlinFileList += kotlinFile
