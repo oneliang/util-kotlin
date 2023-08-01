@@ -401,6 +401,10 @@ object Constants {
         const val APK = "apk"
         const val XLS = "xls"
         const val ZIP = "zip"
+        const val HTML = "html"
+        const val HTM = "htm"
+        const val PNG = "png"
+
     }
 
     object Protocol {
