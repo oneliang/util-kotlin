@@ -90,7 +90,8 @@ object KotlinClassUtil {
         simpleArrayMap[Array<Boolean>::class] = Array<Boolean>::class
         simpleArrayMap[Array<Byte>::class] = Array<Byte>::class
 
-        simpleClassNameMap[String::class.qualifiedName!!] = String::class
+        simpleClassNameMap[String::class.qualifiedName!!] = String::class //kotlin.String->String::class
+        simpleClassNameMap[String::class.java.name] = String::class //java.lang.String->String::class
         simpleClassNameMap[Char::class.qualifiedName!!] = Char::class
         simpleClassNameMap[Byte::class.qualifiedName!!] = Byte::class
         simpleClassNameMap[Short::class.qualifiedName!!] = Short::class
