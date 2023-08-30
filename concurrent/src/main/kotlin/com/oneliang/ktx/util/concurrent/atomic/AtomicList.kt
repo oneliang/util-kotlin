@@ -22,7 +22,7 @@ class AtomicList<V> constructor(private val maxSize: Int = 0) : Iterable<V> {
     fun operate(index: Int, create: () -> V, update: ((V) -> V)? = null, removeWhenFull: (() -> Int)? = null): V? {
         val createAndSetToList: () -> V = {
             val value = create()
-            this.mutableList[index] = AtomicReference(value)
+            this.mutableList += AtomicReference(value)
             value
         }
         if (this.mutableList.getOrNull(index) != null) {//update when exists
