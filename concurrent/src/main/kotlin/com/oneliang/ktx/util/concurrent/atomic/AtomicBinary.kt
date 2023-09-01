@@ -1,15 +1,17 @@
 package com.oneliang.ktx.util.concurrent.atomic
 
+import com.oneliang.ktx.annotation.ThreadSafe
+import com.oneliang.ktx.annotation.ThreadUnsafe
 import com.oneliang.ktx.pojo.ByteArrayWrapper
 import com.oneliang.ktx.pojo.LongWrapper
 
 abstract class AtomicBinary<DATA : Any>(
-    maxSize: Int,
+    private val maxSize: Int,
     private val dataLength: Int,
     private val indexOffset: Long = 0L,
     private val byteArrayToData: (byteArray: ByteArray) -> DATA,
     private val dataToByteArray: (data: DATA) -> ByteArray
-) {
+) : Iterable<DATA> {
 
     companion object {
         private const val LENGTH_EXIST = 1//one byte, maybe one bit is better than one byte for memory
@@ -23,7 +25,7 @@ abstract class AtomicBinary<DATA : Any>(
         }
     }
 
-    private val byteArrayWrapper = ByteArrayWrapper(maxSize * (this.binaryDataLength))
+    private val byteArrayWrapper = ByteArrayWrapper(maxSize * this.binaryDataLength)
 
     /**
      * operate
@@ -32,6 +34,7 @@ abstract class AtomicBinary<DATA : Any>(
      * @param update
      * @return DATA
      */
+    @ThreadSafe
     fun operate(index: LongWrapper, create: () -> DATA, update: ((DATA) -> DATA)? = null): DATA {
         val realIndex = (index.value - this.indexOffset)
         val byteOffset = (realIndex * this.binaryDataLength).toInt()
@@ -72,9 +75,44 @@ abstract class AtomicBinary<DATA : Any>(
      * @param index
      * @return DATA
      */
+    @ThreadUnsafe
     operator fun get(index: Long): DATA {
         val realIndex = (index - this.indexOffset)
         val byteOffset = (realIndex * this.binaryDataLength).toInt()
         return this.byteArrayToData(this.byteArrayWrapper.read(byteOffset + LENGTH_EXIST, this.dataLength))
+    }
+
+    /**
+     * iterator
+     * @return Iterator<DATA>
+     */
+    @ThreadUnsafe
+    override fun iterator(): Iterator<DATA> {
+        return AtomicBinaryIterator(
+            this.maxSize,
+            this.indexOffset,
+            this::get
+        )
+    }
+
+    private class AtomicBinaryIterator<DATA : Any>(
+        private val maxSize: Int,
+        private val indexOffset: Long = 0L,
+        private val getData: (index: Long) -> DATA
+    ) : Iterator<DATA> {
+
+        private var currentIndex = 0
+
+        override fun next(): DATA {
+            val index = currentIndex + this.indexOffset
+            val data = this.getData(index)
+            this.currentIndex++
+            return data
+        }
+
+        override fun hasNext(): Boolean {
+            return this.currentIndex <= this.maxSize - 1
+        }
+
     }
 }
