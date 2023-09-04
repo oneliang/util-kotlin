@@ -266,6 +266,8 @@ object Constants {
             const val CONTENT_ENCODING = "Content-Encoding"
             const val ACCESS_TOKEN = "Access-Token"
             const val ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin"
+            const val ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods"
+            const val ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers"
             const val ORIGIN = "Origin"
         }
 

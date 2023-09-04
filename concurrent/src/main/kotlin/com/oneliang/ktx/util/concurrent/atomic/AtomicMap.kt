@@ -52,7 +52,7 @@ class AtomicMap<K : Any, V> constructor(private val maxSize: Int = 0) : Abstract
                             createAndSetToMap()
                         } else {
                             //error
-                            error("map is full, please implement block parameter(removeWhenMax), current size:%s, max size:%s".format(size, this.maxSize))
+                            error("map is full, please implement block parameter(removeWhenFull), current size:%s, max size:%s".format(size, this.maxSize))
                         }
                     }
                 }
