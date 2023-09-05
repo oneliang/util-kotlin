@@ -70,10 +70,10 @@ object ObjectUtil {
      * @return String
      */
     fun methodNameToFieldName(methodName: String, ignoreFirstLetterCase: Boolean = false): String {
-        return if (methodName.startsWith(Constants.Method.PREFIX_GET) && methodName != Constants.Method.GET_CLASS) {
-            methodNameToFieldName(Constants.Method.PREFIX_GET, methodName, ignoreFirstLetterCase)
-        } else if (methodName.startsWith(Constants.Method.PREFIX_IS)) {
-            methodNameToFieldName(Constants.Method.PREFIX_IS, methodName, ignoreFirstLetterCase)
+        return if (methodName.startsWith(Constants.Object.Method.PREFIX_GET) && methodName != Constants.Object.Method.GET_CLASS) {
+            methodNameToFieldName(Constants.Object.Method.PREFIX_GET, methodName, ignoreFirstLetterCase)
+        } else if (methodName.startsWith(Constants.Object.Method.PREFIX_IS)) {
+            methodNameToFieldName(Constants.Object.Method.PREFIX_IS, methodName, ignoreFirstLetterCase)
         } else {
             Constants.String.BLANK
         }
@@ -87,8 +87,8 @@ object ObjectUtil {
      * @return String
      */
     fun setMethodNameToFieldName(methodName: String, ignoreFirstLetterCase: Boolean = false): String {
-        return if (methodName.startsWith(Constants.Method.PREFIX_SET)) {
-            methodNameToFieldName(Constants.Method.PREFIX_SET, methodName, ignoreFirstLetterCase)
+        return if (methodName.startsWith(Constants.Object.Method.PREFIX_SET)) {
+            methodNameToFieldName(Constants.Object.Method.PREFIX_SET, methodName, ignoreFirstLetterCase)
         } else {
             Constants.String.BLANK
         }
@@ -209,7 +209,7 @@ object ObjectUtil {
      */
     fun getterOrIsMethodInvoke(instance: Any, fieldName: String, ignoreFirstLetterCase: Boolean = false): Any? {
         val value: Any?
-        var methodName = fieldNameToMethodName(Constants.Method.PREFIX_GET, fieldName, ignoreFirstLetterCase)
+        var methodName = fieldNameToMethodName(Constants.Object.Method.PREFIX_GET, fieldName, ignoreFirstLetterCase)
         var method: Method
         val instanceClass = instance.javaClass
         if ((instanceClass.modifiers and Modifier.PUBLIC) != Modifier.PUBLIC || instanceClass == Class::class.java) {
@@ -218,7 +218,7 @@ object ObjectUtil {
         try {
             method = instance.javaClass.getMethod(methodName)
         } catch (e: Exception) {
-            methodName = fieldNameToMethodName(Constants.Method.PREFIX_IS, fieldName, ignoreFirstLetterCase)
+            methodName = fieldNameToMethodName(Constants.Object.Method.PREFIX_IS, fieldName, ignoreFirstLetterCase)
             try {
                 method = instance.javaClass.getMethod(methodName)
             } catch (ex: Exception) {

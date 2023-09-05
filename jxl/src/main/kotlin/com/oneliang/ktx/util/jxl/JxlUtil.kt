@@ -202,8 +202,8 @@ object JxlUtil {
         for (method in methods) {
             val methodName = method.name
             var fieldName = Constants.String.BLANK
-            if (methodName.startsWith(Constants.Method.PREFIX_SET)) {
-                fieldName = ObjectUtil.methodNameToFieldName(Constants.Method.PREFIX_SET, methodName)
+            if (methodName.startsWith(Constants.Object.Method.PREFIX_SET)) {
+                fieldName = ObjectUtil.methodNameToFieldName(Constants.Object.Method.PREFIX_SET, methodName)
             }
             if (fieldName.isNotBlank()) {
                 val columnIndex = if (existHeader) {

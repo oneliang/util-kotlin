@@ -339,14 +339,14 @@ object Constants {
             const val NOT_EXTENDED = 510
             const val UNPARSEABLE_RESPONSE_HEADERS = 600
         }
-    }
 
-    object RequestScope {
-        const val SESSION = "session"
-    }
+        object RequestScope {
+            const val SESSION = "session"
+        }
 
-    object RequestParameter {
-        const val RETURN_URL = "returnUrl"
+        object RequestParameter {
+            const val RETURN_URL = "returnUrl"
+        }
     }
 
     object Database {
@@ -375,11 +375,13 @@ object Constants {
         const val BYTES_PER_MB = BYTES_PER_KB * BYTES_PER_KB
     }
 
-    object Method {
-        const val PREFIX_SET = "set"
-        const val PREFIX_GET = "get"
-        const val PREFIX_IS = "is"
-        const val GET_CLASS = "getClass"
+    object Object {
+        object Method {
+            const val PREFIX_SET = "set"
+            const val PREFIX_GET = "get"
+            const val PREFIX_IS = "is"
+            const val GET_CLASS = "getClass"
+        }
     }
 
     object File {

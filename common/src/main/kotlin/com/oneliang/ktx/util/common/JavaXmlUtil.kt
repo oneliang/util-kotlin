@@ -131,7 +131,7 @@ object JavaXmlUtil {
 
     /**
      * initialize from attribute map
-     * @param object
+     * @param objectValue
      * @param namedNodeMap
      * @param classProcessor
      */
@@ -140,8 +140,8 @@ object JavaXmlUtil {
         val methods = objectValue.javaClass.methods
         for (method in methods) {
             val methodName = method.name
-            val fieldName = if (methodName.startsWith(Constants.Method.PREFIX_SET)) {
-                ObjectUtil.methodNameToFieldName(Constants.Method.PREFIX_SET, methodName)
+            val fieldName = if (methodName.startsWith(Constants.Object.Method.PREFIX_SET)) {
+                ObjectUtil.methodNameToFieldName(Constants.Object.Method.PREFIX_SET, methodName)
             } else {
                 Constants.String.BLANK
             }
@@ -207,16 +207,16 @@ object JavaXmlUtil {
             for (method in methods) {
                 val methodName = method.name
                 val classes = method.parameterTypes
-                if (!methodName.startsWith(Constants.Method.PREFIX_SET)) {
+                if (!methodName.startsWith(Constants.Object.Method.PREFIX_SET)) {
                     continue
                 }
-                val fieldName = ObjectUtil.methodNameToFieldName(Constants.Method.PREFIX_SET, methodName)
+                val fieldName = ObjectUtil.methodNameToFieldName(Constants.Object.Method.PREFIX_SET, methodName)
                 if (fieldName.isBlank()) {
                     continue
                 }
                 val xmlTagName = mapping[fieldName] ?: continue
                 val nodeList = element.getElementsByTagName(xmlTagName)
-                if (nodeList == null || nodeList.length == 0) {
+                if (nodeList.length == 0) {
                     continue
                 }
                 val node = nodeList.item(0) ?: continue
@@ -266,7 +266,7 @@ object JavaXmlUtil {
 
     private fun nodeToString(node: Node): String {
         val childNodeList = node.childNodes
-        return if (childNodeList == null || childNodeList.length == 0) {
+        return if (childNodeList.length == 0) {
             node.textContent.nullToBlank()
         } else {
             val nodeString = StringBuilder()

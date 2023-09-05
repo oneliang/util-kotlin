@@ -315,8 +315,8 @@ object JsonUtil {
         val ignoreFieldNameSet = ignoreFieldNames.toHashSet()
         for (method in methods) {
             val methodName = method.name
-            val fieldName = if (methodName.startsWith(Constants.Method.PREFIX_SET)) {
-                ObjectUtil.methodNameToFieldName(Constants.Method.PREFIX_SET, methodName, ignoreFirstLetterCase)
+            val fieldName = if (methodName.startsWith(Constants.Object.Method.PREFIX_SET)) {
+                ObjectUtil.methodNameToFieldName(Constants.Object.Method.PREFIX_SET, methodName, ignoreFirstLetterCase)
             } else {
                 Constants.String.BLANK
             }
