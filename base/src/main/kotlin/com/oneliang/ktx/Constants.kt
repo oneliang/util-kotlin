@@ -368,6 +368,8 @@ object Constants {
         const val AND = "AND"
         const val OR = "OR"
         const val IN = "IN"
+        const val ON = "ON"
+        const val AS = "AS"
     }
 
     object Capacity {
