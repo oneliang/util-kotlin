@@ -363,6 +363,11 @@ object Constants {
         const val ORACLE = "oracle"
         const val ASC = "ASC"
         const val DESC = "DESC"
+        const val ORDER_BY = "ORDER BY"
+        const val LEFT_JOIN = "LEFT JOIN"
+        const val AND = "AND"
+        const val OR = "OR"
+        const val IN = "IN"
     }
 
     object Capacity {
