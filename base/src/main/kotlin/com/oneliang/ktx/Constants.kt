@@ -361,6 +361,8 @@ object Constants {
         const val MYSQL = "mysql"
         const val SQLITE = "sqlite"
         const val ORACLE = "oracle"
+        const val ASC = "ASC"
+        const val DESC = "DESC"
     }
 
     object Capacity {
