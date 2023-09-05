@@ -370,6 +370,7 @@ object Constants {
         const val IN = "IN"
         const val ON = "ON"
         const val AS = "AS"
+        const val LIKE = "LIKE"
     }
 
     object Capacity {
