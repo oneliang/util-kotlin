@@ -4,11 +4,12 @@ import com.oneliang.ktx.util.common.toByteArray
 import com.oneliang.ktx.util.common.toInt
 
 class AtomicBinaryInt(
-    maxSize: Int,
-    indexOffset: Long = 0L
+    initializeSize: Int,
+    expandSize: Int = 10000
 ) : AtomicBinary<Int>(
-    maxSize, LENGTH_BODY,
-    indexOffset,
+    initializeSize,
+    expandSize,
+    LENGTH_BODY,
     byteArrayToData = { byteArray: ByteArray -> byteArray.toInt() },
     dataToByteArray = { data: Int -> data.toByteArray() }
 ) {
