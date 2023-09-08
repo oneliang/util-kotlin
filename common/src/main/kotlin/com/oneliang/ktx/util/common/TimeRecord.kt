@@ -5,7 +5,7 @@ import com.oneliang.ktx.Constants
 class TimeRecord(
     private val startTimeProvider: () -> Long,
     private val stopTimeProvider: () -> Long,
-    private val recordCallback: (category: String, recordTime: Long, stepKey: String) -> Unit = { _, _, _ -> }
+    private val recordCallback: (category: Category, recordTime: Long, stepKey: String) -> Unit = { _, _, _ -> }
 ) {
     enum class Category {
         START, STEP_RECORD, RECORD
@@ -17,7 +17,7 @@ class TimeRecord(
     fun start() {
         this.beginTime = this.startTimeProvider()
         this.stepBeginTime = this.beginTime
-        this.recordCallback(Category.START.name, 0L, Constants.String.BLANK)
+        this.recordCallback(Category.START, 0L, Constants.String.BLANK)
     }
 
     /**
@@ -28,7 +28,7 @@ class TimeRecord(
         val newStepBeginTime = this.stopTimeProvider()
         val stepRecordTime = newStepBeginTime - this.stepBeginTime
         this.stepBeginTime = newStepBeginTime
-        this.recordCallback(Category.STEP_RECORD.name, stepRecordTime, stepKey)
+        this.recordCallback(Category.STEP_RECORD, stepRecordTime, stepKey)
         return stepRecordTime
     }
 
@@ -37,7 +37,7 @@ class TimeRecord(
      */
     fun record(): Long {
         val recordTime = this.stopTimeProvider() - this.beginTime
-        this.recordCallback(Category.RECORD.name, recordTime, Constants.String.BLANK)
+        this.recordCallback(Category.RECORD, recordTime, Constants.String.BLANK)
         return recordTime
     }
 }
