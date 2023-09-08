@@ -22,7 +22,7 @@ class ChangeEncodingCopyFileProcessor(private val fromEncoding: String, private 
                 val bufferedWriter = BufferedWriter(OutputStreamWriter(outputStream, this.toEncoding))
                 var string: String? = bufferedReader.readLine()
                 while (string != null) {
-                    bufferedWriter.write(string + Constants.String.CRLF_STRING)
+                    bufferedWriter.write(string + Constants.String.NEW_LINE)
                     bufferedWriter.flush()
                     string = bufferedReader.readLine()
                 }

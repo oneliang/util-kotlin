@@ -23,9 +23,9 @@ object FileSeparator {
                 val outputFile = File(directory, filename + Constants.Symbol.UNDERLINE + (times) * maxLineCountPerFile + Constants.Symbol.UNDERLINE + (times + 1) * maxLineCountPerFile + Constants.Symbol.DOT + "log")
                 outputFile.createFileIncludeDirectory()
                 newFileOutputStream = outputFile.outputStream()
-                newFileOutputStream?.write((it + Constants.String.CRLF_STRING).toByteArray())
+                newFileOutputStream?.write((it + Constants.String.NEW_LINE).toByteArray())
             }
-            newFileOutputStream?.write((it + Constants.String.CRLF_STRING).toByteArray())
+            newFileOutputStream?.write((it + Constants.String.NEW_LINE).toByteArray())
             lineCount++
             true
         }

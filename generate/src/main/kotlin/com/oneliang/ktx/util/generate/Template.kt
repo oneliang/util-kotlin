@@ -54,7 +54,8 @@ object Template {
                 result.byteInputStream().readContentEachLine {
                     if (it.isNotBlank()) {
                         resultBuilder.append(it)
-                        resultBuilder.append(Constants.String.CRLF_STRING)
+
+                        resultBuilder.append(Constants.String.NEW_LINE)
                     }
                     true
                 }
@@ -81,7 +82,7 @@ object Template {
             val stringBuilder = StringBuilder()
             FileUtil.readFileContentEachLine(template, Constants.Encoding.UTF8) { line ->
                 stringBuilder.append(line)
-                stringBuilder.append(Constants.String.CRLF_STRING)
+                stringBuilder.append(Constants.String.NEW_LINE)
                 true
             }
             val templateContent = stringBuilder.toString()

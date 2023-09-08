@@ -21,7 +21,7 @@ class GbkToUtf8CopyFileProcessor : CopyFileProcessor {
                 val bufferedWriter = BufferedWriter(OutputStreamWriter(outputStream, Constants.Encoding.UTF8))
                 var string: String? = bufferedReader.readLine()
                 while (string != null) {
-                    bufferedWriter.write(string + Constants.String.CRLF_STRING)
+                    bufferedWriter.write(string + Constants.String.NEW_LINE)
                     bufferedWriter.flush()
                     string = bufferedReader.readLine()
                 }
