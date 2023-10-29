@@ -17,3 +17,7 @@ fun Long.bitsToDouble(): Double {
 infix fun Long.bitContains(other: Long): Boolean {
     return (this and other == other)
 }
+
+fun Long.toBinaryString(): String {
+    return java.lang.Long.toBinaryString(this)
+}

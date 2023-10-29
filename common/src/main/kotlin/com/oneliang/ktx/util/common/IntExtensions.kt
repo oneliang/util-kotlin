@@ -23,3 +23,7 @@ fun Int.pow(num: Int): Long {
 infix fun Int.bitContains(other: Int): Boolean {
     return (this and other == other)
 }
+
+fun Int.toBinaryString(): String {
+    return Integer.toBinaryString(this)
+}
