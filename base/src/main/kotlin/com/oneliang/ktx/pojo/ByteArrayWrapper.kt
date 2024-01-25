@@ -39,6 +39,9 @@ class ByteArrayWrapper(private val size: Int) : Iterable<Byte> {
     @ThreadUnsafe
     fun write(offset: Int, byteArray: ByteArray) {
         val end = offset + byteArray.size
+        if (end > this.size) {
+            error("offset+size is large than ByteArray.size")
+        }
         for (i in offset until end) {
             this.byteArray[i] = byteArray[i - offset]
         }
