@@ -25,7 +25,7 @@ abstract class AbstractLogger(val level: Level) : Logger {
      * @param args
      */
     override fun verbose(message: String, vararg args: Any?) {
-        logByLevel(Level.VERBOSE, message, args = *args)
+        logByLevel(Level.VERBOSE, message, args = args)
     }
 
     /**
@@ -35,7 +35,7 @@ abstract class AbstractLogger(val level: Level) : Logger {
      * @param args
      */
     override fun debug(message: String, vararg args: Any?) {
-        logByLevel(Level.DEBUG, message, args = *args)
+        logByLevel(Level.DEBUG, message, args = args)
     }
 
     /**
@@ -45,7 +45,7 @@ abstract class AbstractLogger(val level: Level) : Logger {
      * @param args
      */
     override fun info(message: String, vararg args: Any?) {
-        logByLevel(Level.INFO, message, args = *args)
+        logByLevel(Level.INFO, message, args = args)
     }
 
     /**
@@ -55,7 +55,7 @@ abstract class AbstractLogger(val level: Level) : Logger {
      * @param args
      */
     override fun warning(message: String, vararg args: Any?) {
-        logByLevel(Level.WARNING, message, args = *args)
+        logByLevel(Level.WARNING, message, args = args)
     }
 
     /**
@@ -65,7 +65,7 @@ abstract class AbstractLogger(val level: Level) : Logger {
      * @param args
      */
     override fun error(message: String, vararg args: Any?) {
-        logByLevel(Level.ERROR, message, args = *args)
+        logByLevel(Level.ERROR, message, args = args)
     }
 
     /**
@@ -76,7 +76,7 @@ abstract class AbstractLogger(val level: Level) : Logger {
      * @param args
      */
     override fun error(message: String, throwable: Throwable, vararg args: Any?) {
-        logByLevel(Level.ERROR, message, throwable, args = *args)
+        logByLevel(Level.ERROR, message, throwable, args = args)
     }
 
     /**
@@ -86,7 +86,7 @@ abstract class AbstractLogger(val level: Level) : Logger {
      * @param args
      */
     override fun fatal(message: String, vararg args: Any?) {
-        logByLevel(Level.FATAL, message, args = *args)
+        logByLevel(Level.FATAL, message, args = args)
     }
 
     /**
