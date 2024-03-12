@@ -54,7 +54,7 @@ abstract class ResourcePool<T : Any> : Runnable {
                 val stableResourceStatus = this.stableResourceStatusMap.getOrPut(stableResourceStatusKey) {
                     val resource = this.resourceSource.resource
                     StableResourceStatus(resource).apply {
-                        this.lastNotInUseTime = System.currentTimeMillis()//initialize the not in use time
+                        this.lastNotInUseTime = 0L//System.currentTimeMillis()//initialize the not in use time
                     }
                 }
                 stableResource = stableResourceStatus.resource
