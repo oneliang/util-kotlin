@@ -239,10 +239,10 @@ abstract class ResourcePool<T : Any> : Runnable {
         //stable resource
         try {
             this.stableResourceLock.lock()
-            this.stableResourceStatusMap.forEach { (stableResourceKey: Int, statusResourceStatus: StableResourceStatus<T>) ->
-                val lastTime = statusResourceStatus.lastNotInUseTime
+            this.stableResourceStatusMap.forEach { (stableResourceKey: Int, stableResourceStatus: StableResourceStatus<T>) ->
+                val lastTime = stableResourceStatus.lastNotInUseTime
                 val currentTime = System.currentTimeMillis()
-                val resource = statusResourceStatus.resource
+                val resource = stableResourceStatus.resource
                 if (currentTime - lastTime >= this.resourceAliveTime) {
                     realDestroyStableResource(stableResourceKey, resource)
                 }
