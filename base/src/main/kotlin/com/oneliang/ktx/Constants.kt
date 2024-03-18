@@ -37,22 +37,10 @@ object Constants {
         const val UNION_YEAR_MONTH = "yyyyMM"
     }
 
-    object String {
-        const val EXCEPTION = "exception"
-        const val BLANK = ""
-        const val SPACE = " "
-        const val CRLF_STRING = "\r\n"
-        const val CRLF_TRANSFER_STRING = "\\r\\n"
-        const val CR_STRING = "\r"
-        const val CR_TRANSFER_STRING = "\\r"
-        const val LF_STRING = "\n"
-        const val LF_TRANSFER_STRING = "\\n"
-        const val TAB_STRING = "\t"
+    object Byte {
         const val CR = '\r'.code.toByte()
         const val LF = '\n'.code.toByte()
         const val TAB = '\t'.code.toByte()
-        const val NULL = "null"
-        const val ZERO = "0"
         val CRLF: ByteArray = ByteArray(2) { index ->
             when (index) {
                 0 -> {
@@ -68,7 +56,24 @@ object Constants {
                 }
             }
         }
-        val NEW_LINE = System.lineSeparator() ?: CRLF_STRING
+    }
+
+    object String {
+        const val EXCEPTION = "exception"
+        const val BLANK = ""
+        const val SPACE = " "
+        const val CRLF = "\r\n"
+        const val CRLF_TRANSFER = "\\r\\n"
+        const val CR = "\r"
+        const val CR_TRANSFER = "\\r"
+        const val LF = "\n"
+        const val LF_TRANSFER = "\\n"
+        const val TAB = "\t"
+
+        const val NULL = "null"
+        const val ZERO = "0"
+
+        val NEW_LINE = System.lineSeparator() ?: CRLF
         const val ELLIPSIS = "..."
         const val EMPTY_OBJECT_JSON = Symbol.BIG_BRACKET_LEFT + Symbol.BIG_BRACKET_RIGHT
         const val EMPTY_ARRAY_JSON = Symbol.MIDDLE_BRACKET_LEFT + Symbol.MIDDLE_BRACKET_RIGHT

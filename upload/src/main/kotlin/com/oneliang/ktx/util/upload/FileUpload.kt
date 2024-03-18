@@ -87,9 +87,9 @@ class FileUpload {
                 if (data == -1) {
                     break
                 }
-                if (data.toByte() == Constants.String.CR) {
+                if (data.toByte() == Constants.Byte.CR) {
                     var temp = inputStream.read()
-                    if (temp.toByte() == Constants.String.LF) {
+                    if (temp.toByte() == Constants.Byte.LF) {
                         //end one line..
                         if (firstLine) {
                             firstLine = false
@@ -115,7 +115,7 @@ class FileUpload {
                         }
                         val nextOne = inputStream.read()
                         val nextTwo = inputStream.read()
-                        if (nextOne.toByte() == Constants.String.CR && nextTwo.toByte() == Constants.String.LF) {
+                        if (nextOne.toByte() == Constants.Byte.CR && nextTwo.toByte() == Constants.Byte.LF) {
                             //end one form field
                             if (!formField) {
                                 var saveFilename = originalFilename
@@ -138,7 +138,7 @@ class FileUpload {
                                     } else {
                                         data = inputStream.read()
                                     }
-                                    if (data.toByte() == Constants.String.CR) {//may be end
+                                    if (data.toByte() == Constants.Byte.CR) {//may be end
                                         if (mayBeEndSign) {
                                             temp = byteArrayInputStream!!.read()
                                             if (byteArrayInputStream.available() == 0) {
@@ -147,7 +147,7 @@ class FileUpload {
                                         } else {
                                             temp = inputStream.read()
                                         }
-                                        if (temp.toByte() == Constants.String.LF) {
+                                        if (temp.toByte() == Constants.Byte.LF) {
                                             var length: Int
                                             if (mayBeEndSign) {
                                                 val available = byteArrayInputStream!!.available()
@@ -172,7 +172,7 @@ class FileUpload {
                                                 fileCount++
                                                 break
                                             } else {
-                                                outputStream.write(Constants.String.CRLF)
+                                                outputStream.write(Constants.Byte.CRLF)
                                                 count += 2
                                                 i += 2
                                                 System.arraycopy(byteArray, 0, tempArray, 0, tempArray.size)

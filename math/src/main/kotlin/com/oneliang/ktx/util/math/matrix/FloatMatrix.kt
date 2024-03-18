@@ -373,6 +373,6 @@ fun main() {
     )
     val a = oneDMatrix.multiply(twoDMatrix)
     a.forEach {
-        print(it.toString() + Constants.String.TAB_STRING)
+        print(it.toString() + Constants.String.TAB)
     }
 }

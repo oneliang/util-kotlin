@@ -47,14 +47,15 @@ class FileLogger(level: Level,
     }
 
     override fun log(level: Level, message: String, throwable: Throwable?, extraInfo: ExtraInfo) {
-        val logContent = this.generateLogContent(level, message, throwable, extraInfo) + Constants.String.CRLF_STRING
+        val logContent = this.generateLogContent(level, message, throwable, extraInfo) + Constants.String.CRLF
         try {
-            val currentTime = System.currentTimeMillis()
+            var currentTime = System.currentTimeMillis()
             var timeInterval = currentTime - this.currentBeginTime
             //next time internal
             if (timeInterval >= this.rule.interval) {
                 try {
                     this.logLock.lock()
+                    currentTime = System.currentTimeMillis()
                     timeInterval = currentTime - this.currentBeginTime
                     //double check, current day may be change, day internal is the same when first in, but second time is not the same
                     if (timeInterval >= this.rule.interval) {
@@ -66,10 +67,10 @@ class FileLogger(level: Level,
                         this.currentBeginTime += this.rule.interval
                         //delete expire file
                         deleteExpireFile(this.directory, this.currentBeginTime, this.rule)
+                        destroyCurrentFileOutputStream()//destroy
                         //set to new file output stream
                         val file = newFile(this.directory, this.currentBeginTime, this.filename, this.rule)
                         val fileOutputStream = newFileOutputStream(file)
-                        destroyCurrentFileOutputStream()//destroy
                         //reset
                         this.currentFileAbsolutePath = file.absolutePath
                         this.currentFileOutputStream = fileOutputStream

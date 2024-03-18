@@ -157,7 +157,7 @@ fun String?.transformQuotes(): String {
 }
 
 fun String?.transformLines(): String {
-    return this.nullToBlank().replace(Constants.String.CR_STRING, Constants.String.CR_TRANSFER_STRING).replace(Constants.String.LF_STRING, Constants.String.LF_TRANSFER_STRING)
+    return this.nullToBlank().replace(Constants.String.CR, Constants.String.CR_TRANSFER).replace(Constants.String.LF, Constants.String.LF_TRANSFER)
 }
 
 fun String?.replaceAllSpace(): String {
@@ -165,7 +165,7 @@ fun String?.replaceAllSpace(): String {
 }
 
 fun String?.replaceAllLines(): String {
-    return this.nullToBlank().replace(Constants.String.CR_STRING, Constants.String.BLANK).replace(Constants.String.LF_STRING, Constants.String.BLANK)
+    return this.nullToBlank().replace(Constants.String.CR, Constants.String.BLANK).replace(Constants.String.LF, Constants.String.BLANK)
 }
 
 fun String?.replaceAllSlashToLeft(): String {
