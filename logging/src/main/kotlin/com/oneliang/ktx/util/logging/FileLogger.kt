@@ -67,7 +67,7 @@ class FileLogger(level: Level,
                         this.currentBeginTime += this.rule.interval
                         //delete expire file
                         deleteExpireFile(this.directory, this.currentBeginTime, this.rule)
-                        destroyCurrentFileOutputStream()//destroy
+//                        destroyCurrentFileOutputStream()//destroy
                         //set to new file output stream
                         val file = newFile(this.directory, this.currentBeginTime, this.filename, this.rule)
                         val fileOutputStream = newFileOutputStream(file)
