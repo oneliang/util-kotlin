@@ -9,7 +9,7 @@ fun File.readContentIgnoreLine(encoding: String = Constants.Encoding.UTF8, appen
 
 fun File.readContentEachLine(encoding: String = Constants.Encoding.UTF8, readLineProcessor: (line: String) -> Boolean) = FileUtil.readFileContentEachLine(this, encoding, readLineProcessor)
 
-fun File.deleteAll() = FileUtil.deleteAllFile(this)
+fun File.deleteAll(fileSuffix: String = Constants.String.BLANK) = FileUtil.deleteAllFile(this)
 
 fun File.findMatchFile(matchOption: FileUtil.MatchOption, onMatch: (file: File) -> String = { it.absolutePath }) = FileUtil.findMatchFile(this, matchOption, onMatch)
 
@@ -26,7 +26,8 @@ fun File.hasFile(fileSuffix: String = Constants.String.BLANK): Boolean = FileUti
 
 fun File.write(byteArray: ByteArray, append: Boolean = false) = FileUtil.writeFile(this, byteArray, append)
 
-fun File.writeContent(encoding: String = Constants.Encoding.UTF8, append: Boolean = false, writeFileContentProcessor: ((bufferedWriter: BufferedWriter) -> Unit)? = null) = FileUtil.writeFileContent(this, encoding, append, writeFileContentProcessor)
+fun File.writeContent(encoding: String = Constants.Encoding.UTF8, append: Boolean = false, writeFileContentProcessor: ((bufferedWriter: BufferedWriter) -> Unit)? = null) =
+    FileUtil.writeFileContent(this, encoding, append, writeFileContentProcessor)
 
 fun String.toProperties(): Properties = FileUtil.getProperties(this)
 

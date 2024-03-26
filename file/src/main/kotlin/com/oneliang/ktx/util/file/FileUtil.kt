@@ -111,24 +111,27 @@ object FileUtil {
     /**
      * delete all file
      * @param directory
+     * @param fileSuffix
      */
-    fun deleteAllFile(directory: String) {
+    fun deleteAllFile(directory: String, fileSuffix: String = Constants.String.BLANK) {
         if (directory.isBlank()) {
             return
         }
         val directoryFile = File(directory)
-        deleteAllFile(directoryFile)
+        deleteAllFile(directoryFile, fileSuffix)
     }
 
     /**
      * delete all file
      * @param directoryFile
+     * @param fileSuffix
      */
-    fun deleteAllFile(directoryFile: File) {
-        val fileList = mutableListOf<File>()
+    fun deleteAllFile(directoryFile: File, fileSuffix: String = Constants.String.BLANK) {
         if (!directoryFile.exists() || !directoryFile.isDirectory) {
             return
         }
+        val directoryList = mutableListOf<File>()
+        val fileList = mutableListOf<File>()
         val queue = ConcurrentLinkedQueue<File>()
         queue.add(directoryFile)
         while (!queue.isEmpty()) {
@@ -138,11 +141,25 @@ object FileUtil {
                 if (fileArray != null) {
                     queue.addAll(fileArray)
                 }
+                directoryList += file
+            } else {//is file
+                if (file.name.lowercase().endsWith(fileSuffix.lowercase())) {
+                    fileList += file
+                } else {
+                    //ignore, file is not match
+                }
             }
-            fileList.add(file)
         }
+        //first delete file
         for (i in fileList.indices.reversed()) {
             fileList[i].delete()
+        }
+        //second delete directory
+        for (i in directoryList.indices.reversed()) {
+            val directory = directoryList[i]
+            if (directory.isDirectory && directory.list().isEmpty()) {
+                directory.delete()
+            }
         }
     }
 
@@ -350,7 +367,12 @@ object FileUtil {
      * @param append
      * @param writeFileContentProcessor
      */
-    fun writeFileContent(outputFullFilename: String, encoding: String = Constants.Encoding.UTF8, append: Boolean = false, writeFileContentProcessor: ((bufferedWriter: BufferedWriter) -> Unit)? = null) {
+    fun writeFileContent(
+        outputFullFilename: String,
+        encoding: String = Constants.Encoding.UTF8,
+        append: Boolean = false,
+        writeFileContentProcessor: ((bufferedWriter: BufferedWriter) -> Unit)? = null
+    ) {
         this.writeFileContent(File(outputFullFilename), encoding, append, writeFileContentProcessor)
     }
 
@@ -687,7 +709,13 @@ object FileUtil {
      * @param includeHidden
      * @return List<String>, only return the changed file
      */
-    fun findFileListWithCache(directoryList: List<String>, cacheMap: MutableMap<String, String>, fileSuffix: String, includeHidden: Boolean = false, cacheKeyProcessor: ((cacheKey: String) -> String)? = null): List<String> {
+    fun findFileListWithCache(
+        directoryList: List<String>,
+        cacheMap: MutableMap<String, String>,
+        fileSuffix: String,
+        includeHidden: Boolean = false,
+        cacheKeyProcessor: ((cacheKey: String) -> String)? = null
+    ): List<String> {
         val sourceList = mutableListOf<String>()
         // with cache
         for (directory in directoryList) {
@@ -724,12 +752,14 @@ object FileUtil {
 
     /** A table of hex digits  */
     private val hexDigit = charArrayOf(
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
     )
 
-    private fun saveConvert(theString: String,
-                            escapeSpace: Boolean,
-                            escapeUnicode: Boolean): String {
+    private fun saveConvert(
+        theString: String,
+        escapeSpace: Boolean,
+        escapeUnicode: Boolean
+    ): String {
         val len = theString.length
         var bufLen = len * 2
         if (bufLen < 0) {
