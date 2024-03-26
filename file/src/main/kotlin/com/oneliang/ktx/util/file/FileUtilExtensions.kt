@@ -9,7 +9,7 @@ fun File.readContentIgnoreLine(encoding: String = Constants.Encoding.UTF8, appen
 
 fun File.readContentEachLine(encoding: String = Constants.Encoding.UTF8, readLineProcessor: (line: String) -> Boolean) = FileUtil.readFileContentEachLine(this, encoding, readLineProcessor)
 
-fun File.deleteAll(fileSuffix: String = Constants.String.BLANK) = FileUtil.deleteAllFile(this)
+fun File.deleteAll(fileSuffix: String = Constants.String.BLANK) = FileUtil.deleteAllFile(this, fileSuffix)
 
 fun File.findMatchFile(matchOption: FileUtil.MatchOption, onMatch: (file: File) -> String = { it.absolutePath }) = FileUtil.findMatchFile(this, matchOption, onMatch)
 
