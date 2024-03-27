@@ -50,7 +50,7 @@ object FileUtil {
                     queue.addAll(fileArray)
                 }
             } else if (file.isFile) {
-                if (file.name.lowercase().endsWith(fileSuffix.lowercase())) {
+                if (file.name.endsWith(fileSuffix, true)) {
                     result = true
                     break
                 }
@@ -135,7 +135,7 @@ object FileUtil {
         val queue = ConcurrentLinkedQueue<File>()
         queue.add(directoryFile)
         while (!queue.isEmpty()) {
-            val file = queue.poll()
+            val file = queue.poll() ?: continue
             if (file.isDirectory) {
                 val fileArray = file.listFiles()
                 if (fileArray != null) {
@@ -143,7 +143,7 @@ object FileUtil {
                 }
                 directoryList += file
             } else {//is file
-                if (file.name.lowercase().endsWith(fileSuffix.lowercase())) {
+                if (file.name.endsWith(fileSuffix, true)) {
                     fileList += file
                 } else {
                     //ignore, file is not match
@@ -157,7 +157,8 @@ object FileUtil {
         //second delete directory
         for (i in directoryList.indices.reversed()) {
             val directory = directoryList[i]
-            if (directory.isDirectory && directory.list().isEmpty()) {
+            val directoryListFile = directory.list() ?: emptyArray()
+            if (directory.isDirectory && directoryListFile.isEmpty()) {
                 directory.delete()
             }
         }
