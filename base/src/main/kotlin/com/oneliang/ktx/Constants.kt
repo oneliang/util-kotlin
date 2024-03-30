@@ -433,11 +433,11 @@ object Constants {
     }
 
     object Language {
-        const val zh_CN = "zh_CN"
-        const val zh_HK = "zh_HK"
-        const val zh_MO = "zh_MO"
-        const val zh_TW = "zh_TW"
-        const val en = "en"
+        const val ZH_CN = "zh_CN"
+        const val ZH_HK = "zh_HK"
+        const val ZH_MO = "zh_MO"
+        const val ZH_TW = "zh_TW"
+        const val EN = "en"
     }
 
     object CompressType {
