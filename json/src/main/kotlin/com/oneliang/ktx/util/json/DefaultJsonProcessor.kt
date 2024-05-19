@@ -1,10 +1,7 @@
 package com.oneliang.ktx.util.json
 
 import com.oneliang.ktx.Constants
-import com.oneliang.ktx.util.common.KotlinClassUtil
-import com.oneliang.ktx.util.common.toFormatString
-import com.oneliang.ktx.util.common.transformLines
-import com.oneliang.ktx.util.common.transformQuotes
+import com.oneliang.ktx.util.common.*
 import java.math.BigDecimal
 import java.util.*
 import kotlin.reflect.KClass
@@ -37,7 +34,7 @@ open class DefaultJsonProcessor : JsonUtil.JsonProcessor {
         ) {
             result = value.toString()
         } else if (valueKClazz == String::class || valueKClazz == Char::class || valueKClazz == CharSequence::class) {
-            result = Constants.Symbol.DOUBLE_QUOTE + value.toString().transformQuotes().transformLines() + Constants.Symbol.DOUBLE_QUOTE
+            result = Constants.Symbol.DOUBLE_QUOTE + value.toString().transformSlashRight().transformQuotes().transformLines() + Constants.Symbol.DOUBLE_QUOTE
         } else if (valueKClazz == Date::class) {
             result = Constants.Symbol.DOUBLE_QUOTE + (value as Date).toFormatString() + Constants.Symbol.DOUBLE_QUOTE
         } else if (valueKClazz == BigDecimal::class) {

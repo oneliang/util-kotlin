@@ -152,6 +152,10 @@ fun String.unicodeToString(regex: String = UnicodeRegex.REGEX_ALL): String {
     return result
 }
 
+fun String?.transformSlashRight(): String {
+    return this.nullToBlank().replace(Constants.Symbol.SLASH_RIGHT, Constants.Symbol.SLASH_RIGHT + Constants.Symbol.SLASH_RIGHT)
+}
+
 fun String?.transformQuotes(): String {
     return this.nullToBlank().replace(Constants.Symbol.DOUBLE_QUOTE, Constants.Symbol.SLASH_RIGHT + Constants.Symbol.DOUBLE_QUOTE)
 }
