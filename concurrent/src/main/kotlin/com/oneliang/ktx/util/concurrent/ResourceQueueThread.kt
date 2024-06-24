@@ -9,7 +9,10 @@ import java.util.concurrent.ConcurrentLinkedQueue
  *
  * @param <T>
  */
-class ResourceQueueThread<T>(private val resourceProcessor: ResourceProcessor<T>) : LoopThread() {
+class ResourceQueueThread<T>(
+    private val resourceProcessor: ResourceProcessor<T>,
+    private val realStopCallback: () -> Unit = {}
+) : LoopThread() {
     companion object {
         private val logger = LoggerManager.getLogger(ResourceQueueThread::class)
     }
@@ -63,6 +66,7 @@ class ResourceQueueThread<T>(private val resourceProcessor: ResourceProcessor<T>
     private fun realStop() {
         super.stop()
         this.needToStop = false
+        this.realStopCallback()
     }
 
     /**
