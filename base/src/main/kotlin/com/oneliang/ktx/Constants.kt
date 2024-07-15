@@ -274,6 +274,7 @@ object Constants {
             const val ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods"
             const val ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers"
             const val ORIGIN = "Origin"
+            const val ACCEPT = "Accept"
         }
 
         object ContentType {
